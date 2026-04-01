@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — References</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --panel: #181c26;
+  --border: #2a3045;
+  --border2: #3a4560;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #7a6238;
+  --red: #e05555;
+  --red-dim: #7a2828;
+  --green: #4caf7d;
+  --green-dim: #1e5c38;
+  --blue: #5b8de8;
+  --blue-dim: #2a4a8a;
+  --purple: #9b72cf;
+  --purple-dim: #4a2e7a;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --orange: #e07840;
+  --text: #e8e0d0;
+  --text2: #a09880;
+  --text3: #605848;
+  --radius: 6px;
+  --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
+
+.app-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; }
+.nav-tab {
+  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+/* Search bar */
+.search-bar {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; background: var(--panel);
+  position: sticky; top: 54px; z-index: 90;
+}
+.search-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px;
+  padding: 6px 12px; flex: 1;
+}
+.search-input:focus { outline: none; border-color: var(--accent-dim); }
+
+.section-tabs { display: flex; gap: 4px; }
+.section-tab {
+  padding: 5px 16px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.section-tab:hover { border-color: var(--border2); color: var(--text); }
+.section-tab.active { border-color: var(--accent); color: var(--accent2); background: var(--accent-dim); }
+
+/* Main layout */
+.main-content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Section */
+.ref-section { display: none; }
+.ref-section.visible { display: block; }
+
+/* Conditions grid */
+.conditions-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;
+}
+
+.condition-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
+  overflow: hidden; cursor: pointer; transition: border-color 0.15s;
+}
+.condition-card:hover { border-color: var(--border2); }
+.condition-card.expanded { border-color: var(--accent-dim); }
+
+.condition-header {
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+}
+.condition-icon {
+  width: 32px; height: 32px; border-radius: var(--radius); display: flex;
+  align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.condition-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600; flex: 1; }
+.condition-summary { font-size: 12px; color: var(--text3); }
+.expand-arrow { font-size: 11px; color: var(--text3); transition: transform 0.2s; }
+.condition-card.expanded .expand-arrow { transform: rotate(180deg); }
+
+.condition-body {
+  display: none; padding: 0 14px 12px; border-top: 1px solid var(--border);
+}
+.condition-card.expanded .condition-body { display: block; padding-top: 10px; }
+
+.condition-effect {
+  font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 6px;
+}
+.condition-effect:last-child { margin-bottom: 0; }
+.condition-effect::before { content: '▸ '; color: var(--accent-dim); }
+
+/* Languages */
+.lang-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px;
+}
+
+.lang-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
+  padding: 12px 14px; cursor: pointer; transition: border-color 0.15s;
+}
+.lang-card:hover { border-color: var(--border2); }
+.lang-card.expanded { border-color: var(--blue-dim); }
+
+.lang-header { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+.lang-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600; flex: 1; }
+.lang-type-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.lang-type-badge.standard { background: rgba(91,141,232,0.15); border: 1px solid var(--blue-dim); color: var(--blue); }
+.lang-type-badge.exotic { background: rgba(155,114,207,0.15); border: 1px solid var(--purple-dim); color: var(--purple); }
+.lang-type-badge.secret { background: rgba(224,85,85,0.15); border: 1px solid var(--red-dim); color: var(--red); }
+.lang-type-badge.thekodia { background: rgba(200,169,110,0.15); border: 1px solid var(--accent-dim); color: var(--accent); }
+
+.lang-body { display: none; margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.lang-card.expanded .lang-body { display: block; }
+
+.lang-detail { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 4px; }
+.lang-detail strong { color: var(--text3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 1px; }
+
+/* Tools */
+.tools-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px;
+}
+
+.tool-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
+  overflow: hidden; cursor: pointer; transition: border-color 0.15s;
+}
+.tool-card:hover { border-color: var(--border2); }
+.tool-card.expanded { border-color: var(--green-dim); }
+
+.tool-header {
+  padding: 10px 14px; display: flex; align-items: center; gap: 10px;
+}
+.tool-icon {
+  width: 32px; height: 32px; border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.tool-name { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600; flex: 1; }
+.tool-cat-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.tool-cat-badge.artisan { background: rgba(240,165,0,0.15); border: 1px solid #7a5000; color: var(--amber); }
+.tool-cat-badge.gaming { background: rgba(76,175,125,0.15); border: 1px solid var(--green-dim); color: var(--green); }
+.tool-cat-badge.musical { background: rgba(155,114,207,0.15); border: 1px solid var(--purple-dim); color: var(--purple); }
+.tool-cat-badge.other { background: rgba(91,141,232,0.15); border: 1px solid var(--blue-dim); color: var(--blue); }
+
+.tool-body {
+  display: none; padding: 0 14px 12px; border-top: 1px solid var(--border);
+}
+.tool-card.expanded .tool-body { display: block; padding-top: 10px; }
+
+.tool-ability { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+.tool-ability span { color: var(--accent); font-weight: 600; }
+.tool-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 8px; }
+.tool-uses-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; font-weight: 600; }
+.tool-use { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 3px; }
+.tool-use::before { content: '▸ '; color: var(--green-dim); }
+
+/* Custom entry button */
+.btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.small { padding: 3px 8px; font-size: 12px; }
+
+/* Custom notes card */
+.custom-note {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px 12px; display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px;
+}
+.custom-note-text { flex: 1; font-size: 13px; color: var(--text2); line-height: 1.5; }
+.custom-note-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 0 2px; }
+.custom-note-del:hover { color: var(--red); }
+
+.add-custom-row { display: flex; gap: 6px; margin-top: 8px; }
+.add-custom-input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; padding: 5px 8px;
+}
+.add-custom-input:focus { outline: none; border-color: var(--accent-dim); }
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+}
+.section-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.06em; }
+.section-count { font-size: 12px; color: var(--text3); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+    <button class="nav-tab active">References</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input class="search-input" type="text" id="searchInput" placeholder="Search conditions, languages, tools..." oninput="filterAll()">
+  <div class="section-tabs">
+    <button class="section-tab active" onclick="switchSection('conditions', this)">Conditions</button>
+    <button class="section-tab" onclick="switchSection('languages', this)">Languages</button>
+    <button class="section-tab" onclick="switchSection('tools', this)">Tools</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- CONDITIONS -->
+  <div class="ref-section visible" id="sec-conditions">
+    <div class="section-header">
+      <div class="section-title">Conditions</div>
+      <div class="section-count" id="condCount"></div>
+    </div>
+    <div class="conditions-grid" id="conditionsGrid"></div>
+    <div style="margin-top:14px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
+      <div id="customCondNotes"></div>
+      <div class="add-custom-row">
+        <input class="add-custom-input" type="text" id="condNoteInput" placeholder="Add a custom condition note..." onkeydown="if(event.key==='Enter')addCustomNote('cond')">
+        <button class="btn small primary" onclick="addCustomNote('cond')">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LANGUAGES -->
+  <div class="ref-section" id="sec-languages">
+    <div class="section-header">
+      <div class="section-title">Languages</div>
+      <div class="section-count" id="langCount"></div>
+    </div>
+    <div class="lang-grid" id="languagesGrid"></div>
+    <div style="margin-top:14px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
+      <div id="customLangNotes"></div>
+      <div class="add-custom-row">
+        <input class="add-custom-input" type="text" id="langNoteInput" placeholder="Add a custom language note..." onkeydown="if(event.key==='Enter')addCustomNote('lang')">
+        <button class="btn small primary" onclick="addCustomNote('lang')">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="ref-section" id="sec-tools">
+    <div class="section-header">
+      <div class="section-title">Tools</div>
+      <div class="section-count" id="toolCount"></div>
+    </div>
+    <div class="tools-grid" id="toolsGrid"></div>
+    <div style="margin-top:14px">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
+      <div id="customToolNotes"></div>
+      <div class="add-custom-row">
+        <input class="add-custom-input" type="text" id="toolNoteInput" placeholder="Add a custom tool note..." onkeydown="if(event.key==='Enter')addCustomNote('tool')">
+        <button class="btn small primary" onclick="addCustomNote('tool')">Add</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+
+const CONDITIONS = [
+  {
+    name: 'Blinded', icon: '👁', color: '#888888',
+    summary: 'Cannot see, attacks affected',
+    effects: [
+      'Automatically fails any ability check requiring sight',
+      'Attack rolls against it have advantage',
+      'Its attack rolls have disadvantage'
+    ]
+  },
+  {
+    name: 'Charmed', icon: '💗', color: '#e8a0e8',
+    summary: 'Friendly to charmer, cannot target them',
+    effects: [
+      'Cannot attack the charmer or target them with harmful abilities or magic',
+      'The charmer has advantage on social checks against the creature'
+    ]
+  },
+  {
+    name: 'Deafened', icon: '👂', color: '#999999',
+    summary: 'Cannot hear, fails hearing checks',
+    effects: [
+      'Automatically fails any ability check requiring hearing',
+      'Is immune to effects that require hearing (e.g. thunder damage saves may still apply)'
+    ]
+  },
+  {
+    name: 'Exhaustion', icon: '😮', color: '#e07040',
+    summary: 'Cumulative levels degrade abilities',
+    effects: [
+      'Level 1: Disadvantage on ability checks',
+      'Level 2: Speed halved',
+      'Level 3: Disadvantage on attack rolls and saving throws',
+      'Level 4: Hit point maximum halved',
+      'Level 5: Speed reduced to 0',
+      'Level 6: Death',
+      'Finishing a long rest reduces level by 1 (with food and water)'
+    ]
+  },
+  {
+    name: 'Frightened', icon: '😱', color: '#e05555',
+    summary: 'Disadvantage while source is visible',
+    effects: [
+      'Disadvantage on ability checks and attack rolls while source of fear is in line of sight',
+      'Cannot willingly move closer to the source of its fear'
+    ]
+  },
+  {
+    name: 'Grappled', icon: '🤜', color: '#c8a030',
+    summary: 'Speed 0, ends if grappler incapacitated',
+    effects: [
+      'Speed becomes 0 and cannot benefit from bonuses to speed',
+      'Condition ends if the grappler is incapacitated',
+      'Condition ends if an effect removes the grappled creature from reach of the grappler'
+    ]
+  },
+  {
+    name: 'Incapacitated', icon: '💫', color: '#e07840',
+    summary: 'Cannot take actions or reactions',
+    effects: [
+      'Cannot take actions or reactions'
+    ]
+  },
+  {
+    name: 'Invisible', icon: '👻', color: '#a0c8e8',
+    summary: 'Unseen — attacks against it have disadvantage',
+    effects: [
+      'Impossible to see without special sense; considered heavily obscured for hiding',
+      'Location can be detected by noise or tracks',
+      'Attack rolls against it have disadvantage',
+      'Its attack rolls have advantage'
+    ]
+  },
+  {
+    name: 'Paralyzed', icon: '⚡', color: '#e8c830',
+    summary: 'Incapacitated, auto-fail Str/Dex saves, crits within 5 ft',
+    effects: [
+      'Is incapacitated and cannot move or speak',
+      'Automatically fails Strength and Dexterity saving throws',
+      'Attack rolls against it have advantage',
+      'Any attack that hits it is a critical hit if the attacker is within 5 feet'
+    ]
+  },
+  {
+    name: 'Petrified', icon: '🪨', color: '#a0a090',
+    summary: 'Transformed to stone, all senses blocked',
+    effects: [
+      'Transformed into a solid inanimate substance (along with carried nonmagical items)',
+      'Weight increases tenfold; ceases aging',
+      'Incapacitated, cannot move or speak, unaware of surroundings',
+      'Attack rolls against it have advantage',
+      'Automatically fails Strength and Dexterity saving throws',
+      'Resistance to all damage; immune to poison and disease (existing ones suspended)'
+    ]
+  },
+  {
+    name: 'Poisoned', icon: '🧪', color: '#70c860',
+    summary: 'Disadvantage on attack rolls and ability checks',
+    effects: [
+      'Disadvantage on attack rolls and ability checks'
+    ]
+  },
+  {
+    name: 'Prone', icon: '⬇', color: '#c87840',
+    summary: 'Melee advantage against it, ranged disadvantage',
+    effects: [
+      'Only movement option is crawling (costs double movement) unless it stands up (half speed)',
+      'Disadvantage on attack rolls',
+      'Attack rolls against it have advantage if attacker is within 5 ft; otherwise disadvantage'
+    ]
+  },
+  {
+    name: 'Restrained', icon: '⛓', color: '#c8a060',
+    summary: 'Speed 0, attacks and saves penalized',
+    effects: [
+      'Speed becomes 0 and cannot benefit from bonuses to speed',
+      'Attack rolls against it have advantage',
+      'Its attack rolls have disadvantage',
+      'Disadvantage on Dexterity saving throws'
+    ]
+  },
+  {
+    name: 'Stunned', icon: '💥', color: '#e8e840',
+    summary: 'Incapacitated, auto-fail Str/Dex saves',
+    effects: [
+      'Is incapacitated, cannot move, and can speak only falteringly',
+      'Automatically fails Strength and Dexterity saving throws',
+      'Attack rolls against it have advantage'
+    ]
+  },
+  {
+    name: 'Unconscious', icon: '💤', color: '#606070',
+    summary: 'Incapacitated, prone, crits within 5 ft',
+    effects: [
+      'Is incapacitated, cannot move or speak, and is unaware of surroundings',
+      'Drops whatever it is holding and falls prone',
+      'Automatically fails Strength and Dexterity saving throws',
+      'Attack rolls against it have advantage',
+      'Any attack that hits it is a critical hit if the attacker is within 5 feet'
+    ]
+  },
+  {
+    name: 'Concentration', icon: '🧠', color: '#9b72cf',
+    summary: 'Broken by damage, incapacitation, or new spell',
+    effects: [
+      'Taking damage requires a Constitution saving throw (DC = 10 or half damage, whichever is higher)',
+      'Being incapacitated or killed ends concentration immediately',
+      'Casting another concentration spell ends the previous one',
+      'DM can rule other distractions require a DC 10 Con save'
+    ]
+  }
+];
+
+const LANGUAGES = [
+  { name: 'Common', type: 'standard', script: 'Common', speakers: 'Humans and most civilized folk', thekodia: 'The trade tongue of Thekodia; spoken across the Pridarian Federation' },
+  { name: 'Dwarvish', type: 'standard', script: 'Dwarvish', speakers: 'Dwarves', thekodia: 'Used in mining guilds and stonework contracts' },
+  { name: 'Elvish', type: 'standard', script: 'Elvish', speakers: 'Elves', thekodia: 'Spoken in old academic circles and arcane texts' },
+  { name: 'Giant', type: 'standard', script: 'Dwarvish', speakers: 'Ogres, giants', thekodia: '' },
+  { name: 'Gnomish', type: 'standard', script: 'Dwarvish', speakers: 'Gnomes', thekodia: 'Common among artificers and tinkerers' },
+  { name: 'Goblin', type: 'standard', script: 'Dwarvish', speakers: 'Goblinoids', thekodia: '' },
+  { name: 'Halfling', type: 'standard', script: 'Common', speakers: 'Halflings', thekodia: '' },
+  { name: 'Orc', type: 'standard', script: 'Dwarvish', speakers: 'Orcs', thekodia: '' },
+  { name: 'Abyssal', type: 'exotic', script: 'Infernal', speakers: 'Demons', thekodia: '' },
+  { name: 'Celestial', type: 'exotic', script: 'Celestial', speakers: 'Celestials', thekodia: 'Fragments found in ancient Thekodia temple inscriptions' },
+  { name: 'Deep Speech', type: 'exotic', script: 'None', speakers: 'Mind flayers, beholders', thekodia: '' },
+  { name: 'Draconic', type: 'exotic', script: 'Draconic', speakers: 'Dragons, dragonborn', thekodia: 'Appears in Primogen-era ruins; tied to the Sea of Infinite lore' },
+  { name: 'Infernal', type: 'exotic', script: 'Infernal', speakers: 'Devils', thekodia: '' },
+  { name: 'Primordial', type: 'exotic', script: 'Dwarvish', speakers: 'Elementals', thekodia: 'Elemental dialects include Aquan, Auran, Ignan, Terran' },
+  { name: 'Sylvan', type: 'exotic', script: 'Elvish', speakers: 'Fey creatures', thekodia: '' },
+  { name: 'Undercommon', type: 'exotic', script: 'Elvish', speakers: 'Underdark traders', thekodia: '' },
+  { name: 'Druidic', type: 'secret', script: 'Druidic', speakers: 'Druids only', thekodia: 'Secret language; non-druids who learn it are expelled from the circle' },
+  { name: 'Thieves\' Cant', type: 'secret', script: 'None (spoken only)', speakers: 'Rogues', thekodia: 'Used in the Relicquarry guild\'s covert operations' },
+];
+
+const TOOLS = [
+  {
+    name: "Alchemist's Supplies", cat: 'artisan', icon: '⚗', ability: 'Intelligence',
+    desc: 'These special tools include the items needed to pursue a craft or trade.',
+    uses: ['Identify potions and poisons (DC varies)', 'Create antitoxin or basic poisons', 'Identify what a creature has recently ingested', 'Neutralize acid with baking soda (DC 10)']
+  },
+  {
+    name: "Brewer's Supplies", cat: 'artisan', icon: '🍺', ability: 'Wisdom',
+    desc: 'Includes a large glass jug, a quantity of hops, a siphon, and several feet of tubing.',
+    uses: ['Identify alcohol and assess its quality', 'Assess the water source for impurities', 'Brew standard alcoholic drinks over a week']
+  },
+  {
+    name: "Calligrapher's Supplies", cat: 'artisan', icon: '✒', ability: 'Dexterity',
+    desc: 'Ink, a dozen sheets of parchment, and three quills.',
+    uses: ['Identify forgeries in written documents', 'Determine if a document is authentic', 'Copy a document quickly and accurately']
+  },
+  {
+    name: "Carpenter's Tools", cat: 'artisan', icon: '🪚', ability: 'Strength',
+    desc: 'A saw, a hammer, nails, a hatchet, a square, a ruler, an adze, a plane, and a chisel.',
+    uses: ['Build or repair wooden structures', 'Determine the age and source of wood', 'Seal a door or create a barricade (DC 15)']
+  },
+  {
+    name: "Cartographer's Tools", cat: 'artisan', icon: '🗺', ability: 'Wisdom',
+    desc: 'A quill, ink, parchment, a pair of compasses, calipers, and a ruler.',
+    uses: ['Draft accurate maps from memory', 'Determine if a map is forged or altered', 'Estimate travel times and distances']
+  },
+  {
+    name: "Cobbler's Tools", cat: 'artisan', icon: '👞', ability: 'Dexterity',
+    desc: 'A hammer, an awl, a knife, a cobbler\'s last, and leather scraps.',
+    uses: ['Determine the origin of footwear', 'Craft basic footwear and repair boots', 'Identify creature tracks from shoe prints']
+  },
+  {
+    name: "Cook's Utensils", cat: 'artisan', icon: '🍳', ability: 'Wisdom',
+    desc: 'A metal pot, knives, forks, a stirring spoon, and a ladle.',
+    uses: ['Improve rations to restore additional HP on a long rest', 'Identify whether food has been tampered with', 'Cook a meal that grants temporary HP (DC 15)']
+  },
+  {
+    name: "Glassblower's Tools", cat: 'artisan', icon: '🫧', ability: 'Dexterity',
+    desc: 'A blowpipe, yoke, and marver.',
+    uses: ['Identify the origin or age of glass objects', 'Craft glass vials, lenses, or containers', 'Determine if glass has been deliberately weakened']
+  },
+  {
+    name: "Jeweler's Tools", cat: 'artisan', icon: '💎', ability: 'Intelligence',
+    desc: 'A small saw, a hammer, files, a hand lens, and tweezers.',
+    uses: ['Identify gems and their approximate value', 'Detect a forgery in jewelry or gems', 'Craft simple rings, settings, or clasps']
+  },
+  {
+    name: "Leatherworker's Tools", cat: 'artisan', icon: '🧣', ability: 'Dexterity',
+    desc: 'A knife, a small mallet, an edger, a hole punch, thread, and leather scraps.',
+    uses: ['Determine the source of leather goods', 'Repair leather armor or gear', 'Identify creature type from hide samples']
+  },
+  {
+    name: "Mason's Tools", cat: 'artisan', icon: '🧱', ability: 'Strength',
+    desc: 'Trowels, a hammer, a chisel, brushes, and a square.',
+    uses: ['Determine the origin of stonework', 'Find weak points in a stone structure (DC 15)', 'Seal or reinforce stone doors and walls']
+  },
+  {
+    name: "Painter's Supplies", cat: 'artisan', icon: '🎨', ability: 'Wisdom',
+    desc: 'An easel, canvas, paints, brushes, charcoal, and an apron.',
+    uses: ['Create convincing forgeries of visual art', 'Capture an accurate likeness of a creature or scene', 'Identify artistic styles and determine a work\'s origin']
+  },
+  {
+    name: "Potter's Tools", cat: 'artisan', icon: '🏺', ability: 'Intelligence',
+    desc: 'Potter\'s needles, ribs, a scraper, a smaller sponge, and a leather square.',
+    uses: ['Identify the origin of ceramics', 'Determine the contents of sealed ceramic vessels', 'Craft storage containers and basic vessels']
+  },
+  {
+    name: "Smith's Tools", cat: 'artisan', icon: '⚒', ability: 'Strength',
+    desc: 'Hammers, tongs, a chisel, brushes, and a file.',
+    uses: ['Sharpen or repair a damaged weapon (restore 1d4 HP to an item)', 'Identify the origin of metalwork', 'Determine if armor has been sabotaged']
+  },
+  {
+    name: "Tinker's Tools", cat: 'artisan', icon: '🔧', ability: 'Dexterity',
+    desc: 'A variety of hand tools, thread, needles, a whetstone, scraps of cloth and leather.',
+    uses: ['Repair mechanical devices', 'Construct a simple mechanical object over a short rest', 'Detect if a mechanical device has been tampered with']
+  },
+  {
+    name: "Weaver's Tools", cat: 'artisan', icon: '🧵', ability: 'Dexterity',
+    desc: 'Thread, needles, and scraps of cloth.',
+    uses: ['Repair torn clothing or fabric armor', 'Identify the origin of cloth and thread', 'Craft simple rope or basic fabric items']
+  },
+  {
+    name: "Woodcarver's Tools", cat: 'artisan', icon: '🪵', ability: 'Dexterity',
+    desc: 'A knife, a gouge, and a small saw.',
+    uses: ['Craft wooden weapons, bolts, or arrows', 'Identify the origin and age of wood objects', 'Determine if a wooden object has been weakened']
+  },
+  {
+    name: 'Dice Set', cat: 'gaming', icon: '🎲', ability: 'Wisdom',
+    desc: 'A standard set of gaming dice.',
+    uses: ['Cheat at gambling without being caught (Deception vs. Insight)', 'Read a player\'s tells during a game', 'Run a game to gain rapport with NPCs']
+  },
+  {
+    name: 'Dragonchess Set', cat: 'gaming', icon: '♟', ability: 'Intelligence',
+    desc: 'A Faerûnian three-level chess variant.',
+    uses: ['Assess a player\'s tactical thinking', 'Demonstrate intelligence to earn trust', 'Establish rapport in noble or scholarly circles']
+  },
+  {
+    name: 'Playing Card Set', cat: 'gaming', icon: '🃏', ability: 'Wisdom',
+    desc: 'A deck of playing cards.',
+    uses: ['Cheat at card games without being noticed', 'Spot cheating at a card table', 'Run a game to ingratiate with NPCs']
+  },
+  {
+    name: 'Three-Dragon Ante', cat: 'gaming', icon: '🐉', ability: 'Wisdom',
+    desc: 'A popular gambling card game.',
+    uses: ['Establish rapport in taverns and markets', 'Read bluffs during negotiation', 'Win coin from unsuspecting gamblers']
+  },
+  {
+    name: 'Bagpipes', cat: 'musical', icon: '🎵', ability: 'Charisma',
+    desc: 'A wind instrument common in highland regions.',
+    uses: ['Inspire allies (if Bardic Inspiration not available)', 'Signal across distances in combat', 'Establish cultural connection with certain NPCs']
+  },
+  {
+    name: 'Drum', cat: 'musical', icon: '🥁', ability: 'Charisma',
+    desc: 'Percussion instrument.',
+    uses: ['Keep rhythm for coordinated group actions', 'Signal military formations', 'Distract guards or create a diversion']
+  },
+  {
+    name: 'Flute', cat: 'musical', icon: '🎶', ability: 'Charisma',
+    desc: 'A simple woodwind instrument.',
+    uses: ['Calm agitated animals or people (DC 15)', 'Earn coin busking in towns', 'Communicate simple signals through music']
+  },
+  {
+    name: 'Lute', cat: 'musical', icon: '🎸', ability: 'Charisma',
+    desc: 'A plucked string instrument, common among bards.',
+    uses: ['Earn coin performing in taverns', 'Impress nobles and earn entry to events', 'Calm a hostile crowd (DC 15 Performance)']
+  },
+  {
+    name: 'Lyre', cat: 'musical', icon: '🎼', ability: 'Charisma',
+    desc: 'An ancient string instrument associated with poetry.',
+    uses: ['Earn favor in scholarly or religious settings', 'Perform for high society', 'Recall musical lore about a legend or event']
+  },
+  {
+    name: 'Horn', cat: 'musical', icon: '📯', ability: 'Charisma',
+    desc: 'A signal horn or war horn.',
+    uses: ['Signal allies across a battlefield', 'Frighten beasts (DC 12 Wisdom save)', 'Identify military faction by horn call']
+  },
+  {
+    name: 'Pan Flute', cat: 'musical', icon: '🎵', ability: 'Charisma',
+    desc: 'A wind instrument associated with nature and fey.',
+    uses: ['Charm fey or nature spirits (DM discretion)', 'Calm animals in the wild (DC 13)', 'Signal to druids or woodland folk']
+  },
+  {
+    name: 'Viol', cat: 'musical', icon: '🎻', ability: 'Charisma',
+    desc: 'A bowed string instrument, predecessor to the violin.',
+    uses: ['Perform for noble courts', 'Earn coin in upscale venues', 'Accompany storytelling to enhance persuasion']
+  },
+  {
+    name: "Disguise Kit", cat: 'other', icon: '🎭', ability: 'Charisma',
+    desc: 'Cosmetics, hair dye, small props, and a few changes of clothes.',
+    uses: ['Create a convincing disguise (Deception vs Insight)', 'Recognize other disguises in use', 'Alter a creature\'s apparent race or age']
+  },
+  {
+    name: "Forgery Kit", cat: 'other', icon: '📜', ability: 'Dexterity',
+    desc: 'Inks, parchment, seals, and wax.',
+    uses: ['Forge a document or seal (Deception check)', 'Spot forgeries made by others', 'Duplicate official documents or letters of passage']
+  },
+  {
+    name: "Herbalism Kit", cat: 'other', icon: '🌿', ability: 'Intelligence',
+    desc: 'Clippers, a mortar and pestle, pouches, and vials.',
+    uses: ['Craft antitoxin (1 hour, DC 10)', 'Craft a healing potion (8 hours, DC 15, 25 gp cost)', 'Identify herbs and their medicinal uses']
+  },
+  {
+    name: "Navigator's Tools", cat: 'other', icon: '🧭', ability: 'Wisdom',
+    desc: 'A sextant, compass, calipers, ruler, parchment, ink, and quill.',
+    uses: ['Plot a sea or overland course', 'Determine position by stars (clear sky required)', 'Avoid getting lost in the wilderness (DC 15)']
+  },
+  {
+    name: "Poisoner's Kit", cat: 'other', icon: '☠', ability: 'Intelligence',
+    desc: 'Vials, chemicals, and a glass stirring rod.',
+    uses: ['Craft basic poisons (DC 13)', 'Detect whether food or drink is poisoned', 'Identify the type of poison affecting a creature']
+  },
+  {
+    name: "Thieves' Tools", cat: 'other', icon: '🔑', ability: 'Dexterity',
+    desc: 'A file, lock picks, a small mirror, scissors, and pliers.',
+    uses: ['Pick a lock (DC varies by lock quality)', 'Disarm a mechanical trap (DC varies)', 'Determine the quality of a lock without opening it']
+  },
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let customNotes = { cond: [], lang: [], tool: [] };
+
+function loadCustomNotes() {
+  try { customNotes = JSON.parse(localStorage.getItem('thekodia_ref_notes') || '{"cond":[],"lang":[],"tool":[]}'); } catch {}
+}
+function saveCustomNotes() {
+  try { localStorage.setItem('thekodia_ref_notes', JSON.stringify(customNotes)); } catch {}
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+function renderConditions(filter = '') {
+  const grid = document.getElementById('conditionsGrid');
+  const q = filter.toLowerCase();
+  const filtered = CONDITIONS.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    c.summary.toLowerCase().includes(q) ||
+    c.effects.some(e => e.toLowerCase().includes(q))
+  );
+  document.getElementById('condCount').textContent = `${filtered.length} conditions`;
+  grid.innerHTML = filtered.map(c => `
+    <div class="condition-card" onclick="toggleCard(this)">
+      <div class="condition-header">
+        <div class="condition-icon" style="background:${c.color}22;border:1px solid ${c.color}44">${c.icon}</div>
+        <div>
+          <div class="condition-name" style="color:${c.color}">${c.name}</div>
+          <div class="condition-summary">${c.summary}</div>
+        </div>
+        <div class="expand-arrow">▼</div>
+      </div>
+      <div class="condition-body">
+        ${c.effects.map(e => `<div class="condition-effect">${e}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderLanguages(filter = '') {
+  const grid = document.getElementById('languagesGrid');
+  const q = filter.toLowerCase();
+  const filtered = LANGUAGES.filter(l =>
+    l.name.toLowerCase().includes(q) ||
+    l.speakers.toLowerCase().includes(q) ||
+    l.thekodia.toLowerCase().includes(q)
+  );
+  document.getElementById('langCount').textContent = `${filtered.length} languages`;
+  grid.innerHTML = filtered.map(l => `
+    <div class="lang-card" onclick="toggleCard(this)">
+      <div class="lang-header">
+        <div class="lang-name">${l.name}</div>
+        <span class="lang-type-badge ${l.type}">${l.type}</span>
+        <div class="expand-arrow" style="font-size:11px;color:var(--text3);margin-left:4px">▼</div>
+      </div>
+      <div class="lang-body">
+        <div class="lang-detail"><strong>Typical Speakers</strong>${l.speakers}</div>
+        <div class="lang-detail"><strong>Script</strong>${l.script}</div>
+        ${l.thekodia ? `<div class="lang-detail"><strong>Thekodia Note</strong>${l.thekodia}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function renderTools(filter = '') {
+  const grid = document.getElementById('toolsGrid');
+  const q = filter.toLowerCase();
+  const filtered = TOOLS.filter(t =>
+    t.name.toLowerCase().includes(q) ||
+    t.cat.toLowerCase().includes(q) ||
+    t.desc.toLowerCase().includes(q) ||
+    t.uses.some(u => u.toLowerCase().includes(q))
+  );
+  document.getElementById('toolCount').textContent = `${filtered.length} tools`;
+  grid.innerHTML = filtered.map(t => `
+    <div class="tool-card" onclick="toggleCard(this)">
+      <div class="tool-header">
+        <div class="tool-icon" style="background:var(--bg3);border:1px solid var(--border)">${t.icon}</div>
+        <div class="tool-name">${t.name}</div>
+        <span class="tool-cat-badge ${t.cat}">${t.cat}</span>
+        <div class="expand-arrow" style="font-size:11px;color:var(--text3)">▼</div>
+      </div>
+      <div class="tool-body">
+        <div class="tool-ability">Key ability: <span>${t.ability}</span></div>
+        <div class="tool-desc">${t.desc}</div>
+        <div class="tool-uses-title">What you can do</div>
+        ${t.uses.map(u => `<div class="tool-use">${u}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderCustomNotes() {
+  ['cond','lang','tool'].forEach(key => {
+    const container = document.getElementById(`custom${key.charAt(0).toUpperCase()+key.slice(1)}Notes`);
+    if (!container) return;
+    const noteKey = key === 'cond' ? 'cond' : key === 'lang' ? 'lang' : 'tool';
+    container.innerHTML = (customNotes[noteKey]||[]).map((n,i) =>
+      `<div class="custom-note">
+        <div class="custom-note-text">${n}</div>
+        <div class="custom-note-del" onclick="deleteCustomNote('${noteKey}',${i})">✕</div>
+      </div>`
+    ).join('');
+  });
+}
+
+// ─── INTERACTIONS ────────────────────────────────────────────────────────────
+function toggleCard(el) {
+  el.classList.toggle('expanded');
+}
+
+function switchSection(name, btn) {
+  document.querySelectorAll('.ref-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('visible');
+  btn.classList.add('active');
+  filterAll();
+}
+
+function filterAll() {
+  const q = document.getElementById('searchInput').value;
+  renderConditions(q);
+  renderLanguages(q);
+  renderTools(q);
+}
+
+function addCustomNote(key) {
+  const inputId = key + 'NoteInput';
+  const val = document.getElementById(inputId).value.trim();
+  if (!val) return;
+  customNotes[key].push(val);
+  saveCustomNotes();
+  document.getElementById(inputId).value = '';
+  renderCustomNotes();
+}
+
+function deleteCustomNote(key, i) {
+  customNotes[key].splice(i, 1);
+  saveCustomNotes();
+  renderCustomNotes();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+loadCustomNotes();
+renderConditions();
+renderLanguages();
+renderTools();
+renderCustomNotes();
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>

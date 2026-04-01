@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — Initiative Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --bg4: #20253200;
+  --panel: #181c26;
+  --border: #2a3045;
+  --border2: #3a4560;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #7a6238;
+  --red: #e05555;
+  --red-dim: #7a2828;
+  --green: #4caf7d;
+  --green-dim: #1e5c38;
+  --blue: #5b8de8;
+  --blue-dim: #2a4a8a;
+  --purple: #9b72cf;
+  --purple-dim: #4a2e7a;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --text: #e8e0d0;
+  --text2: #a09880;
+  --text3: #605848;
+  --radius: 6px;
+  --radius2: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Header */
+.app-header {
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.nav-tab {
+  padding: 5px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+.round-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.round-label {
+  font-size: 12px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.round-num {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--accent);
+  min-width: 32px;
+  text-align: center;
+}
+
+.btn {
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.danger { border-color: var(--red-dim); color: var(--red); }
+.btn.danger:hover { background: rgba(224,85,85,0.1); }
+.btn.small { padding: 3px 8px; font-size: 12px; }
+.btn.icon { padding: 4px 8px; font-size: 16px; line-height: 1; }
+
+/* Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 12px;
+  padding: 12px;
+  min-height: calc(100vh - 54px);
+}
+
+/* Initiative List */
+.initiative-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.combat-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.initiative-mode {
+  display: flex;
+  gap: 4px;
+}
+
+.mode-btn {
+  padding: 4px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.mode-btn:hover { border-color: var(--border2); color: var(--text); }
+.mode-btn.active { background: var(--blue-dim); border-color: var(--blue); color: #aac8ff; }
+
+.combatant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Combatant Card */
+.combatant-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+  transition: border-color 0.2s;
+  position: relative;
+}
+
+.combatant-card.active-turn {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim), inset 0 0 30px rgba(200,169,110,0.04);
+}
+
+.combatant-card.active-turn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 3px 0 0 3px;
+}
+
+.combatant-card.dead { opacity: 0.45; filter: grayscale(0.6); }
+
+.card-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+}
+
+.init-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: center;
+  cursor: pointer;
+  line-height: 1;
+}
+.init-badge input {
+  width: 36px;
+  background: var(--bg3);
+  border: 1px solid var(--accent-dim);
+  border-radius: 4px;
+  color: var(--accent);
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  padding: 2px;
+}
+
+.thumb-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  flex-shrink: 0;
+  background: var(--bg3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text3);
+  cursor: pointer;
+  position: relative;
+}
+.thumb-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-wrap input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.combatant-info { flex: 1; min-width: 0; }
+
+.combatant-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combatant-type {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hp-bar-wrap {
+  margin-top: 4px;
+  height: 5px;
+  background: var(--bg3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.hp-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.stat-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stat-chip .label { color: var(--text3); font-size: 10px; text-transform: uppercase; }
+.stat-chip .val { color: var(--text); }
+.stat-chip.ac .label { color: #5b8de8; }
+.stat-chip.ac .val { color: #aac4ff; }
+.stat-chip.hp-chip .label { color: var(--green); }
+.stat-chip.hp-chip .val { color: #a0e8c0; }
+.stat-chip.temp .label { color: var(--teal); }
+.stat-chip.temp .val { color: #a0e8e4; }
+.stat-chip.conc { background: rgba(155,114,207,0.15); border-color: var(--purple-dim); color: var(--purple); font-size: 11px; }
+.stat-chip.leg { background: rgba(240,165,0,0.12); border-color: #7a5000; color: var(--amber); font-size: 11px; }
+
+.conditions-row {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 0 10px 8px;
+}
+
+.cond-tag {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Right Panel */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-body { padding: 10px 12px; }
+
+/* Add Combatant Form */
+.add-form { display: flex; flex-direction: column; gap: 8px; }
+
+.form-row { display: flex; gap: 6px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.field label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.field input, .field select, .field textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  padding: 5px 8px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--accent-dim);
+}
+.field select option { background: var(--bg2); }
+
+.roll-init-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+/* Encounter Library */
+.encounter-list { display: flex; flex-direction: column; gap: 6px; }
+
+.encounter-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.encounter-item:hover { border-color: var(--accent-dim); }
+
+.encounter-name {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--text);
+}
+.encounter-count { font-size: 12px; color: var(--text3); }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.hidden { display: none; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius2);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.modal-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* Condition picker */
+.cond-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cond-option {
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.cond-option:hover { border-color: var(--border2); color: var(--text); }
+.cond-option.selected { background: rgba(224,85,85,0.18); border-color: var(--red); color: #ffaaaa; }
+
+/* Stat block paste */
+.paste-area {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  padding: 8px;
+  width: 100%;
+  min-height: 80px;
+  resize: vertical;
+}
+.paste-area:focus { outline: none; border-color: var(--accent-dim); }
+
+/* Turn banner */
+.turn-banner {
+  background: linear-gradient(90deg, rgba(200,169,110,0.12) 0%, transparent 100%);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.turn-banner-thumb {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  border: 1px solid var(--accent-dim);
+  background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--text3); flex-shrink: 0; overflow: hidden;
+}
+.turn-banner-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.turn-banner-name { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent2); }
+.turn-banner-sub { font-size: 12px; color: var(--text3); }
+
+.on-deck { font-size: 12px; color: var(--text3); }
+.on-deck span { color: var(--text2); font-weight: 600; }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* Advantage toggle */
+.adv-toggle {
+  display: flex;
+  gap: 4px;
+}
+.adv-btn {
+  padding: 3px 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.adv-btn.adv.active { background: rgba(76,175,125,0.2); border-color: var(--green); color: var(--green); }
+.adv-btn.dis.active { background: rgba(224,85,85,0.2); border-color: var(--red); color: var(--red); }
+
+.section-title {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.readied-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(91,141,232,0.18);
+  border: 1px solid var(--blue-dim);
+  color: var(--blue);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.delayed-badge {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(155,114,207,0.18);
+  border: 1px solid var(--purple-dim);
+  color: var(--purple);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text3);
+  font-size: 14px;
+}
+.empty-state .big { font-family: 'Cinzel', serif; font-size: 20px; color: var(--border2); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+    <button class="nav-tab">References</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+  </div>
+  <div class="round-display">
+    <span class="round-label">Round</span>
+    <span class="round-num" id="roundNum">—</span>
+    <button class="btn small" onclick="nextTurn()">Next Turn ▶</button>
+    <button class="btn small danger" onclick="endCombat()">End Combat</button>
+  </div>
+</div>
+
+<div class="main-layout">
+  <!-- Left: Initiative List -->
+  <div class="initiative-panel">
+    <div class="combat-controls">
+      <div class="initiative-mode">
+        <button class="mode-btn active" onclick="setMode('standard',this)">Standard</button>
+        <button class="mode-btn" onclick="setMode('group',this)">Group</button>
+        <button class="mode-btn" onclick="setMode('team',this)">Team</button>
+      </div>
+      <button class="btn primary" onclick="openAddModal()">+ Add Combatant</button>
+      <button class="btn" onclick="openEncounterModal()">Load Encounter</button>
+      <button class="btn" onclick="sortInitiative()">Sort ↕</button>
+      <button class="btn" id="teamRollBtn" style="display:none;border-color:var(--blue-dim);color:var(--blue)" onclick="rollTeamInitiative()">⚄ Roll Team Init</button>
+      <button class="btn" id="groupRollBtn" style="display:none;border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Group Init</button>
+    </div>
+
+    <!-- Turn Banner -->
+    <div class="turn-banner" id="turnBanner" style="display:none">
+      <div class="turn-banner-thumb" id="bannerThumb">⚔</div>
+      <div>
+        <div class="turn-banner-name" id="bannerName">—</div>
+        <div class="turn-banner-sub" id="bannerSub"></div>
+      </div>
+      <div style="margin-left:auto; text-align:right">
+        <div class="on-deck" id="onDeck1"></div>
+        <div class="on-deck" id="onDeck2"></div>
+      </div>
+    </div>
+
+    <div class="combatant-list" id="combatantList">
+      <div class="empty-state">
+        <div class="big">No Combatants</div>
+        Add combatants or load an encounter to begin
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+
+    <!-- Quick HP Edit -->
+    <div class="panel-box" id="quickEditBox" style="display:none">
+      <div class="panel-head">Quick Edit — <span id="quickEditName" style="color:var(--text)">—</span></div>
+      <div class="panel-body">
+        <div class="form-row">
+          <div class="field">
+            <label>Initiative</label>
+            <input type="number" id="quickInit" placeholder="—" onchange="applyInit()">
+          </div>
+          <div class="field">
+            <label>AC</label>
+            <input type="number" id="quickAC" placeholder="—" onchange="applyAC()">
+          </div>
+          <div class="field">
+            <label>Max HP</label>
+            <input type="number" id="quickMaxHP" placeholder="—" onchange="applyMaxHP()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Damage / Heal</label>
+            <div style="display:flex;gap:5px">
+              <input type="number" id="quickHpDelta" placeholder="Amount" style="flex:1">
+              <button class="btn danger small" onclick="applyHP(-1)">Dmg</button>
+              <button class="btn small" style="border-color:var(--green-dim);color:var(--green)" onclick="applyHP(1)">Heal</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Temp HP</label>
+            <input type="number" id="quickTempHp" placeholder="0" onchange="applyTempHP()">
+          </div>
+          <div class="field">
+            <label>Max HP Reduction</label>
+            <input type="number" id="quickMaxReduce" placeholder="0" onchange="applyMaxReduce()">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Group Name</label>
+            <input type="text" id="quickGroup" placeholder="e.g. Goblins" onchange="applyGroup()">
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="cond-picker" id="quickCondPicker"></div>
+        <div class="divider"></div>
+        <div class="form-row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn small" style="border-color:var(--blue-dim);color:var(--blue)" onclick="toggleReady()">Readied Action</button>
+          <button class="btn small" style="border-color:var(--purple-dim);color:var(--purple)" onclick="toggleDelayed()">Delayed</button>
+          <button class="btn small" style="border-color:var(--purple-dim);color:var(--purple)" onclick="toggleConc()">Concentration</button>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Notes / Modifiers</label>
+            <input type="text" id="quickNotes" placeholder="+2 to saves, -1 AC..." onchange="applyNotes()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legendary Actions -->
+    <div class="panel-box" id="legBox" style="display:none">
+      <div class="panel-head">Legendary Actions — <span id="legName" style="color:var(--text)">—</span></div>
+      <div class="panel-body" id="legBody"></div>
+    </div>
+
+    <!-- Encounter Builder -->
+    <div class="panel-box">
+      <div class="panel-head">
+        Saved Encounters
+        <button class="btn small" onclick="openSaveEncounter()">Save Current</button>
+      </div>
+      <div class="panel-body">
+        <div class="encounter-list" id="encounterList">
+          <div style="font-size:13px;color:var(--text3)">No saved encounters yet</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Add Combatant Modal -->
+<div class="modal-overlay hidden" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      Add Combatant
+      <button class="btn icon" onclick="closeModal('addModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="field" style="flex:2">
+          <label>Name</label>
+          <input type="text" id="f_name" placeholder="Goblin War Chief">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select id="f_type">
+            <option value="monster">Monster</option>
+            <option value="npc">NPC</option>
+            <option value="player">Player</option>
+          </select>
+        </div>
+      </div>
+      <div class="roll-init-row">
+        <div class="field" style="flex:1">
+          <label>Initiative</label>
+          <input type="number" id="f_init" placeholder="Roll or enter">
+        </div>
+        <div class="field" style="flex:0 0 auto">
+          <label>Advantage</label>
+          <div class="adv-toggle">
+            <button class="adv-btn adv" id="advBtn" onclick="toggleAdv('adv')">ADV</button>
+            <button class="adv-btn dis" id="disBtn" onclick="toggleAdv('dis')">DIS</button>
+          </div>
+        </div>
+        <div style="padding-bottom:2px">
+          <button class="btn primary small" onclick="rollInit()">Roll d20</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Max HP</label>
+          <input type="number" id="f_maxhp" placeholder="45">
+        </div>
+        <div class="field">
+          <label>Current HP</label>
+          <input type="number" id="f_hp" placeholder="= Max HP">
+        </div>
+        <div class="field">
+          <label>AC</label>
+          <input type="number" id="f_ac" placeholder="15">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Temp HP</label>
+          <input type="number" id="f_temphp" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Initiative Mod</label>
+          <input type="number" id="f_initmod" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Count (spawn)</label>
+          <input type="number" id="f_count" placeholder="1" min="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Group Name <span style="color:var(--text3);font-size:11px">(for Group Initiative)</span></label>
+          <input type="text" id="f_group" placeholder="e.g. Goblins, Bandits, Boss">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Legendary Actions (max)</label>
+          <input type="number" id="f_leg" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Lair Actions</label>
+          <select id="f_lair">
+            <option value="0">None</option>
+            <option value="1">Has Lair Actions</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes / Spell Slots / Modifiers</label>
+        <textarea id="f_notes" class="paste-area" style="min-height:50px" placeholder="Spells: 3/3 L1, 2/2 L2 — +2 to initiative rolls..."></textarea>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Thumbnail Image</label>
+        <input type="file" id="f_img" accept="image/*" onchange="previewThumb(this)">
+        <div id="thumbPreview" style="margin-top:6px"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="field">
+        <label>Paste Stat Block (auto-parse)</label>
+        <textarea id="f_paste" class="paste-area" placeholder="Paste stat block text here — name, HP, AC, attacks will be extracted..."></textarea>
+        <button class="btn small" style="margin-top:4px" onclick="parseStatBlock()">Parse Block</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn primary" onclick="addCombatant()">Add to Combat</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Combatant Modal -->
+<div class="modal-overlay hidden" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      Edit Combatant — <span id="editModalName" style="color:var(--text)"></span>
+      <button class="btn icon" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body" id="editModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn danger" onclick="removeCombatant()">Remove</button>
+      <button class="btn" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Load Encounter Modal -->
+<div class="modal-overlay hidden" id="encounterModal">
+  <div class="modal">
+    <div class="modal-head">
+      Load Encounter
+      <button class="btn icon" onclick="closeModal('encounterModal')">✕</button>
+    </div>
+    <div class="modal-body" id="encounterModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('encounterModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save Encounter Modal -->
+<div class="modal-overlay hidden" id="saveEncModal">
+  <div class="modal">
+    <div class="modal-head">
+      Save Encounter
+      <button class="btn icon" onclick="closeModal('saveEncModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Encounter Name</label>
+        <input type="text" id="encName" placeholder="Ambush at the Bridge">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('saveEncModal')">Cancel</button>
+      <button class="btn primary" onclick="saveEncounter()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONDITIONS_5E = [
+  {name:'Blinded',color:'#888'},
+  {name:'Charmed',color:'#e8a0e8'},
+  {name:'Deafened',color:'#999'},
+  {name:'Frightened',color:'#e05555'},
+  {name:'Grappled',color:'#c8a030'},
+  {name:'Incapacitated',color:'#e07040'},
+  {name:'Invisible',color:'#a0c8e8'},
+  {name:'Paralyzed',color:'#e8c830'},
+  {name:'Petrified',color:'#a0a090'},
+  {name:'Poisoned',color:'#70c860'},
+  {name:'Prone',color:'#c87840'},
+  {name:'Restrained',color:'#c8a060'},
+  {name:'Stunned',color:'#e8e840'},
+  {name:'Unconscious',color:'#606060'},
+  {name:'Exhaustion',color:'#e06040'},
+];
+
+let combatants = [];
+let currentTurnIdx = -1;
+let round = 0;
+let combatMode = 'standard';
+let selectedCombatantIdx = -1;
+let editingIdx = -1;
+let advMode = 'none';
+let thumbData = {};
+
+function getStorage() {
+  try { return JSON.parse(localStorage.getItem('thekodia_encounters') || '[]'); } catch { return []; }
+}
+function setStorage(data) {
+  try { localStorage.setItem('thekodia_encounters', JSON.stringify(data)); } catch {}
+}
+
+function setMode(mode, el) {
+  combatMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const teamRollBtn = document.getElementById('teamRollBtn');
+  const groupRollBtn = document.getElementById('groupRollBtn');
+  teamRollBtn.style.display = mode === 'team' ? 'inline-block' : 'none';
+  groupRollBtn.style.display = mode === 'group' ? 'inline-block' : 'none';
+}
+
+function rollTeamInitiative() {
+  if (!combatants.length) return;
+  const playerRoll = rollD20('none');
+  const enemyRoll = rollD20('none');
+  combatants.forEach(c => {
+    if (c.type === 'player') c.init = playerRoll;
+    else c.init = enemyRoll;
+  });
+  sortInitiative();
+  alert(`Players rolled ${playerRoll} — Enemies rolled ${enemyRoll}`);
+}
+
+function rollGroupInitiative() {
+  if (!combatants.length) return;
+  const playerRoll = rollD20('none');
+  const enemyGroups = {};
+  combatants.forEach(c => {
+    if (c.type === 'player') { c.init = playerRoll; return; }
+    const groupKey = c.group && c.group.trim() ? c.group.trim() : c.name.replace(/\s*\d+$/, '').trim();
+    if (!(groupKey in enemyGroups)) enemyGroups[groupKey] = rollD20('none');
+    c.init = enemyGroups[groupKey];
+  });
+  sortInitiative();
+  const groupSummary = Object.entries(enemyGroups).map(([k,v]) => `${k}: ${v}`).join(' | ');
+  alert(`Players: ${playerRoll}\n${groupSummary}`);
+}
+
+function rollD20(adv) {
+  const r1 = Math.floor(Math.random()*20)+1;
+  if (adv === 'adv') { const r2 = Math.floor(Math.random()*20)+1; return Math.max(r1,r2); }
+  if (adv === 'dis') { const r2 = Math.floor(Math.random()*20)+1; return Math.min(r1,r2); }
+  return r1;
+}
+
+function toggleAdv(mode) {
+  if (advMode === mode) {
+    advMode = 'none';
+    document.getElementById('advBtn').classList.remove('active');
+    document.getElementById('disBtn').classList.remove('active');
+  } else {
+    advMode = mode;
+    document.getElementById('advBtn').classList.toggle('active', mode==='adv');
+    document.getElementById('disBtn').classList.toggle('active', mode==='dis');
+  }
+}
+
+function rollInit() {
+  const mod = parseInt(document.getElementById('f_initmod').value)||0;
+  const roll = rollD20(advMode) + mod;
+  document.getElementById('f_init').value = roll;
+}
+
+function previewThumb(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    thumbData._pending = e.target.result;
+    document.getElementById('thumbPreview').innerHTML =
+      `<img src="${e.target.result}" style="width:48px;height:48px;border-radius:6px;object-fit:cover;border:1px solid var(--border2)">`;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function parseStatBlock() {
+  const text = document.getElementById('f_paste').value;
+  if (!text.trim()) return;
+  const hpMatch = text.match(/Hit Points\s*(\d+)/i) || text.match(/HP[:\s]+(\d+)/i) || text.match(/(\d+)\s*\([\d\s+d]+\)\s*hit points/i);
+  const acMatch = text.match(/Armor Class\s*(\d+)/i) || text.match(/AC[:\s]+(\d+)/i);
+  const nameMatch = text.split('\n')[0].trim();
+  if (nameMatch && !document.getElementById('f_name').value) document.getElementById('f_name').value = nameMatch;
+  if (hpMatch) { document.getElementById('f_maxhp').value = hpMatch[1]; document.getElementById('f_hp').value = hpMatch[1]; }
+  if (acMatch) document.getElementById('f_ac').value = acMatch[1];
+}
+
+function addCombatant() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) return;
+  const maxhp = parseInt(document.getElementById('f_maxhp').value)||0;
+  const hp = parseInt(document.getElementById('f_hp').value)||maxhp;
+  const count = parseInt(document.getElementById('f_count').value)||1;
+  const leg = parseInt(document.getElementById('f_leg').value)||0;
+  const base = {
+    name, type: document.getElementById('f_type').value,
+    init: parseInt(document.getElementById('f_init').value)||0,
+    maxhp, hp, ac: parseInt(document.getElementById('f_ac').value)||0,
+    temphp: parseInt(document.getElementById('f_temphp').value)||0,
+    maxReduce: 0, conditions: [], notes: document.getElementById('f_notes').value,
+    legMax: leg, legCurrent: leg, lairActions: document.getElementById('f_lair').value==='1',
+    conc: false, readied: false, delayed: false, dead: false,
+    thumb: thumbData._pending||null,
+    group: document.getElementById('f_group').value.trim()
+  };
+  if (count > 1 && base.type !== 'player') {
+    for (let i=1;i<=count;i++) {
+      combatants.push({...base, name:`${name} ${i}`, id: Date.now()+i});
+    }
+  } else {
+    combatants.push({...base, id: Date.now()});
+  }
+  thumbData._pending = null;
+  closeModal('addModal');
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById('combatantList');
+  if (!combatants.length) {
+    list.innerHTML = '<div class="empty-state"><div class="big">No Combatants</div>Add combatants or load an encounter to begin</div>';
+    document.getElementById('turnBanner').style.display='none';
+    document.getElementById('roundNum').textContent='—';
+    return;
+  }
+  list.innerHTML = combatants.map((c,i) => renderCard(c,i)).join('');
+  updateBanner();
+  renderEncounterList();
+}
+
+function hpColor(pct) {
+  if (pct > 0.6) return 'var(--green)';
+  if (pct > 0.3) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+function renderCard(c, i) {
+  const effectiveMax = Math.max(1, c.maxhp - (c.maxReduce||0));
+  const pct = Math.min(1, Math.max(0, c.hp / effectiveMax));
+  const isActive = i === currentTurnIdx;
+  const thumbHtml = c.thumb
+    ? `<img src="${c.thumb}" style="width:100%;height:100%;object-fit:cover">`
+    : (c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀');
+
+  const condBadges = (c.conditions||[]).map(cond => {
+    const cf = CONDITIONS_5E.find(x=>x.name===cond)||{color:'#888'};
+    return `<span class="cond-tag" style="background:${cf.color}22;border:1px solid ${cf.color}66;color:${cf.color}" onclick="quickRemoveCond(${i},'${cond}')">${cond}</span>`;
+  }).join('');
+
+  const extras = [];
+  if (c.conc) extras.push(`<span class="stat-chip conc">◉ Conc</span>`);
+  if (c.legMax) extras.push(`<span class="stat-chip leg">★ ${c.legCurrent}/${c.legMax} Leg</span>`);
+  if (c.readied) extras.push(`<span class="readied-badge">Readied</span>`);
+  if (c.delayed) extras.push(`<span class="delayed-badge">Delayed</span>`);
+
+  return `
+  <div class="combatant-card${isActive?' active-turn':''}${c.dead?' dead':''}" id="card_${i}">
+    <div class="card-main">
+      <div class="init-badge" id="initBadge_${i}" onclick="editInitInline(${i})">${c.init}</div>
+      <div class="thumb-wrap" onclick="triggerThumbUpload(${i})" title="Click to change image">
+        ${thumbHtml}
+        <input type="file" accept="image/*" id="thumbInput_${i}" onchange="uploadThumb(${i},this)" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+      </div>
+      <div class="combatant-info">
+        <div class="combatant-name">${c.name}</div>
+        <div class="combatant-type">${c.type}${c.lairActions?' · Lair':''}${c.group?' · <span style="color:var(--amber)">'+c.group+'</span>':''}</div>
+        <div class="stat-row">
+          <span class="stat-chip ac"><span class="label">AC</span><span class="val">${c.ac}</span></span>
+          <span class="stat-chip hp-chip"><span class="label">HP</span><span class="val">${c.hp}/${Math.max(1,c.maxhp-(c.maxReduce||0))}</span></span>
+          ${c.temphp>0?`<span class="stat-chip temp"><span class="label">TMP</span><span class="val">+${c.temphp}</span></span>`:''}
+          ${extras.join('')}
+        </div>
+        <div class="hp-bar-wrap"><div class="hp-bar" style="width:${Math.round(pct*100)}%;background:${hpColor(pct)}"></div></div>
+      </div>
+      <div class="card-actions">
+        <button class="btn icon" title="Select for quick edit" onclick="selectCombatant(${i})">✏</button>
+        <button class="btn icon" title="Full edit" onclick="openEditModal(${i})">⚙</button>
+        <button class="btn icon" title="Toggle dead/alive" onclick="toggleDead(${i})">☠</button>
+        <button class="btn icon" title="Move up" onclick="moveCard(${i},-1)">▲</button>
+        <button class="btn icon" title="Move down" onclick="moveCard(${i},1)">▼</button>
+      </div>
+    </div>
+    ${condBadges ? `<div class="conditions-row">${condBadges}</div>` : ''}
+    ${c.notes ? `<div style="padding:0 10px 6px;font-size:12px;color:var(--text3)">${c.notes}</div>` : ''}
+  </div>`;
+}
+
+function editInitInline(i) {
+  const badge = document.getElementById('initBadge_'+i);
+  const cur = combatants[i].init;
+  badge.innerHTML = `<input type="number" value="${cur}" onblur="saveInitInline(${i},this)" onkeydown="if(event.key==='Enter')this.blur()" autofocus>`;
+  badge.querySelector('input').focus();
+}
+
+function saveInitInline(i, input) {
+  combatants[i].init = parseInt(input.value)||0;
+  renderList();
+}
+
+function triggerThumbUpload(i) {}
+function uploadThumb(i, input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => { combatants[i].thumb = e.target.result; renderList(); };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function selectCombatant(i) {
+  selectedCombatantIdx = i;
+  const c = combatants[i];
+  document.getElementById('quickEditBox').style.display='block';
+  document.getElementById('quickEditName').textContent = c.name;
+  document.getElementById('quickInit').value = c.init;
+  document.getElementById('quickAC').value = c.ac;
+  document.getElementById('quickMaxHP').value = c.maxhp;
+  document.getElementById('quickHpDelta').value = '';
+  document.getElementById('quickTempHp').value = c.temphp||0;
+  document.getElementById('quickMaxReduce').value = c.maxReduce||0;
+  document.getElementById('quickGroup').value = c.group||'';
+  renderQuickCondPicker(i);
+  if (c.legMax) {
+    document.getElementById('legBox').style.display='block';
+    document.getElementById('legName').textContent = c.name;
+    renderLegActions(i);
+  } else {
+    document.getElementById('legBox').style.display='none';
+  }
+  document.getElementById('card_'+i).scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderQuickCondPicker(i) {
+  const c = combatants[i];
+  document.getElementById('quickCondPicker').innerHTML = CONDITIONS_5E.map(cond =>
+    `<span class="cond-option${(c.conditions||[]).includes(cond.name)?' selected':''}"
+      onclick="toggleCond(${i},'${cond.name}',this)">${cond.name}</span>`
+  ).join('');
+}
+
+function toggleCond(i, name, el) {
+  const c = combatants[i];
+  if (!c.conditions) c.conditions=[];
+  const idx = c.conditions.indexOf(name);
+  if (idx>-1) c.conditions.splice(idx,1);
+  else c.conditions.push(name);
+  el.classList.toggle('selected', c.conditions.includes(name));
+  renderList();
+  renderQuickCondPicker(i);
+}
+
+function quickRemoveCond(i, name) {
+  combatants[i].conditions = (combatants[i].conditions||[]).filter(c=>c!==name);
+  renderList();
+  if (selectedCombatantIdx===i) renderQuickCondPicker(i);
+}
+
+function applyInit() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].init = parseInt(document.getElementById('quickInit').value)||0;
+  renderList();
+}
+function applyAC() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].ac = parseInt(document.getElementById('quickAC').value)||0;
+  renderList();
+}
+function applyMaxHP() {
+  if (selectedCombatantIdx<0) return;
+  const newMax = parseInt(document.getElementById('quickMaxHP').value)||0;
+  combatants[selectedCombatantIdx].maxhp = newMax;
+  if (combatants[selectedCombatantIdx].hp > newMax) combatants[selectedCombatantIdx].hp = newMax;
+  renderList();
+}
+function applyHP(sign) {
+  if (selectedCombatantIdx<0) return;
+  const delta = parseInt(document.getElementById('quickHpDelta').value)||0;
+  const c = combatants[selectedCombatantIdx];
+  if (sign<0 && c.temphp>0) {
+    const absorbed = Math.min(c.temphp, delta);
+    c.temphp -= absorbed;
+    const remainder = delta - absorbed;
+    c.hp = Math.max(0, c.hp - remainder);
+  } else {
+    const effectiveMax = Math.max(1, c.maxhp - (c.maxReduce||0));
+    c.hp = Math.min(effectiveMax, Math.max(0, c.hp + sign*delta));
+  }
+  if (c.hp<=0) c.dead=true;
+  document.getElementById('quickTempHp').value = c.temphp;
+  renderList();
+}
+
+function applyTempHP() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].temphp = parseInt(document.getElementById('quickTempHp').value)||0;
+  renderList();
+}
+
+function applyMaxReduce() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].maxReduce = parseInt(document.getElementById('quickMaxReduce').value)||0;
+  renderList();
+}
+
+function applyGroup() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].group = document.getElementById('quickGroup').value.trim();
+  renderList();
+}
+function applyNotes() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].notes = document.getElementById('quickNotes').value;
+  renderList();
+}
+
+function toggleReady() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].readied = !combatants[selectedCombatantIdx].readied;
+  renderList();
+}
+function toggleDelayed() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].delayed = !combatants[selectedCombatantIdx].delayed;
+  renderList();
+}
+function toggleConc() {
+  if (selectedCombatantIdx<0) return;
+  combatants[selectedCombatantIdx].conc = !combatants[selectedCombatantIdx].conc;
+  renderList();
+}
+
+function renderLegActions(i) {
+  const c = combatants[i];
+  let html = `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">`;
+  html += `<span style="font-size:13px;color:var(--text2)">${c.legCurrent} / ${c.legMax} remaining</span>`;
+  html += `<button class="btn small" onclick="useLegAction(${i})">Use 1</button>`;
+  html += `<button class="btn small" onclick="resetLegActions(${i})">Reset</button>`;
+  html += `</div>`;
+  if (c.lairActions) html += `<div style="margin-top:8px;font-size:12px;color:var(--amber)">★ Lair actions available</div>`;
+  document.getElementById('legBody').innerHTML = html;
+}
+
+function useLegAction(i) {
+  if (combatants[i].legCurrent>0) combatants[i].legCurrent--;
+  renderLegActions(i); renderList();
+}
+function resetLegActions(i) {
+  combatants[i].legCurrent = combatants[i].legMax;
+  renderLegActions(i); renderList();
+}
+
+function toggleDead(i) {
+  combatants[i].dead = !combatants[i].dead;
+  if (!combatants[i].dead) combatants[i].hp = Math.max(1, combatants[i].hp);
+  renderList();
+}
+
+function moveCard(i, dir) {
+  const j = i+dir;
+  if (j<0||j>=combatants.length) return;
+  [combatants[i],combatants[j]] = [combatants[j],combatants[i]];
+  if (currentTurnIdx===i) currentTurnIdx=j;
+  else if (currentTurnIdx===j) currentTurnIdx=i;
+  renderList();
+}
+
+function sortInitiative() {
+  combatants.sort((a,b) => b.init - a.init);
+  if (currentTurnIdx>=0) {
+    const activeId = combatants[currentTurnIdx]?.id;
+    currentTurnIdx = combatants.findIndex(c=>c.id===activeId);
+  }
+  renderList();
+}
+
+function pushDisplayState() {
+  try {
+    if (!combatants.length || currentTurnIdx < 0) {
+      localStorage.setItem('thekodia_display_state', JSON.stringify({ active: false }));
+      return;
+    }
+    const CONDITIONS_COLORS = {};
+    CONDITIONS_5E.forEach(c => { CONDITIONS_COLORS[c.name] = c.color; });
+
+    const makeCombatant = (c) => {
+      if (!c) return null;
+      const isPlayer = c.type === 'player';
+      const effectiveMax = Math.max(1, c.maxhp - (c.maxReduce||0));
+      return {
+        displayName: c.name,
+        type: c.type,
+        thumb: c.thumb,
+        conditions: (c.conditions||[]).map(name => ({ name, color: CONDITIONS_COLORS[name]||'#888' })),
+        hpPct: isPlayer ? (c.hp / effectiveMax) : undefined
+      };
+    };
+
+    const current = combatants[currentTurnIdx];
+    let deck = combatants.slice(currentTurnIdx+1).filter(x=>!x.dead);
+    if (deck.length < 2) deck = [...deck, ...combatants.slice(0, currentTurnIdx).filter(x=>!x.dead)];
+
+    localStorage.setItem('thekodia_display_state', JSON.stringify({
+      active: true,
+      round,
+      current: makeCombatant(current),
+      deck: deck.slice(0,2).map(makeCombatant)
+    }));
+  } catch(e) {}
+}
+
+function nextTurn() {
+  if (!combatants.length) return;
+  if (round===0) { round=1; }
+  const active = combatants.filter(c=>!c.dead);
+  if (!active.length) return;
+  if (currentTurnIdx<0) {
+    currentTurnIdx = 0;
+  } else {
+    let next = currentTurnIdx+1;
+    while (next<combatants.length && combatants[next].dead) next++;
+    if (next>=combatants.length) { next=0; round++; resetLegActionsAll(); }
+    while (next<combatants.length && combatants[next].dead) next++;
+    currentTurnIdx = next;
+  }
+  document.getElementById('roundNum').textContent = round;
+  document.getElementById('turnBanner').style.display='flex';
+  pushDisplayState();
+  renderList();
+  const card = document.getElementById('card_'+currentTurnIdx);
+  if (card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function resetLegActionsAll() {
+  combatants.forEach(c => { if (c.legMax) c.legCurrent = c.legMax; });
+}
+
+function updateBanner() {
+  if (currentTurnIdx<0||!combatants.length) return;
+  const c = combatants[currentTurnIdx];
+  if (!c) return;
+  document.getElementById('turnBanner').style.display='flex';
+  document.getElementById('roundNum').textContent = round||'—';
+  const thumb = document.getElementById('bannerThumb');
+  if (c.thumb) thumb.innerHTML=`<img src="${c.thumb}">`;
+  else thumb.innerHTML = c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀';
+  document.getElementById('bannerName').textContent = c.name;
+  document.getElementById('bannerSub').textContent = `${c.type} · AC ${c.ac} · HP ${c.hp}`;
+
+  let deck = combatants.slice(currentTurnIdx+1).filter(x=>!x.dead);
+  if (deck.length<2) deck = [...deck, ...combatants.slice(0,currentTurnIdx).filter(x=>!x.dead)];
+  document.getElementById('onDeck1').innerHTML = deck[0]?`On Deck: <span>${deck[0].name}</span>`:'';
+  document.getElementById('onDeck2').innerHTML = deck[1]?`Then: <span>${deck[1].name}</span>`:'';
+}
+
+function endCombat() {
+  if (!confirm('End combat and clear all combatants?')) return;
+  combatants = [];
+  currentTurnIdx = -1;
+  round = 0;
+  selectedCombatantIdx = -1;
+  document.getElementById('quickEditBox').style.display='none';
+  document.getElementById('legBox').style.display='none';
+  pushDisplayState();
+  renderList();
+}
+
+// Edit modal
+function openEditModal(i) {
+  editingIdx = i;
+  const c = combatants[i];
+  document.getElementById('editModalName').textContent = c.name;
+  document.getElementById('editModalBody').innerHTML = `
+    <div class="form-row">
+      <div class="field" style="flex:2"><label>Name</label><input id="e_name" value="${c.name}"></div>
+      <div class="field"><label>Type</label>
+        <select id="e_type">
+          <option value="monster"${c.type==='monster'?' selected':''}>Monster</option>
+          <option value="npc"${c.type==='npc'?' selected':''}>NPC</option>
+          <option value="player"${c.type==='player'?' selected':''}>Player</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Initiative</label><input type="number" id="e_init" value="${c.init}"></div>
+      <div class="field"><label>AC</label><input type="number" id="e_ac" value="${c.ac}"></div>
+      <div class="field"><label>Group Name</label><input type="text" id="e_group" value="${c.group||''}" placeholder="e.g. Goblins"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Max HP</label><input type="number" id="e_maxhp" value="${c.maxhp}"></div>
+      <div class="field"><label>Current HP</label><input type="number" id="e_hp" value="${c.hp}"></div>
+      <div class="field"><label>Temp HP</label><input type="number" id="e_temphp" value="${c.temphp||0}"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>Max HP Reduction</label><input type="number" id="e_maxreduce" value="${c.maxReduce||0}"></div>
+      <div class="field"><label>Legendary (max)</label><input type="number" id="e_leg" value="${c.legMax||0}"></div>
+    </div>
+    <div class="field"><label>Notes / Spells / Modifiers</label>
+      <textarea id="e_notes" class="paste-area" style="min-height:60px">${c.notes||''}</textarea>
+    </div>
+    <div class="field"><label>Change Thumbnail</label>
+      <input type="file" accept="image/*" onchange="editThumb(this)">
+    </div>
+  `;
+  openModal('editModal');
+}
+
+function editThumb(input) {
+  if (!input.files||!input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => { thumbData._editPending = e.target.result; };
+  r.readAsDataURL(input.files[0]);
+}
+
+function saveEdit() {
+  if (editingIdx<0) return;
+  const c = combatants[editingIdx];
+  c.name = document.getElementById('e_name').value;
+  c.type = document.getElementById('e_type').value;
+  c.init = parseInt(document.getElementById('e_init').value)||0;
+  c.ac = parseInt(document.getElementById('e_ac').value)||0;
+  c.group = document.getElementById('e_group').value.trim();
+  c.maxhp = parseInt(document.getElementById('e_maxhp').value)||0;
+  c.hp = parseInt(document.getElementById('e_hp').value)||0;
+  c.temphp = parseInt(document.getElementById('e_temphp').value)||0;
+  c.maxReduce = parseInt(document.getElementById('e_maxreduce').value)||0;
+  c.legMax = parseInt(document.getElementById('e_leg').value)||0;
+  c.notes = document.getElementById('e_notes').value;
+  if (thumbData._editPending) { c.thumb = thumbData._editPending; thumbData._editPending=null; }
+  closeModal('editModal');
+  renderList();
+}
+
+function removeCombatant() {
+  if (editingIdx<0) return;
+  if (!confirm('Remove this combatant?')) return;
+  combatants.splice(editingIdx,1);
+  if (currentTurnIdx>=editingIdx) currentTurnIdx = Math.max(-1,currentTurnIdx-1);
+  closeModal('editModal');
+  renderList();
+}
+
+// Encounters
+function openSaveEncounter() {
+  document.getElementById('encName').value='';
+  openModal('saveEncModal');
+}
+
+function saveEncounter() {
+  const name = document.getElementById('encName').value.trim();
+  if (!name) return;
+  const encs = getStorage();
+  encs.push({ name, combatants: combatants.map(c => ({...c, hp:c.maxhp, conditions:[], dead:false, legCurrent:c.legMax, conc:false, readied:false, delayed:false})) });
+  setStorage(encs);
+  closeModal('saveEncModal');
+  renderEncounterList();
+}
+
+function renderEncounterList() {
+  const encs = getStorage();
+  const list = document.getElementById('encounterList');
+  if (!encs.length) { list.innerHTML='<div style="font-size:13px;color:var(--text3)">No saved encounters yet</div>'; return; }
+  list.innerHTML = encs.map((e,i) =>
+    `<div class="encounter-item">
+      <div><div class="encounter-name">${e.name}</div><div class="encounter-count">${e.combatants.length} combatants</div></div>
+      <div style="display:flex;gap:4px">
+        <button class="btn small" onclick="loadEncounter(${i})">Load</button>
+        <button class="btn small danger" onclick="deleteEncounter(${i})">✕</button>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function openEncounterModal() {
+  const encs = getStorage();
+  const body = document.getElementById('encounterModalBody');
+  if (!encs.length) { body.innerHTML='<div style="color:var(--text3);font-size:14px">No saved encounters. Build one in the Library tab or save the current combat.</div>'; openModal('encounterModal'); return; }
+  body.innerHTML = encs.map((e,i) =>
+    `<div class="encounter-item" style="margin-bottom:6px">
+      <div><div class="encounter-name">${e.name}</div><div class="encounter-count">${e.combatants.length} combatants</div></div>
+      <button class="btn small primary" onclick="loadEncounter(${i});closeModal('encounterModal')">Load</button>
+    </div>`
+  ).join('');
+  openModal('encounterModal');
+}
+
+function loadEncounter(i) {
+  const encs = getStorage();
+  if (!encs[i]) return;
+  combatants = encs[i].combatants.map(c => ({...c, id:Date.now()+Math.random()}));
+  currentTurnIdx = -1;
+  round = 0;
+  renderList();
+}
+
+function deleteEncounter(i) {
+  if (!confirm('Delete this encounter?')) return;
+  const encs = getStorage();
+  encs.splice(i,1);
+  setStorage(encs);
+  renderEncounterList();
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); advMode='none'; document.getElementById('advBtn')?.classList.remove('active'); document.getElementById('disBtn')?.classList.remove('active'); }
+
+function openAddModal() {
+  document.getElementById('f_name').value='';
+  document.getElementById('f_init').value='';
+  document.getElementById('f_maxhp').value='';
+  document.getElementById('f_hp').value='';
+  document.getElementById('f_ac').value='';
+  document.getElementById('f_temphp').value='';
+  document.getElementById('f_initmod').value='';
+  document.getElementById('f_count').value='1';
+  document.getElementById('f_leg').value='0';
+  document.getElementById('f_lair').value='0';
+  document.getElementById('f_notes').value='';
+  document.getElementById('f_paste').value='';
+  document.getElementById('f_img').value='';
+  document.getElementById('thumbPreview').innerHTML='';
+  document.getElementById('f_type').value='monster';
+  document.getElementById('f_group').value='';
+  thumbData._pending=null;
+  openModal('addModal');
+  setTimeout(()=>document.getElementById('f_name').focus(),100);
+}
+
+renderEncounterList();
+renderList();
+
+// Poll for live combatant additions from player cards module
+setInterval(() => {
+  try {
+    const raw = localStorage.getItem('thekodia_live_add');
+    if (!raw) return;
+    localStorage.removeItem('thekodia_live_add');
+    const incoming = JSON.parse(raw);
+    if (!incoming || !incoming.name) return;
+    const already = combatants.find(c => c.name === incoming.name);
+    if (already) return;
+    incoming.id = Date.now() + Math.random();
+    combatants.push(incoming);
+    pushDisplayState();
+    renderList();
+  } catch {}
+}, 1000);
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>

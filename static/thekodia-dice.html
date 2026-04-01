@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — Dice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --panel: #181c26;
+  --border: #2a3045;
+  --border2: #3a4560;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #7a6238;
+  --red: #e05555;
+  --red-dim: #7a2828;
+  --green: #4caf7d;
+  --green-dim: #1e5c38;
+  --blue: #5b8de8;
+  --blue-dim: #2a4a8a;
+  --purple: #9b72cf;
+  --purple-dim: #4a2e7a;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --text: #e8e0d0;
+  --text2: #a09880;
+  --text3: #605848;
+  --radius: 6px;
+  --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
+
+.app-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; }
+.nav-tab {
+  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s; text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+.btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.small { padding: 3px 10px; font-size: 12px; }
+
+/* Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 12px;
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Result display */
+.result-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.result-face {
+  padding: 28px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-empty {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--border2);
+  letter-spacing: 0.1em;
+}
+
+.result-formula {
+  font-size: 13px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.result-total {
+  font-family: 'Cinzel', serif;
+  font-size: 80px;
+  line-height: 1;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.result-total.crit { color: var(--amber); }
+.result-total.fail { color: var(--red); }
+.result-total.normal { color: var(--accent2); }
+
+.result-crit-label {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  letter-spacing: 0.15em;
+  margin-top: 4px;
+  height: 22px;
+}
+
+.result-breakdown {
+  font-size: 13px;
+  color: var(--text3);
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.die-result {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  font-weight: 600;
+}
+.die-result.max { border-color: var(--amber); color: var(--amber); background: rgba(240,165,0,0.08); }
+.die-result.min { border-color: var(--red-dim); color: var(--red); background: rgba(224,85,85,0.08); }
+.die-result.dropped { opacity: 0.35; text-decoration: line-through; }
+
+.result-modifier {
+  font-size: 15px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* Roll animation */
+@keyframes rollIn {
+  0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.08) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.rolling { animation: rollIn 0.3s ease-out; }
+
+/* Dice buttons */
+.dice-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dice-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.dice-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.die-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  user-select: none;
+}
+.die-btn:hover { border-color: var(--accent-dim); background: var(--bg2); transform: translateY(-2px); }
+.die-btn:active { transform: translateY(0); }
+
+.die-icon { font-size: 22px; line-height: 1; }
+.die-label { font-family: 'Cinzel', serif; font-size: 11px; color: var(--text2); margin-top: 3px; letter-spacing: 0.04em; }
+
+.die-btn.d4  { --die-color: #4ecdc4; }
+.die-btn.d6  { --die-color: #5b8de8; }
+.die-btn.d8  { --die-color: #9b72cf; }
+.die-btn.d10 { --die-color: #c8a96e; }
+.die-btn.d12 { --die-color: #e07840; }
+.die-btn.d20 { --die-color: #e05555; }
+.die-btn.d100 { --die-color: #4caf7d; }
+
+.die-btn:hover .die-label { color: var(--die-color); }
+.die-btn:hover { border-color: var(--die-color); }
+
+/* Count badge */
+.die-count {
+  position: absolute;
+  top: -4px; right: -4px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  display: none;
+}
+.die-count.visible { display: flex; }
+
+/* Modifier row */
+.modifier-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.mod-label { font-size: 12px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.mod-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Cinzel', serif; font-size: 18px;
+  text-align: center; padding: 4px 8px; width: 70px;
+}
+.mod-input:focus { outline: none; border-color: var(--accent-dim); }
+
+.adv-toggle { display: flex; gap: 4px; }
+.adv-btn {
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text3); font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase;
+  letter-spacing: 0.04em; transition: all 0.15s;
+}
+.adv-btn:hover { border-color: var(--border2); color: var(--text2); }
+.adv-btn.adv.on { background: rgba(76,175,125,0.2); border-color: var(--green); color: var(--green); }
+.adv-btn.dis.on { background: rgba(224,85,85,0.2); border-color: var(--red); color: var(--red); }
+
+.drop-toggle { display: flex; gap: 4px; }
+.drop-btn {
+  padding: 4px 10px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text3); font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase;
+  letter-spacing: 0.04em; transition: all 0.15s;
+}
+.drop-btn:hover { border-color: var(--border2); color: var(--text2); }
+.drop-btn.on { background: rgba(155,114,207,0.2); border-color: var(--purple); color: var(--purple); }
+
+/* Roll + clear buttons */
+.roll-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+
+.roll-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent2);
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.roll-btn:hover { background: #8a7040; }
+.roll-btn:active { transform: scale(0.98); }
+
+.current-formula {
+  font-size: 13px;
+  color: var(--text3);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.04em;
+  min-height: 20px;
+  padding: 0 20px 10px;
+  text-align: center;
+}
+
+/* Custom formula */
+.custom-formula-section {
+  padding: 12px 20px;
+}
+
+.formula-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.formula-input {
+  flex: 1;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Cinzel', serif; font-size: 15px;
+  padding: 6px 10px;
+}
+.formula-input:focus { outline: none; border-color: var(--accent-dim); }
+.formula-input::placeholder { color: var(--text3); font-size: 13px; font-family: 'Rajdhani', sans-serif; }
+
+/* Right panel */
+.right-col { display: flex; flex-direction: column; gap: 10px; }
+
+.panel-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* History */
+.roll-history {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.history-entry:hover { border-color: var(--accent-dim); }
+
+.history-total {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 36px;
+  text-align: center;
+}
+.history-total.crit { color: var(--amber); }
+.history-total.fail { color: var(--red); }
+.history-total.normal { color: var(--accent2); }
+
+.history-formula { font-size: 12px; color: var(--text2); flex: 1; }
+.history-breakdown { font-size: 11px; color: var(--text3); }
+
+/* Quick rolls (saved presets) */
+.preset-list { padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+.preset-entry {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+}
+.preset-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); flex: 1; }
+.preset-formula { font-size: 12px; color: var(--text3); }
+.preset-roll-btn {
+  padding: 2px 8px; border-radius: 4px; border: 1px solid var(--accent-dim);
+  background: transparent; color: var(--accent); font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase;
+}
+.preset-roll-btn:hover { background: var(--accent-dim); color: var(--accent2); }
+.preset-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 0 2px; }
+.preset-del:hover { color: var(--red); }
+
+.add-preset-row {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 5px;
+}
+.preset-name-input, .preset-formula-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px;
+  padding: 4px 7px;
+}
+.preset-name-input { width: 90px; }
+.preset-formula-input { flex: 1; }
+.preset-name-input:focus, .preset-formula-input:focus { outline: none; border-color: var(--accent-dim); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab active">Dice</button>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <!-- Left: Dice roller -->
+  <div class="result-panel">
+
+    <!-- Result display -->
+    <div class="result-face" id="resultFace">
+      <div class="result-empty" id="resultEmpty">Roll the Dice</div>
+      <div id="resultContent" style="display:none;width:100%;text-align:center">
+        <div class="result-formula" id="resultFormula"></div>
+        <div class="result-total normal" id="resultTotal">0</div>
+        <div class="result-crit-label" id="resultCritLabel"></div>
+        <div class="result-breakdown" id="resultBreakdown"></div>
+        <div class="result-modifier" id="resultModDisplay"></div>
+      </div>
+    </div>
+
+    <!-- Dice grid -->
+    <div class="dice-section">
+      <div class="dice-section-title">Click to add dice — click again to add more</div>
+      <div class="dice-grid">
+        <div class="die-btn d4"   onclick="addDie(4)"   title="d4">  <div class="die-count" id="cnt4"></div>  <div class="die-icon">⬦</div><div class="die-label">d4</div>  </div>
+        <div class="die-btn d6"   onclick="addDie(6)"   title="d6">  <div class="die-count" id="cnt6"></div>  <div class="die-icon">⬡</div><div class="die-label">d6</div>  </div>
+        <div class="die-btn d8"   onclick="addDie(8)"   title="d8">  <div class="die-count" id="cnt8"></div>  <div class="die-icon">◈</div><div class="die-label">d8</div>  </div>
+        <div class="die-btn d10"  onclick="addDie(10)"  title="d10"> <div class="die-count" id="cnt10"></div> <div class="die-icon">⬟</div><div class="die-label">d10</div> </div>
+        <div class="die-btn d12"  onclick="addDie(12)"  title="d12"> <div class="die-count" id="cnt12"></div> <div class="die-icon">⬠</div><div class="die-label">d12</div> </div>
+        <div class="die-btn d20"  onclick="addDie(20)"  title="d20"> <div class="die-count" id="cnt20"></div> <div class="die-icon">⬡</div><div class="die-label">d20</div> </div>
+        <div class="die-btn d100" onclick="addDie(100)" title="d100"><div class="die-count" id="cnt100"></div><div class="die-icon">⊙</div><div class="die-label">d100</div></div>
+      </div>
+    </div>
+
+    <!-- Modifier + options -->
+    <div class="modifier-row">
+      <div class="mod-label">Mod</div>
+      <input class="mod-input" type="number" id="modInput" value="0" placeholder="0">
+      <div class="mod-label" style="margin-left:8px">Advantage</div>
+      <div class="adv-toggle">
+        <button class="adv-btn adv" id="advBtn" onclick="toggleAdv('adv')">ADV</button>
+        <button class="adv-btn dis" id="disBtn" onclick="toggleAdv('dis')">DIS</button>
+      </div>
+      <div class="mod-label" style="margin-left:8px">Drop</div>
+      <div class="drop-toggle">
+        <button class="drop-btn" id="dropLoBtn" onclick="toggleDrop('low')">Low</button>
+        <button class="drop-btn" id="dropHiBtn" onclick="toggleDrop('high')">High</button>
+      </div>
+    </div>
+
+    <!-- Roll actions -->
+    <div class="roll-actions">
+      <button class="roll-btn" id="rollBtn" onclick="rollDice()">Roll</button>
+      <button class="btn" onclick="reroll()" title="Reroll same formula">↺ Reroll</button>
+      <button class="btn" onclick="clearDice()">Clear</button>
+    </div>
+
+    <div class="current-formula" id="currentFormula">—</div>
+
+    <!-- Custom formula -->
+    <div class="custom-formula-section">
+      <div class="dice-section-title" style="margin-bottom:8px">Custom Formula</div>
+      <div class="formula-input-row">
+        <input class="formula-input" type="text" id="formulaInput" placeholder="e.g. 2d6+5  or  4d6dl1  or  1d20+3" onkeydown="if(event.key==='Enter')rollFormula()">
+        <button class="btn primary" onclick="rollFormula()">Roll</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">
+        Syntax: NdX+MOD — dl1 = drop lowest, dh1 = drop highest
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right col -->
+  <div class="right-col">
+
+    <!-- Quick presets -->
+    <div class="panel-box">
+      <div class="panel-head">
+        <div class="panel-title">Quick Rolls</div>
+      </div>
+      <div class="preset-list" id="presetList"></div>
+      <div class="add-preset-row">
+        <input class="preset-name-input" type="text" id="presetNameInput" placeholder="Name">
+        <input class="preset-formula-input" type="text" id="presetFormulaInput" placeholder="Formula e.g. 1d20+5">
+        <button class="btn small primary" onclick="addPreset()">+</button>
+      </div>
+    </div>
+
+    <!-- Roll history -->
+    <div class="panel-box">
+      <div class="panel-head">
+        <div class="panel-title">Roll History</div>
+        <button class="btn small" onclick="clearHistory()">Clear</button>
+      </div>
+      <div class="roll-history" id="rollHistory">
+        <div style="font-size:13px;color:var(--text3);padding:8px 4px">No rolls yet</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────
+let diceCounts = {};
+let modifier = 0;
+let advMode = 'none'; // 'adv' | 'dis' | 'none'
+let dropMode = 'none'; // 'low' | 'high' | 'none'
+let rollHistory = [];
+let presets = [];
+let lastFormula = null;
+
+const PRESET_KEY = 'thekodia_dice_presets';
+const HISTORY_KEY = 'thekodia_dice_history';
+
+const DEFAULT_PRESETS = [
+  { name: 'Attack',      formula: '1d20' },
+  { name: 'Stat Roll',   formula: '4d6dl1' },
+  { name: 'Fireball',    formula: '8d6' },
+  { name: 'Sneak Atk',   formula: '3d6' },
+  { name: 'Death Save',  formula: '1d20' },
+  { name: 'Initiative',  formula: '1d20' },
+];
+
+function loadStorage() {
+  try { presets = JSON.parse(localStorage.getItem(PRESET_KEY) || 'null') || DEFAULT_PRESETS; } catch { presets = DEFAULT_PRESETS; }
+  try { rollHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { rollHistory = []; }
+}
+
+function savePresets() { try { localStorage.setItem(PRESET_KEY, JSON.stringify(presets)); } catch {} }
+function saveHistory() { try { localStorage.setItem(HISTORY_KEY, JSON.stringify(rollHistory.slice(0,100))); } catch {} }
+
+// ── DICE LOGIC ───────────────────────────────────────────
+
+function rollOne(sides) {
+  return Math.floor(Math.random() * sides) + 1;
+}
+
+function parseFormula(formula) {
+  // Supports: NdX, NdX+M, NdX-M, NdXdlK, NdXdhK
+  const f = formula.trim().toLowerCase().replace(/\s/g,'');
+  const match = f.match(/^(\d+)d(\d+)(dl(\d+))?(dh(\d+))?([+-]\d+)?$/);
+  if (!match) return null;
+  return {
+    count: parseInt(match[1]),
+    sides: parseInt(match[2]),
+    dropLow: match[4] ? parseInt(match[4]) : 0,
+    dropHigh: match[6] ? parseInt(match[6]) : 0,
+    mod: match[7] ? parseInt(match[7]) : 0
+  };
+}
+
+function executeRoll(count, sides, mod, drop, advModeOverride) {
+  const adv = advModeOverride || advMode;
+  let rolls = [];
+
+  // For d20 with adv/dis — roll twice, keep appropriate one
+  if (sides === 20 && count === 1 && adv !== 'none') {
+    const r1 = rollOne(20);
+    const r2 = rollOne(20);
+    const kept = adv === 'adv' ? Math.max(r1,r2) : Math.min(r1,r2);
+    const dropped = adv === 'adv' ? Math.min(r1,r2) : Math.max(r1,r2);
+    rolls = [
+      { val: kept, dropped: false },
+      { val: dropped, dropped: true }
+    ];
+  } else {
+    for (let i = 0; i < count; i++) rolls.push({ val: rollOne(sides), dropped: false });
+
+    // Drop lowest / highest
+    if (drop === 'low' || dropMode === 'low') {
+      const sorted = [...rolls].sort((a,b) => a.val - b.val);
+      sorted[0].dropped = true;
+    } else if (drop === 'high' || dropMode === 'high') {
+      const sorted = [...rolls].sort((a,b) => b.val - a.val);
+      sorted[0].dropped = true;
+    }
+  }
+
+  const total = rolls.filter(r => !r.dropped).reduce((s, r) => s + r.val, 0) + mod;
+  const isCrit = sides === 20 && rolls.some(r => !r.dropped && r.val === 20);
+  const isFail = sides === 20 && rolls.filter(r => !r.dropped).every(r => r.val === 1);
+
+  return { rolls, total, mod, isCrit, isFail, count, sides };
+}
+
+// ── UI HELPERS ───────────────────────────────────────────
+
+function addDie(sides) {
+  diceCounts[sides] = (diceCounts[sides] || 0) + 1;
+  updateCountBadges();
+  updateFormulaDisplay();
+}
+
+function updateCountBadges() {
+  [4,6,8,10,12,20,100].forEach(s => {
+    const el = document.getElementById('cnt'+s);
+    const count = diceCounts[s] || 0;
+    el.textContent = count;
+    el.classList.toggle('visible', count > 0);
+  });
+}
+
+function buildFormulaFromCounts() {
+  const parts = Object.entries(diceCounts)
+    .filter(([,c]) => c > 0)
+    .sort(([a],[b]) => parseInt(a)-parseInt(b))
+    .map(([s,c]) => `${c}d${s}`);
+  if (!parts.length) return null;
+  const mod = parseInt(document.getElementById('modInput').value)||0;
+  let formula = parts.join('+');
+  if (mod > 0) formula += `+${mod}`;
+  if (mod < 0) formula += `${mod}`;
+  if (dropMode === 'low') formula += ' (dl1)';
+  if (dropMode === 'high') formula += ' (dh1)';
+  if (advMode !== 'none') formula += ` (${advMode.toUpperCase()})`;
+  return formula;
+}
+
+function updateFormulaDisplay() {
+  const f = buildFormulaFromCounts();
+  document.getElementById('currentFormula').textContent = f || '—';
+  document.getElementById('rollBtn').disabled = !f;
+}
+
+function toggleAdv(mode) {
+  advMode = advMode === mode ? 'none' : mode;
+  document.getElementById('advBtn').classList.toggle('on', advMode === 'adv');
+  document.getElementById('disBtn').classList.toggle('on', advMode === 'dis');
+  updateFormulaDisplay();
+}
+
+function toggleDrop(mode) {
+  dropMode = dropMode === mode ? 'none' : mode;
+  document.getElementById('dropLoBtn').classList.toggle('on', dropMode === 'low');
+  document.getElementById('dropHiBtn').classList.toggle('on', dropMode === 'high');
+  updateFormulaDisplay();
+}
+
+function clearDice() {
+  diceCounts = {};
+  advMode = 'none';
+  dropMode = 'none';
+  document.getElementById('advBtn').classList.remove('on');
+  document.getElementById('disBtn').classList.remove('on');
+  document.getElementById('dropLoBtn').classList.remove('on');
+  document.getElementById('dropHiBtn').classList.remove('on');
+  document.getElementById('modInput').value = 0;
+  updateCountBadges();
+  updateFormulaDisplay();
+}
+
+// ── ROLLING ──────────────────────────────────────────────
+
+function rollDice() {
+  const mod = parseInt(document.getElementById('modInput').value)||0;
+  const diceList = Object.entries(diceCounts).filter(([,c]) => c > 0);
+  if (!diceList.length) return;
+
+  let allRolls = [];
+  let grandTotal = mod;
+  let anyCrit = false;
+  let anyFail = false;
+  let formulaParts = [];
+
+  diceList.forEach(([sides, count]) => {
+    const result = executeRoll(count, parseInt(sides), 0, null, null);
+    allRolls.push({ sides: parseInt(sides), rolls: result.rolls });
+    grandTotal += result.rolls.filter(r => !r.dropped).reduce((s,r) => s+r.val, 0);
+    if (result.isCrit) anyCrit = true;
+    if (result.isFail) anyFail = true;
+    formulaParts.push(`${count}d${sides}`);
+  });
+
+  let formula = formulaParts.join('+');
+  if (mod > 0) formula += `+${mod}`;
+  if (mod < 0) formula += `${mod}`;
+
+  lastFormula = { type: 'counts', diceCounts: {...diceCounts}, mod, advMode, dropMode };
+  displayResult(grandTotal, formula, allRolls, mod, anyCrit, anyFail);
+  pushHistory(grandTotal, formula, allRolls, mod, anyCrit, anyFail);
+}
+
+function rollFormula() {
+  const raw = document.getElementById('formulaInput').value.trim();
+  if (!raw) return;
+  const parsed = parseFormula(raw);
+  if (!parsed) { document.getElementById('formulaInput').style.borderColor = 'var(--red)'; setTimeout(() => document.getElementById('formulaInput').style.borderColor = '', 1000); return; }
+
+  const result = executeRoll(parsed.count, parsed.sides, parsed.mod, parsed.dropLow ? 'low' : parsed.dropHigh ? 'high' : 'none', 'none');
+  const formula = raw;
+  lastFormula = { type: 'formula', raw };
+  displayResult(result.total, formula, [{sides: parsed.sides, rolls: result.rolls}], parsed.mod, result.isCrit, result.isFail);
+  pushHistory(result.total, formula, [{sides: parsed.sides, rolls: result.rolls}], parsed.mod, result.isCrit, result.isFail);
+}
+
+function rollPreset(formula) {
+  document.getElementById('formulaInput').value = formula;
+  rollFormula();
+}
+
+function reroll() {
+  if (!lastFormula) return;
+  if (lastFormula.type === 'formula') {
+    rollFormula();
+  } else {
+    rollDice();
+  }
+}
+
+// ── DISPLAY ──────────────────────────────────────────────
+
+function displayResult(total, formula, allRolls, mod, isCrit, isFail) {
+  document.getElementById('resultEmpty').style.display = 'none';
+  const content = document.getElementById('resultContent');
+  content.style.display = 'block';
+
+  document.getElementById('resultFormula').textContent = formula.toUpperCase();
+
+  const totalEl = document.getElementById('resultTotal');
+  totalEl.textContent = total;
+  totalEl.className = 'result-total ' + (isCrit ? 'crit' : isFail ? 'fail' : 'normal');
+  totalEl.classList.add('rolling');
+  setTimeout(() => totalEl.classList.remove('rolling'), 400);
+
+  const critLabel = document.getElementById('resultCritLabel');
+  if (isCrit) { critLabel.textContent = '✦ CRITICAL HIT ✦'; critLabel.style.color = 'var(--amber)'; }
+  else if (isFail) { critLabel.textContent = '✦ CRITICAL FAIL ✦'; critLabel.style.color = 'var(--red)'; }
+  else { critLabel.textContent = ''; }
+
+  const breakdown = document.getElementById('resultBreakdown');
+  breakdown.innerHTML = allRolls.map(group => {
+    const max = group.sides;
+    return group.rolls.map(r => {
+      const cls = r.dropped ? 'die-result dropped' : r.val === max ? 'die-result max' : r.val === 1 ? 'die-result min' : 'die-result';
+      return `<span class="${cls}">${r.val}</span>`;
+    }).join('');
+  }).join('<span style="color:var(--text3);padding:0 4px">+</span>');
+
+  const modEl = document.getElementById('resultModDisplay');
+  if (mod !== 0) modEl.textContent = `Modifier: ${mod > 0 ? '+' : ''}${mod}`;
+  else modEl.textContent = '';
+}
+
+// ── HISTORY ──────────────────────────────────────────────
+
+function pushHistory(total, formula, allRolls, mod, isCrit, isFail) {
+  rollHistory.unshift({ total, formula, allRolls, mod, isCrit, isFail });
+  if (rollHistory.length > 100) rollHistory = rollHistory.slice(0, 100);
+  saveHistory();
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('rollHistory');
+  if (!rollHistory.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 4px">No rolls yet</div>'; return; }
+  el.innerHTML = rollHistory.map((h, i) => {
+    const cls = h.isCrit ? 'crit' : h.isFail ? 'fail' : 'normal';
+    const breakdown = h.allRolls.map(g => g.rolls.filter(r=>!r.dropped).map(r=>r.val).join(',')).join('|');
+    return `<div class="history-entry" onclick="replayRoll(${i})">
+      <div class="history-total ${cls}">${h.total}</div>
+      <div>
+        <div class="history-formula">${h.formula.toUpperCase()}</div>
+        <div class="history-breakdown">[${breakdown}]${h.mod ? (h.mod>0?'+':'')+h.mod : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function replayRoll(i) {
+  const h = rollHistory[i];
+  displayResult(h.total, h.formula, h.allRolls, h.mod, h.isCrit, h.isFail);
+}
+
+function clearHistory() {
+  rollHistory = [];
+  saveHistory();
+  renderHistory();
+}
+
+// ── PRESETS ──────────────────────────────────────────────
+
+function renderPresets() {
+  const el = document.getElementById('presetList');
+  if (!presets.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:6px 4px">No presets saved</div>'; return; }
+  el.innerHTML = presets.map((p, i) => `
+    <div class="preset-entry">
+      <div class="preset-name">${p.name}</div>
+      <div class="preset-formula">${p.formula}</div>
+      <button class="preset-roll-btn" onclick="rollPreset('${p.formula}')">Roll</button>
+      <div class="preset-del" onclick="deletePreset(${i})">✕</div>
+    </div>`).join('');
+}
+
+function addPreset() {
+  const name = document.getElementById('presetNameInput').value.trim();
+  const formula = document.getElementById('presetFormulaInput').value.trim();
+  if (!name || !formula) return;
+  presets.push({ name, formula });
+  savePresets();
+  document.getElementById('presetNameInput').value = '';
+  document.getElementById('presetFormulaInput').value = '';
+  renderPresets();
+}
+
+function deletePreset(i) {
+  presets.splice(i, 1);
+  savePresets();
+  renderPresets();
+}
+
+// ── KEYBOARD SHORTCUT ────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id !== 'formulaInput' &&
+      document.activeElement.id !== 'presetNameInput' &&
+      document.activeElement.id !== 'presetFormulaInput') {
+    rollDice();
+  }
+  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); reroll(); }
+});
+
+// ── INIT ─────────────────────────────────────────────────
+loadStorage();
+renderPresets();
+renderHistory();
+updateFormulaDisplay();
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — Clock</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --panel: #181c26;
+  --border: #2a3045;
+  --border2: #3a4560;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #7a6238;
+  --red: #e05555;
+  --red-dim: #7a2828;
+  --green: #4caf7d;
+  --green-dim: #1e5c38;
+  --blue: #5b8de8;
+  --blue-dim: #2a4a8a;
+  --purple: #9b72cf;
+  --purple-dim: #4a2e7a;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --text: #e8e0d0;
+  --text2: #a09880;
+  --text3: #605848;
+  --radius: 6px;
+  --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
+
+.app-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; }
+.nav-tab {
+  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s; text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+.btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.small { padding: 3px 10px; font-size: 12px; }
+.btn.icon { padding: 4px 8px; font-size: 15px; line-height: 1; }
+
+/* Main layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 12px;
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Clock face */
+.clock-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.clock-face {
+  padding: 32px 24px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.time-of-day-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+
+.clock-time {
+  font-family: 'Cinzel', serif;
+  font-size: 72px;
+  color: var(--accent2);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clock-time:hover { color: var(--accent); }
+
+.clock-period {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--text2);
+  margin-top: 4px;
+  letter-spacing: 0.1em;
+}
+
+.clock-date {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  color: var(--text);
+  margin-top: 12px;
+  letter-spacing: 0.04em;
+}
+
+.clock-era {
+  font-size: 13px;
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Real time ratio indicator */
+.ratio-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 10px;
+}
+.ratio-badge span { color: var(--teal); font-weight: 600; }
+
+/* Auto-tick toggle */
+.auto-tick-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.toggle-switch {
+  width: 36px; height: 18px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--teal); border-color: var(--teal); }
+.toggle-knob {
+  width: 12px; height: 12px;
+  background: var(--text3);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 3px;
+  transition: left 0.2s, background 0.2s;
+}
+.toggle-switch.on .toggle-knob { left: 19px; background: #fff; }
+
+/* Time controls */
+.time-controls {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls-title {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Nudge buttons */
+.nudge-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.nudge-btn {
+  padding: 6px 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.nudge-btn:hover { border-color: var(--accent-dim); color: var(--accent); background: var(--bg2); }
+.nudge-btn.rest { border-color: var(--blue-dim); color: var(--blue); }
+.nudge-btn.rest:hover { background: rgba(91,141,232,0.1); }
+.nudge-btn.long-rest { border-color: var(--purple-dim); color: var(--purple); }
+.nudge-btn.long-rest:hover { background: rgba(155,114,207,0.1); }
+
+/* Manual time set */
+.time-set-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+.time-field { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.time-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.time-field input, .time-field select {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px;
+  padding: 5px 8px; width: 100%; text-align: center;
+}
+.time-field input:focus, .time-field select:focus { outline: none; border-color: var(--accent-dim); }
+.time-field select option { background: var(--bg2); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); }
+
+/* Right panel */
+.right-col { display: flex; flex-direction: column; gap: 10px; }
+
+/* Calendar */
+.calendar-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cal-nav-btn {
+  padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border);
+  background: transparent; color: var(--text2); cursor: pointer; font-size: 13px;
+  transition: all 0.15s;
+}
+.cal-nav-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+.cal-month-label { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); min-width: 110px; text-align: center; }
+
+.calendar-grid { padding: 10px 12px; }
+.cal-days-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.cal-day-label { font-size: 10px; color: var(--text3); text-align: center; text-transform: uppercase; letter-spacing: 0.04em; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.cal-cell:hover { background: var(--bg3); border-color: var(--border); color: var(--text); }
+.cal-cell.today { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); font-weight: 600; }
+.cal-cell.empty { cursor: default; }
+.cal-cell.empty:hover { background: transparent; border-color: transparent; }
+
+/* Moons panel */
+.moon-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.moon-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+
+.moon-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.moon-icon { font-size: 24px; width: 32px; text-align: center; flex-shrink: 0; }
+.moon-info { flex: 1; }
+.moon-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); }
+.moon-phase-name { font-size: 12px; color: var(--text3); }
+.moon-progress {
+  height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 4px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.moon-progress-fill { height: 100%; border-radius: 2px; background: var(--text2); transition: width 0.3s; }
+.moon-cycle-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+/* History log */
+.history-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius2);
+  overflow: hidden;
+}
+
+.history-list {
+  padding: 8px 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-entry {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text3);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.history-entry:last-child { border-bottom: none; }
+.history-time { color: var(--accent-dim); white-space: nowrap; flex-shrink: 0; font-family: 'Cinzel', serif; font-size: 11px; }
+.history-desc { color: var(--text2); }
+
+/* Inline time editor */
+.time-editor {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.time-editor.visible { display: flex; }
+.te-input {
+  background: var(--bg3); border: 1px solid var(--accent-dim); border-radius: var(--radius);
+  color: var(--accent2); font-family: 'Cinzel', serif; font-size: 36px;
+  text-align: center; padding: 2px 4px; width: 80px;
+}
+.te-input:focus { outline: none; }
+.te-sep { font-family: 'Cinzel', serif; font-size: 36px; color: var(--accent-dim); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
+    <button class="nav-tab active">Clock</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <!-- Left: Clock face + controls -->
+  <div class="clock-panel">
+    <div class="clock-face">
+      <div class="time-of-day-label" id="timeOfDayLabel">Dawn</div>
+      <div class="clock-time" id="clockTime" onclick="toggleTimeEditor()" title="Click to edit time">00:00</div>
+
+      <!-- Inline time editor -->
+      <div class="time-editor" id="timeEditor">
+        <input class="te-input" type="number" id="teHour" min="0" max="23" placeholder="00">
+        <span class="te-sep">:</span>
+        <input class="te-input" type="number" id="teMin" min="0" max="59" placeholder="00">
+        <button class="btn small primary" onclick="applyTimeEditor()">Set</button>
+        <button class="btn small" onclick="toggleTimeEditor()">✕</button>
+      </div>
+
+      <div class="clock-period" id="clockPeriod">Night's End</div>
+      <div class="clock-date" id="clockDate">Day 1 of Wahuary</div>
+      <div class="clock-era" id="clockEra">Year 1 CE</div>
+
+      <div class="ratio-badge">
+        Real-time ratio: <span id="ratioLabel">1 min = 5 in-world min</span>
+        &nbsp;·&nbsp;
+        <span id="autoTickStatus" style="color:var(--text3)">Auto-tick off</span>
+      </div>
+
+      <div class="auto-tick-row">
+        <div class="toggle-switch" id="autoTickToggle" onclick="toggleAutoTick()" title="Toggle real-time advancement">
+          <div class="toggle-knob"></div>
+        </div>
+        <span style="font-size:12px;color:var(--text3)">Real-time auto-advance</span>
+      </div>
+    </div>
+
+    <div class="time-controls">
+      <div class="controls-title">Advance Time</div>
+
+      <div class="nudge-grid">
+        <button class="nudge-btn" onclick="advance(0,1,0)">+1 min</button>
+        <button class="nudge-btn" onclick="advance(0,5,0)">+5 min</button>
+        <button class="nudge-btn" onclick="advance(0,10,0)">+10 min</button>
+        <button class="nudge-btn" onclick="advance(0,30,0)">+30 min</button>
+        <button class="nudge-btn" onclick="advance(1,0,0)">+1 hr</button>
+        <button class="nudge-btn" onclick="advance(2,0,0)">+2 hr</button>
+        <button class="nudge-btn" onclick="advance(4,0,0)">+4 hr</button>
+        <button class="nudge-btn" onclick="advance(8,0,0)">+8 hr</button>
+        <button class="nudge-btn rest" onclick="shortRest()">Short Rest</button>
+        <button class="nudge-btn rest" onclick="advance(4,0,0)">Travel 4h</button>
+        <button class="nudge-btn rest" onclick="advance(8,0,0)">Travel 8h</button>
+        <button class="nudge-btn long-rest" onclick="longRest()">Long Rest</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="controls-title">Set Date &amp; Time</div>
+
+      <div class="time-set-row">
+        <div class="time-field" style="max-width:70px">
+          <label>Hour</label>
+          <input type="number" id="setHour" min="0" max="23" placeholder="0">
+        </div>
+        <div class="time-field" style="max-width:70px">
+          <label>Minute</label>
+          <input type="number" id="setMin" min="0" max="59" placeholder="0">
+        </div>
+        <div class="time-field" style="max-width:70px">
+          <label>Day</label>
+          <input type="number" id="setDay" min="1" max="28" placeholder="1">
+        </div>
+        <div class="time-field">
+          <label>Month</label>
+          <select id="setMonth"></select>
+        </div>
+        <div class="time-field" style="max-width:80px">
+          <label>Year CE</label>
+          <input type="number" id="setYear" min="1" placeholder="1">
+        </div>
+        <button class="btn small primary" onclick="applyManualSet()" style="align-self:flex-end;margin-bottom:1px">Set</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="controls-title">Custom Advance</div>
+      <div class="time-set-row">
+        <div class="time-field" style="max-width:70px">
+          <label>Days</label>
+          <input type="number" id="advDays" min="0" placeholder="0">
+        </div>
+        <div class="time-field" style="max-width:70px">
+          <label>Hours</label>
+          <input type="number" id="advHours" min="0" placeholder="0">
+        </div>
+        <div class="time-field" style="max-width:70px">
+          <label>Minutes</label>
+          <input type="number" id="advMins" min="0" placeholder="0">
+        </div>
+        <button class="btn small primary" onclick="applyCustomAdvance()" style="align-self:flex-end;margin-bottom:1px">Advance</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="right-col">
+
+    <!-- Calendar -->
+    <div class="calendar-panel">
+      <div class="panel-head">
+        <div class="panel-title">Calendar</div>
+        <div class="calendar-nav">
+          <button class="cal-nav-btn" onclick="calPrev()">◀</button>
+          <div class="cal-month-label" id="calMonthLabel">Wahuary · 1 CE</div>
+          <button class="cal-nav-btn" onclick="calNext()">▶</button>
+        </div>
+      </div>
+      <div class="calendar-grid">
+        <div class="cal-days-header">
+          ${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-day-label">${d}</div>`).join('')}
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </div>
+
+    <!-- Moons -->
+    <div class="moon-panel">
+      <div class="panel-head">
+        <div class="panel-title">Moons of Thekodia</div>
+      </div>
+      <div class="moon-list" id="moonList"></div>
+    </div>
+
+    <!-- History -->
+    <div class="history-panel">
+      <div class="panel-head">
+        <div class="panel-title">Time Log</div>
+        <button class="btn small" onclick="clearHistory()">Clear</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const MONTHS = ['Wahuary','Dosuary','Tresuary','Nneuary','Wuuary','Situary','Sietuary','Octuary','Tisauary','Shiuary','Hdashuary','Docuary'];
+const DAYS_PER_MONTH = 28;
+const MONTHS_PER_YEAR = 12;
+const MOONS = [
+  { name: 'Nox',    cycle: 14, color: '#a0c8e8' },
+  { name: 'Tharis', cycle: 24, color: '#c8a96e' },
+  { name: 'Cerath', cycle: 36, color: '#9b72cf' }
+];
+const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+const MOON_PHASE_NAMES = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+
+// Real-time ratio: 1 real minute = RATIO in-world minutes
+const RATIO = 5;
+
+// Clock state: minutes since epoch (start of Year 1, Day 1, 00:00)
+const CLOCK_KEY = 'thekodia_clock';
+const HISTORY_KEY = 'thekodia_clock_history';
+
+let clockMinutes = 0; // total in-world minutes elapsed
+let autoTick = false;
+let tickInterval = null;
+let calViewMonth = 1;
+let calViewYear = 1;
+let history = [];
+
+// ── HELPERS ──────────────────────────────────────────────
+
+function totalMinutesToState(totalMins) {
+  const minutesPerDay = 24 * 60;
+  const minutesPerMonth = DAYS_PER_MONTH * minutesPerDay;
+  const minutesPerYear = MONTHS_PER_YEAR * minutesPerMonth;
+
+  let remaining = Math.max(0, totalMins);
+  const year = Math.floor(remaining / minutesPerYear) + 1;
+  remaining = remaining % minutesPerYear;
+  const month = Math.floor(remaining / minutesPerMonth) + 1;
+  remaining = remaining % minutesPerMonth;
+  const day = Math.floor(remaining / minutesPerDay) + 1;
+  remaining = remaining % minutesPerDay;
+  const hour = Math.floor(remaining / 60);
+  const minute = remaining % 60;
+  return { year, month, day, hour, minute };
+}
+
+function stateToTotalMinutes(year, month, day, hour, minute) {
+  const minutesPerDay = 24 * 60;
+  const minutesPerMonth = DAYS_PER_MONTH * minutesPerDay;
+  const minutesPerYear = MONTHS_PER_YEAR * minutesPerMonth;
+  return (year-1)*minutesPerYear + (month-1)*minutesPerMonth + (day-1)*minutesPerDay + hour*60 + minute;
+}
+
+function timeOfDay(hour) {
+  if (hour >= 5 && hour < 8)   return { label: 'Dawn',    period: "Morning's First Light" };
+  if (hour >= 8 && hour < 12)  return { label: 'Morning', period: 'Morning' };
+  if (hour >= 12 && hour < 14) return { label: 'Midday',  period: 'High Sun' };
+  if (hour >= 14 && hour < 17) return { label: 'Afternoon', period: 'Afternoon' };
+  if (hour >= 17 && hour < 20) return { label: 'Dusk',    period: 'Evening Tide' };
+  if (hour >= 20 && hour < 24) return { label: 'Night',   period: 'Night Watch' };
+  return { label: 'Midnight',  period: "Night's Deep" };
+}
+
+function getMoonPhaseIdx(cycleDays, totalMins) {
+  const minutesPerDay = 24*60;
+  const dayNum = Math.floor(totalMins / minutesPerDay);
+  const pct = (dayNum % cycleDays) / cycleDays;
+  return Math.floor(pct * 8) % 8;
+}
+
+function getMoonDayInCycle(cycleDays, totalMins) {
+  const minutesPerDay = 24*60;
+  const dayNum = Math.floor(totalMins / minutesPerDay);
+  return (dayNum % cycleDays) + 1;
+}
+
+// ── STORAGE ──────────────────────────────────────────────
+
+function loadClock() {
+  try {
+    const raw = localStorage.getItem(CLOCK_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      clockMinutes = data.totalMinutes || 0;
+    }
+  } catch {}
+  try {
+    history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  } catch { history = []; }
+}
+
+function saveClock() {
+  const state = totalMinutesToState(clockMinutes);
+  try {
+    localStorage.setItem(CLOCK_KEY, JSON.stringify({
+      totalMinutes: clockMinutes,
+      ...state
+    }));
+  } catch {}
+}
+
+function pushHistory(desc) {
+  const state = totalMinutesToState(clockMinutes);
+  const timeStr = `${String(state.hour).padStart(2,'0')}:${String(state.minute).padStart(2,'0')} Day ${state.day} ${MONTHS[state.month-1]} ${state.year} CE`;
+  history.unshift({ time: timeStr, desc });
+  if (history.length > 50) history = history.slice(0, 50);
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch {}
+}
+
+function clearHistory() {
+  history = [];
+  try { localStorage.removeItem(HISTORY_KEY); } catch {}
+  renderHistory();
+}
+
+// ── ADVANCE ──────────────────────────────────────────────
+
+function advance(hours, minutes, days, logDesc) {
+  const totalAdd = days*24*60 + hours*60 + minutes;
+  if (!totalAdd) return;
+  clockMinutes += totalAdd;
+  saveClock();
+  const parts = [];
+  if (days) parts.push(`${days}d`);
+  if (hours) parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  pushHistory(logDesc || `Advanced ${parts.join(' ')}`);
+  render();
+}
+
+function shortRest() {
+  advance(1, 0, 0, 'Short rest (1 hour)');
+}
+
+function longRest() {
+  advance(8, 0, 0, 'Long rest (8 hours)');
+}
+
+function applyCustomAdvance() {
+  const d = parseInt(document.getElementById('advDays').value)||0;
+  const h = parseInt(document.getElementById('advHours').value)||0;
+  const m = parseInt(document.getElementById('advMins').value)||0;
+  if (!d && !h && !m) return;
+  advance(h, m, d);
+  document.getElementById('advDays').value = '';
+  document.getElementById('advHours').value = '';
+  document.getElementById('advMins').value = '';
+}
+
+function applyManualSet() {
+  const h = parseInt(document.getElementById('setHour').value)||0;
+  const m = parseInt(document.getElementById('setMin').value)||0;
+  const d = parseInt(document.getElementById('setDay').value)||1;
+  const mo = parseInt(document.getElementById('setMonth').value)||1;
+  const y = parseInt(document.getElementById('setYear').value)||1;
+  clockMinutes = stateToTotalMinutes(y, mo, d, h, m);
+  calViewMonth = mo;
+  calViewYear = y;
+  saveClock();
+  pushHistory(`Time set manually to ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} Day ${d} ${MONTHS[mo-1]} ${y} CE`);
+  render();
+}
+
+function toggleTimeEditor() {
+  const editor = document.getElementById('timeEditor');
+  const state = totalMinutesToState(clockMinutes);
+  if (editor.classList.contains('visible')) {
+    editor.classList.remove('visible');
+  } else {
+    document.getElementById('teHour').value = state.hour;
+    document.getElementById('teMin').value = state.minute;
+    editor.classList.add('visible');
+    document.getElementById('teHour').focus();
+  }
+}
+
+function applyTimeEditor() {
+  const h = Math.min(23, Math.max(0, parseInt(document.getElementById('teHour').value)||0));
+  const m = Math.min(59, Math.max(0, parseInt(document.getElementById('teMin').value)||0));
+  const state = totalMinutesToState(clockMinutes);
+  clockMinutes = stateToTotalMinutes(state.year, state.month, state.day, h, m);
+  saveClock();
+  pushHistory(`Time adjusted to ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+  document.getElementById('timeEditor').classList.remove('visible');
+  render();
+}
+
+// ── AUTO TICK ─────────────────────────────────────────────
+
+function toggleAutoTick() {
+  autoTick = !autoTick;
+  const toggle = document.getElementById('autoTickToggle');
+  toggle.classList.toggle('on', autoTick);
+  document.getElementById('autoTickStatus').textContent = autoTick ? 'Auto-tick ON' : 'Auto-tick off';
+  document.getElementById('autoTickStatus').style.color = autoTick ? 'var(--teal)' : 'var(--text3)';
+  if (autoTick) {
+    tickInterval = setInterval(() => {
+      clockMinutes += RATIO;
+      saveClock();
+      render();
+    }, 60000); // every real minute
+  } else {
+    clearInterval(tickInterval);
+  }
+}
+
+// ── CALENDAR ─────────────────────────────────────────────
+
+function calPrev() {
+  calViewMonth--;
+  if (calViewMonth < 1) { calViewMonth = 12; calViewYear--; if (calViewYear < 1) { calViewYear = 1; calViewMonth = 1; } }
+  renderCalendar();
+}
+
+function calNext() {
+  calViewMonth++;
+  if (calViewMonth > 12) { calViewMonth = 1; calViewYear++; }
+  renderCalendar();
+}
+
+function jumpToDay(day) {
+  clockMinutes = stateToTotalMinutes(calViewYear, calViewMonth, day, totalMinutesToState(clockMinutes).hour, totalMinutesToState(clockMinutes).minute);
+  saveClock();
+  pushHistory(`Jumped to Day ${day} ${MONTHS[calViewMonth-1]} ${calViewYear} CE`);
+  render();
+}
+
+function renderCalendar() {
+  const state = totalMinutesToState(clockMinutes);
+  document.getElementById('calMonthLabel').textContent = `${MONTHS[calViewMonth-1]} · ${calViewYear} CE`;
+  const grid = document.getElementById('calGrid');
+  // 28-day month, start offset (cycle through so months feel different)
+  const offset = ((calViewMonth - 1) * 3 + (calViewYear - 1)) % 7;
+  let html = '';
+  for (let i = 0; i < offset; i++) html += '<div class="cal-cell empty"></div>';
+  for (let d = 1; d <= DAYS_PER_MONTH; d++) {
+    const isToday = d === state.day && calViewMonth === state.month && calViewYear === state.year;
+    html += `<div class="cal-cell${isToday ? ' today' : ''}" onclick="jumpToDay(${d})">${d}</div>`;
+  }
+  grid.innerHTML = html;
+}
+
+// ── MOONS ─────────────────────────────────────────────────
+
+function renderMoons() {
+  const list = document.getElementById('moonList');
+  list.innerHTML = MOONS.map(moon => {
+    const phaseIdx = getMoonPhaseIdx(moon.cycle, clockMinutes);
+    const dayInCycle = getMoonDayInCycle(moon.cycle, clockMinutes);
+    const pct = Math.round((dayInCycle / moon.cycle) * 100);
+    return `
+    <div class="moon-entry">
+      <div class="moon-icon">${MOON_PHASES[phaseIdx]}</div>
+      <div class="moon-info">
+        <div class="moon-name" style="color:${moon.color}">${moon.name}</div>
+        <div class="moon-phase-name">${MOON_PHASE_NAMES[phaseIdx]} · Day ${dayInCycle} of ${moon.cycle}</div>
+        <div class="moon-progress">
+          <div class="moon-progress-fill" style="width:${pct}%;background:${moon.color}"></div>
+        </div>
+      </div>
+      <div class="moon-cycle-label" style="color:${moon.color}">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTORY ──────────────────────────────────────────────
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:4px 0">No events logged yet</div>';
+    return;
+  }
+  list.innerHTML = history.map(h => `
+    <div class="history-entry">
+      <div class="history-time">${h.time}</div>
+      <div class="history-desc">${h.desc}</div>
+    </div>`).join('');
+}
+
+// ── MAIN RENDER ───────────────────────────────────────────
+
+function render() {
+  const state = totalMinutesToState(clockMinutes);
+  const { hour, minute, day, month, year } = state;
+  const tod = timeOfDay(hour);
+
+  document.getElementById('timeOfDayLabel').textContent = tod.label.toUpperCase();
+  document.getElementById('clockTime').textContent = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+  document.getElementById('clockPeriod').textContent = tod.period;
+  document.getElementById('clockDate').textContent = `Day ${day} of ${MONTHS[month-1]}`;
+  document.getElementById('clockEra').textContent = `Year ${year} CE`;
+
+  // Only sync calendar view when no manual nav has occurred
+  // (calViewMonth/Year start at -1 as sentinel)
+  if (calViewMonth === -1) {
+    calViewMonth = month;
+    calViewYear = year;
+  }
+
+  // Populate set fields — but don't override month select if user has changed it
+  document.getElementById('setHour').value = hour;
+  document.getElementById('setMin').value = minute;
+  document.getElementById('setDay').value = day;
+  document.getElementById('setMonth').value = month;
+  document.getElementById('setYear').value = year;
+
+  renderCalendar();
+  renderMoons();
+  renderHistory();
+
+  // Push to player display
+  try {
+    localStorage.setItem('thekodia_clock', JSON.stringify(state));
+  } catch {}
+}
+
+function populateMonthSelect() {
+  const sel = document.getElementById('setMonth');
+  sel.innerHTML = MONTHS.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
+}
+
+loadClock();
+populateMonthSelect();
+calViewMonth = -1; // sentinel — will be set to current month on first render
+calViewYear = 1;
+render();
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>

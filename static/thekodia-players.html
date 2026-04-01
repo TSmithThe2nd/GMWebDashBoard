@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — Players</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e28;
+  --panel: #181c26;
+  --border: #2a3045;
+  --border2: #3a4560;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #7a6238;
+  --red: #e05555;
+  --red-dim: #7a2828;
+  --green: #4caf7d;
+  --green-dim: #1e5c38;
+  --blue: #5b8de8;
+  --blue-dim: #2a4a8a;
+  --purple: #9b72cf;
+  --purple-dim: #4a2e7a;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --text: #e8e0d0;
+  --text2: #a09880;
+  --text3: #605848;
+  --radius: 6px;
+  --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
+
+.app-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; }
+.nav-tab {
+  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+.btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.danger { border-color: var(--red-dim); color: var(--red); }
+.btn.danger:hover { background: rgba(224,85,85,0.1); }
+.btn.small { padding: 3px 8px; font-size: 12px; }
+.btn.icon { padding: 4px 8px; font-size: 15px; line-height: 1; }
+
+/* Layout */
+.main-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 54px); }
+
+/* Sidebar */
+.sidebar {
+  background: var(--panel); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; height: calc(100vh - 54px);
+  position: sticky; top: 54px;
+}
+.sidebar-head { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.sidebar-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.player-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 3px; }
+
+.player-entry {
+  padding: 8px 10px; border-radius: var(--radius); border: 1px solid transparent;
+  cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+}
+.player-entry:hover { background: var(--bg3); border-color: var(--border); }
+.player-entry.selected { background: var(--bg3); border-color: var(--accent-dim); }
+
+.player-avatar {
+  width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
+  background: var(--bg3); border: 1px solid var(--border2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.player-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.player-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); }
+.player-entry-class { font-size: 11px; color: var(--text3); }
+
+/* Center panel */
+.center-panel { padding: 16px; overflow-y: auto; }
+
+.empty-state { text-align: center; padding: 60px 16px; color: var(--text3); }
+.empty-state .big { font-family: 'Cinzel', serif; font-size: 22px; color: var(--border2); margin-bottom: 8px; }
+
+/* Player Card */
+.player-card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
+  overflow: hidden; max-width: 860px;
+}
+
+.card-hero {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(135deg, var(--bg3) 0%, var(--panel) 100%);
+}
+
+.hero-avatar {
+  width: 72px; height: 72px; border-radius: 50%; overflow: hidden;
+  background: var(--bg3); border: 2px solid var(--border2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+  cursor: pointer; position: relative;
+}
+.hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.hero-avatar input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.hero-info { flex: 1; }
+.hero-name { font-family: 'Cinzel', serif; font-size: 22px; color: var(--accent2); }
+.hero-sub { font-size: 14px; color: var(--text2); margin-top: 2px; }
+.hero-player { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+.hero-stats { display: flex; gap: 12px; }
+.hero-stat { text-align: center; }
+.hero-stat-val { font-family: 'Cinzel', serif; font-size: 22px; color: var(--accent); line-height: 1; }
+.hero-stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+.hero-actions { display: flex; gap: 6px; align-items: flex-start; flex-shrink: 0; }
+
+/* Card tabs */
+.card-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg2); }
+.card-tab {
+  padding: 8px 18px; font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.15s; background: transparent; border-top: none; border-left: none; border-right: none;
+}
+.card-tab:hover { color: var(--text2); }
+.card-tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+.card-tab-panel { display: none; padding: 16px 20px; }
+.card-tab-panel.visible { display: block; }
+
+/* Stat block row */
+.stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.stat-field { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 80px; }
+.stat-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-field input, .stat-field select, .stat-field textarea {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; padding: 5px 8px; width: 100%;
+}
+.stat-field input:focus, .stat-field select:focus, .stat-field textarea:focus { outline: none; border-color: var(--accent-dim); }
+.stat-field textarea { min-height: 60px; resize: vertical; line-height: 1.5; }
+.stat-field select option { background: var(--bg2); }
+
+/* Ability scores */
+.ability-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 12px; }
+.ability-box {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px 4px; text-align: center;
+}
+.ability-box label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 4px; }
+.ability-box input { background: transparent; border: none; color: var(--accent2); font-family: 'Cinzel', serif; font-size: 18px; font-weight: 600; text-align: center; width: 100%; }
+.ability-box input:focus { outline: none; }
+.ability-mod { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+/* Spell slots */
+.spell-slots-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; margin-bottom: 12px; }
+.spell-slot-box {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 6px 4px; text-align: center;
+}
+.spell-slot-box label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 3px; }
+.spell-slot-box .slot-row { display: flex; gap: 3px; justify-content: center; margin-top: 4px; }
+
+.slot-pip {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid var(--purple-dim); background: var(--bg);
+  cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+}
+.slot-pip.used { background: var(--purple-dim); border-color: var(--purple); }
+.slot-pip.available { background: var(--purple); border-color: #c0a0ff; }
+
+.slot-max-input {
+  background: transparent; border: none; color: var(--purple); font-family: 'Cinzel', serif;
+  font-size: 14px; text-align: center; width: 100%;
+}
+.slot-max-input:focus { outline: none; }
+
+/* Features list */
+.feature-list { display: flex; flex-direction: column; gap: 6px; }
+.feature-entry {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 8px 12px; display: flex; align-items: flex-start; gap: 8px;
+}
+.feature-entry-content { flex: 1; }
+.feature-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); margin-bottom: 2px; }
+.feature-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.feature-del { font-size: 13px; color: var(--text3); cursor: pointer; padding: 0 2px; flex-shrink: 0; }
+.feature-del:hover { color: var(--red); }
+
+.add-feature-row { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.add-feature-inputs { display: flex; gap: 6px; }
+
+/* Notes */
+.notes-area {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text2); font-family: 'Rajdhani', sans-serif; font-size: 14px;
+  padding: 10px 12px; width: 100%; min-height: 120px; resize: vertical; line-height: 1.6;
+}
+.notes-area:focus { outline: none; border-color: var(--accent-dim); }
+
+/* Paste modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius2); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+.modal-head { padding: 14px 16px; border-bottom: 1px solid var(--border); font-family: 'Cinzel', serif; font-size: 15px; color: var(--accent); display: flex; align-items: center; justify-content: space-between; }
+.modal-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.modal-foot { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.paste-area { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text2); font-family: 'Rajdhani', sans-serif; font-size: 13px; padding: 8px; width: 100%; min-height: 140px; resize: vertical; }
+.paste-area:focus { outline: none; border-color: var(--accent-dim); }
+
+.divider { height: 1px; background: var(--border); margin: 10px 0; }
+.section-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; font-weight: 600; }
+
+/* Passive perception highlight */
+.pp-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(76,205,196,0.12); border: 1px solid rgba(76,205,196,0.3);
+  border-radius: var(--radius); padding: 4px 10px;
+}
+.pp-val { font-family: 'Cinzel', serif; font-size: 20px; color: var(--teal); }
+.pp-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Inspiration tracker */
+.inspiration-btn {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border2);
+  background: var(--bg3); display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+}
+.inspiration-btn.active { border-color: var(--amber); background: rgba(240,165,0,0.15); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab active">Players</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+  </div>
+  <button class="btn primary" onclick="newPlayer()">+ Add Player</button>
+</div>
+
+<div class="main-layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Party — M.A.G.E. Academy</div>
+    </div>
+    <div class="player-list" id="playerList"></div>
+  </div>
+
+  <!-- Center -->
+  <div class="center-panel" id="centerPanel">
+    <div class="empty-state">
+      <div class="big">No Players Yet</div>
+      Add a player or paste from D&D Beyond to get started
+    </div>
+  </div>
+
+</div>
+
+<!-- Encounter Picker Modal -->
+<div class="modal-overlay hidden" id="encPickerModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head">
+      <span id="encPickerTitle">Add to Encounter</span>
+      <button class="btn icon" onclick="closeModal('encPickerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="liveCombatOption"></div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Add to existing encounter</div>
+      <div id="encPickerList"></div>
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Or create a new encounter</div>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="newEncNameInput" placeholder="New encounter name..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:5px 8px" onkeydown="if(event.key==='Enter')addPlayerToNewEncounter()">
+        <button class="btn small primary" onclick="addPlayerToNewEncounter()">Create</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('encPickerModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal-overlay hidden" id="pasteModal">
+  <div class="modal">
+    <div class="modal-head">Import Character <button class="btn icon" onclick="closeModal('pasteModal')">✕</button></div>
+    <div class="modal-body">
+      <!-- Import tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:12px">
+        <button class="btn small active" id="importTabPDF" onclick="switchImportTab('pdf')" style="background:var(--accent-dim);border-color:var(--accent);color:var(--accent2)">PDF Upload</button>
+        <button class="btn small" id="importTabPaste" onclick="switchImportTab('paste')">Text Paste</button>
+      </div>
+
+      <!-- PDF tab -->
+      <div id="importPDFPanel">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:10px">
+          Export your character sheet as a PDF from D&D Beyond (or use any standard 5e character sheet PDF). Claude will read it and extract all fields automatically.
+        </div>
+        <div id="pdfDropZone" style="border:2px dashed var(--border2);border-radius:var(--radius2);padding:32px 16px;text-align:center;cursor:pointer;transition:border-color 0.15s" onclick="document.getElementById('pdfFileInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--accent)'" ondragleave="this.style.borderColor='var(--border2)'" ondrop="handlePDFDrop(event)">
+          <div style="font-size:28px;margin-bottom:8px">📄</div>
+          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--text2);margin-bottom:4px">Drop PDF here or click to browse</div>
+          <div style="font-size:12px;color:var(--text3)">Supports D&D Beyond exports and standard 5e character sheets</div>
+          <input type="file" id="pdfFileInput" accept=".pdf" style="display:none" onchange="handlePDFFile(this)">
+        </div>
+        <div id="pdfStatus" style="margin-top:10px;font-size:13px;color:var(--text3);min-height:20px"></div>
+        <div id="pdfPreview" style="margin-top:8px"></div>
+      </div>
+
+      <!-- Text paste tab -->
+      <div id="importPastePanel" style="display:none">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px">
+          On D&D Beyond, open the character sheet, select all (Ctrl+A), and paste below.
+        </div>
+        <textarea class="paste-area" id="pasteInput" placeholder="Paste D&D Beyond character sheet text here..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('pasteModal')">Cancel</button>
+      <button class="btn primary" id="importConfirmBtn" onclick="confirmImport()">Import Character</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'thekodia_players';
+let players = [];
+let selectedIdx = -1;
+
+function load() {
+  try { players = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { players = []; }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(players)); } catch {}
+}
+
+function emptyPlayer() {
+  return {
+    id: Date.now() + Math.random(),
+    // Character info
+    charName: 'New Character', playerName: '', race: '', classes: '', level: 1,
+    background: '', alignment: '',
+    // Core stats
+    hp: 10, maxhp: 10, temphp: 0, ac: 10, speed: 30,
+    passivePerception: 10, proficiencyBonus: 2,
+    // Ability scores
+    str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10,
+    // Saves (proficient)
+    saveProficiencies: '',
+    // Skills
+    skillProficiencies: '',
+    // Spell slots: array of {max, used} per level 1-9
+    spellSlots: Array(9).fill(null).map(() => ({ max: 0, used: 0 })),
+    spellcastingAbility: '', spellSaveDC: 0, spellAttackBonus: 0,
+    spellList: '',
+    // Features
+    features: [],
+    // Notes
+    notes: '',
+    // Inspiration
+    inspiration: false,
+    // Avatar
+    thumb: null
+  };
+}
+
+function mod(score) {
+  const m = Math.floor((score - 10) / 2);
+  return (m >= 0 ? '+' : '') + m;
+}
+
+function newPlayer() {
+  const p = emptyPlayer();
+  players.push(p);
+  save();
+  selectedIdx = players.length - 1;
+  renderSidebar();
+  renderCard();
+}
+
+function renderSidebar() {
+  const list = document.getElementById('playerList');
+  if (!players.length) { list.innerHTML = '<div style="padding:16px;font-size:13px;color:var(--text3);text-align:center">No players yet</div>'; return; }
+  list.innerHTML = players.map((p, i) => {
+    const thumbHtml = p.thumb ? `<img src="${p.thumb}">` : '🧙';
+    return `<div class="player-entry${selectedIdx === i ? ' selected' : ''}" onclick="selectPlayer(${i})">
+      <div class="player-avatar">${thumbHtml}</div>
+      <div>
+        <div class="player-entry-name">${p.charName}</div>
+        <div class="player-entry-class">${p.classes || '—'} · Lvl ${p.level}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectPlayer(i) {
+  selectedIdx = i;
+  renderSidebar();
+  renderCard();
+}
+
+function field(key, val) {
+  if (selectedIdx < 0) return;
+  players[selectedIdx][key] = val;
+  save();
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;');
+}
+
+function renderCard() {
+  const p = players[selectedIdx];
+  if (!p) return;
+  const center = document.getElementById('centerPanel');
+  const thumbHtml = p.thumb ? `<img src="${p.thumb}">` : '🧙';
+
+  center.innerHTML = `
+  <div class="player-card">
+
+    <!-- Hero Header -->
+    <div class="card-hero">
+      <div style="display:flex;align-items:center;gap:16px;flex:1;min-width:0">
+        <div class="hero-avatar" title="Click to upload image">
+          ${thumbHtml}
+          <input type="file" accept="image/*" onchange="uploadThumb(this)">
+        </div>
+        <div class="hero-info">
+          <input class="hero-name" style="background:transparent;border:none;font-family:'Cinzel',serif;font-size:22px;color:var(--accent2);width:100%" value="${esc(p.charName)}" onchange="field('charName',this.value);renderSidebar()" placeholder="Character Name">
+          <div class="hero-sub">
+            <input style="background:transparent;border:none;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;width:180px" value="${esc(p.classes)}" onchange="field('classes',this.value);renderSidebar()" placeholder="Class / Subclass">
+            &nbsp;·&nbsp;
+            <input style="background:transparent;border:none;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;width:80px" value="${esc(p.race)}" onchange="field('race',this.value)" placeholder="Race">
+            &nbsp;·&nbsp; Level
+            <input type="number" min="1" max="20" style="background:transparent;border:none;color:var(--accent);font-family:'Cinzel',serif;font-size:14px;width:36px" value="${p.level}" onchange="field('level',+this.value);renderSidebar()">
+          </div>
+          <div class="hero-player">
+            <input style="background:transparent;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:12px;width:200px" value="${esc(p.playerName)}" onchange="field('playerName',this.value)" placeholder="Player name">
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="inspiration-btn${p.inspiration ? ' active' : ''}" title="Inspiration" onclick="toggleInspiration()">★</div>
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em">${p.inspiration ? 'Inspired' : 'No Insp.'}</div>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-val">
+                <input type="number" style="background:transparent;border:none;color:var(--accent);font-family:'Cinzel',serif;font-size:22px;width:44px;text-align:center" value="${p.ac}" onchange="field('ac',+this.value)">
+              </div>
+              <div class="hero-stat-label">AC</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-val" style="display:flex;align-items:baseline;gap:2px">
+                <input type="number" style="background:transparent;border:none;color:var(--accent);font-family:'Cinzel',serif;font-size:22px;width:44px;text-align:center" value="${p.hp}" onchange="field('hp',+this.value)">
+                <span style="font-size:14px;color:var(--text3)">/</span>
+                <input type="number" style="background:transparent;border:none;color:var(--text3);font-family:'Cinzel',serif;font-size:14px;width:44px;text-align:center" value="${p.maxhp}" onchange="field('maxhp',+this.value)">
+              </div>
+              <div class="hero-stat-label">HP</div>
+            </div>
+            <div class="hero-stat">
+              <div class="pp-badge">
+                <input type="number" style="background:transparent;border:none;color:var(--teal);font-family:'Cinzel',serif;font-size:20px;width:40px;text-align:center" value="${p.passivePerception}" onchange="field('passivePerception',+this.value)">
+              </div>
+              <div class="hero-stat-label" style="text-align:center;margin-top:4px">Passive Perc.</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-val">
+                <input type="number" style="background:transparent;border:none;color:var(--accent);font-family:'Cinzel',serif;font-size:22px;width:44px;text-align:center" value="${p.speed}" onchange="field('speed',+this.value)">
+              </div>
+              <div class="hero-stat-label">Speed</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button class="btn small" style="border-color:var(--green-dim);color:var(--green)" onclick="sendToInitiative()">+ Initiative Tracker</button>
+          <button class="btn small primary" onclick="openPasteModal()">D&D Beyond Import</button>
+          <button class="btn small danger" onclick="deletePlayer()">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="card-tabs">
+      <button class="card-tab active" onclick="switchTab('stats', this)">Stats</button>
+      <button class="card-tab" onclick="switchTab('spells', this)">Spells</button>
+      <button class="card-tab" onclick="switchTab('features', this)">Features</button>
+      <button class="card-tab" onclick="switchTab('notes', this)">Notes</button>
+    </div>
+
+    <!-- STATS TAB -->
+    <div class="card-tab-panel visible" id="tab-stats">
+      <div class="section-label">Ability Scores</div>
+      <div class="ability-grid">
+        ${['str','dex','con','int','wis','cha'].map(a => `
+          <div class="ability-box">
+            <label>${a.toUpperCase()}</label>
+            <input type="number" value="${p[a]}" onchange="field('${a}',+this.value);document.getElementById('mod_${a}').textContent=calcMod(+this.value)">
+            <div class="ability-mod" id="mod_${a}">${mod(p[a])}</div>
+          </div>`).join('')}
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-field">
+          <label>Proficiency Bonus</label>
+          <input type="number" value="${p.proficiencyBonus}" onchange="field('proficiencyBonus',+this.value)" placeholder="+2">
+        </div>
+        <div class="stat-field">
+          <label>Temp HP</label>
+          <input type="number" value="${p.temphp}" onchange="field('temphp',+this.value)" placeholder="0">
+        </div>
+        <div class="stat-field">
+          <label>Background</label>
+          <input value="${esc(p.background)}" onchange="field('background',this.value)" placeholder="Sage, Criminal...">
+        </div>
+        <div class="stat-field">
+          <label>Alignment</label>
+          <input value="${esc(p.alignment)}" onchange="field('alignment',this.value)" placeholder="Neutral Good...">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label">Saving Throw Proficiencies</div>
+      <div class="stat-field" style="margin-bottom:12px">
+        <input value="${esc(p.saveProficiencies)}" onchange="field('saveProficiencies',this.value)" placeholder="Str, Con (or paste from D&D Beyond)">
+      </div>
+
+      <div class="section-label">Skill Proficiencies & Expertise</div>
+      <div class="stat-field">
+        <textarea onchange="field('skillProficiencies',this.value)" placeholder="Arcana +5, History +5, Perception +3 (expertise)...">${esc(p.skillProficiencies)}</textarea>
+      </div>
+    </div>
+
+    <!-- SPELLS TAB -->
+    <div class="card-tab-panel" id="tab-spells">
+      <div class="stat-row">
+        <div class="stat-field">
+          <label>Spellcasting Ability</label>
+          <select onchange="field('spellcastingAbility',this.value)">
+            <option value="">— None —</option>
+            ${['Intelligence','Wisdom','Charisma'].map(a => `<option value="${a}"${p.spellcastingAbility===a?' selected':''}>${a}</option>`).join('')}
+          </select>
+        </div>
+        <div class="stat-field">
+          <label>Spell Save DC</label>
+          <input type="number" value="${p.spellSaveDC}" onchange="field('spellSaveDC',+this.value)">
+        </div>
+        <div class="stat-field">
+          <label>Spell Attack Bonus</label>
+          <input type="number" value="${p.spellAttackBonus}" onchange="field('spellAttackBonus',+this.value)">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label">Spell Slots</div>
+      <div class="spell-slots-grid">
+        ${p.spellSlots.map((slot, lvl) => `
+          <div class="spell-slot-box">
+            <label>L${lvl+1}</label>
+            <input class="slot-max-input" type="number" min="0" max="9" value="${slot.max}"
+              onchange="updateSlotMax(${lvl}, +this.value)">
+            <div class="slot-row" id="slotPips_${lvl}">${renderPips(slot, lvl)}</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn small" onclick="resetAllSlots()">Reset All Slots</button>
+        <div style="font-size:12px;color:var(--text3);line-height:1;padding-top:4px">Click pips to mark used/available</div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-label">Spell List</div>
+      <div class="stat-field">
+        <textarea style="min-height:120px" onchange="field('spellList',this.value)" placeholder="Cantrips: Fire Bolt, Prestidigitation&#10;1st: Magic Missile, Shield, Absorb Elements&#10;2nd: Misty Step, Mirror Image&#10;3rd: Fireball, Counterspell">${esc(p.spellList)}</textarea>
+      </div>
+    </div>
+
+    <!-- FEATURES TAB -->
+    <div class="card-tab-panel" id="tab-features">
+      <div class="feature-list" id="featureList">
+        ${renderFeatureList(p)}
+      </div>
+      <div class="add-feature-row" style="margin-top:10px">
+        <div class="add-feature-inputs">
+          <input id="featureNameInput" placeholder="Feature name (e.g. Action Surge)" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:5px 8px">
+        </div>
+        <textarea id="featureDescInput" placeholder="Description, uses, recharge..." style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:13px;padding:6px 8px;resize:vertical;min-height:50px"></textarea>
+        <button class="btn small primary" onclick="addFeature()">Add Feature</button>
+      </div>
+    </div>
+
+    <!-- NOTES TAB -->
+    <div class="card-tab-panel" id="tab-notes">
+      <div class="section-label">Session Notes / Backstory / Personality</div>
+      <textarea class="notes-area" onchange="field('notes',this.value)" placeholder="Backstory, personality traits, bonds, flaws, session notes, DM reminders...">${esc(p.notes)}</textarea>
+    </div>
+
+  </div>`;
+}
+
+function renderPips(slot, lvl) {
+  if (!slot.max) return '';
+  return Array(slot.max).fill(0).map((_, pi) => {
+    const isUsed = pi < slot.used;
+    return `<div class="slot-pip ${isUsed ? 'used' : 'available'}" onclick="togglePip(${lvl}, ${pi})" title="${isUsed ? 'Used' : 'Available'}"></div>`;
+  }).join('');
+}
+
+function renderFeatureList(p) {
+  if (!p.features || !p.features.length) return '<div style="font-size:13px;color:var(--text3)">No features added yet</div>';
+  return p.features.map((f, i) => `
+    <div class="feature-entry">
+      <div class="feature-entry-content">
+        <div class="feature-name">${f.name}</div>
+        ${f.desc ? `<div class="feature-desc">${f.desc}</div>` : ''}
+      </div>
+      <div class="feature-del" onclick="deleteFeature(${i})">✕</div>
+    </div>`).join('');
+}
+
+function calcMod(score) {
+  const m = Math.floor((score - 10) / 2);
+  return (m >= 0 ? '+' : '') + m;
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.card-tab-panel').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('.card-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  btn.classList.add('active');
+}
+
+function toggleInspiration() {
+  if (selectedIdx < 0) return;
+  players[selectedIdx].inspiration = !players[selectedIdx].inspiration;
+  save();
+  renderCard();
+}
+
+function uploadThumb(input) {
+  if (!input.files || !input.files[0]) return;
+  const r = new FileReader();
+  r.onload = e => { players[selectedIdx].thumb = e.target.result; save(); renderSidebar(); renderCard(); };
+  r.readAsDataURL(input.files[0]);
+}
+
+function updateSlotMax(lvl, val) {
+  if (selectedIdx < 0) return;
+  players[selectedIdx].spellSlots[lvl].max = val;
+  if (players[selectedIdx].spellSlots[lvl].used > val) players[selectedIdx].spellSlots[lvl].used = val;
+  save();
+  const pips = document.getElementById('slotPips_' + lvl);
+  if (pips) pips.innerHTML = renderPips(players[selectedIdx].spellSlots[lvl], lvl);
+}
+
+function togglePip(lvl, pi) {
+  if (selectedIdx < 0) return;
+  const slot = players[selectedIdx].spellSlots[lvl];
+  if (pi < slot.used) slot.used = pi;
+  else slot.used = pi + 1;
+  save();
+  const pips = document.getElementById('slotPips_' + lvl);
+  if (pips) pips.innerHTML = renderPips(slot, lvl);
+}
+
+function resetAllSlots() {
+  if (selectedIdx < 0) return;
+  players[selectedIdx].spellSlots.forEach(s => s.used = 0);
+  save();
+  renderCard();
+}
+
+function addFeature() {
+  if (selectedIdx < 0) return;
+  const name = document.getElementById('featureNameInput').value.trim();
+  if (!name) return;
+  const desc = document.getElementById('featureDescInput').value.trim();
+  if (!players[selectedIdx].features) players[selectedIdx].features = [];
+  players[selectedIdx].features.push({ name, desc });
+  save();
+  document.getElementById('featureNameInput').value = '';
+  document.getElementById('featureDescInput').value = '';
+  document.getElementById('featureList').innerHTML = renderFeatureList(players[selectedIdx]);
+}
+
+function deleteFeature(i) {
+  if (selectedIdx < 0) return;
+  players[selectedIdx].features.splice(i, 1);
+  save();
+  document.getElementById('featureList').innerHTML = renderFeatureList(players[selectedIdx]);
+}
+
+function deletePlayer() {
+  if (selectedIdx < 0) return;
+  if (!confirm(`Delete ${players[selectedIdx].charName}?`)) return;
+  players.splice(selectedIdx, 1);
+  selectedIdx = Math.min(selectedIdx, players.length - 1);
+  save();
+  renderSidebar();
+  if (players.length) renderCard();
+  else document.getElementById('centerPanel').innerHTML = '<div class="empty-state"><div class="big">No Players Yet</div>Add a player or paste from D&D Beyond to get started</div>';
+}
+
+function sendToInitiative() {
+  if (selectedIdx < 0) return;
+  const encs = JSON.parse(localStorage.getItem('thekodia_encounters') || '[]');
+  const p = players[selectedIdx];
+
+  // Check if combat is live in the initiative tracker
+  let liveHtml = '';
+  try {
+    const displayState = JSON.parse(localStorage.getItem('thekodia_display_state') || 'null');
+    if (displayState && displayState.active) {
+      liveHtml = `
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">⚔ Combat is live</div>
+          <div onclick="addPlayerToLiveCombat()" style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--teal);background:rgba(78,205,196,0.08);cursor:pointer;transition:all 0.15s"
+            onmouseover="this.style.background='rgba(78,205,196,0.15)'" onmouseout="this.style.background='rgba(78,205,196,0.08)'">
+            <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--teal)">Add to current combat</div>
+            <div style="font-size:11px;color:var(--text3)">Round ${displayState.round} — ${displayState.current?.displayName || '?'}'s turn</div>
+          </div>
+          <div style="height:1px;background:var(--border);margin:12px 0"></div>
+        </div>`;
+    }
+  } catch {}
+
+  const encListHtml = encs.length ? encs.map((e, i) => `
+    <div onclick="addPlayerToEncounter(${i})" style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);cursor:pointer;margin-bottom:5px;transition:border-color 0.15s"
+      onmouseover="this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text)">${esc(e.name)}</div>
+      <div style="font-size:11px;color:var(--text3)">${e.combatants.length} combatants</div>
+    </div>`).join('') : '<div style="font-size:13px;color:var(--text3);padding:6px 0">No saved encounters yet</div>';
+
+  document.getElementById('encPickerTitle').textContent = `Add ${p.charName} to Encounter`;
+  document.getElementById('liveCombatOption').innerHTML = liveHtml;
+  document.getElementById('encPickerList').innerHTML = encListHtml;
+  document.getElementById('newEncNameInput').value = '';
+  openModal('encPickerModal');
+}
+
+function addPlayerToLiveCombat() {
+  if (selectedIdx < 0) return;
+  const p = players[selectedIdx];
+  const combatant = buildCombatantFromPlayer(p);
+  try {
+    localStorage.setItem('thekodia_live_add', JSON.stringify(combatant));
+    closeModal('encPickerModal');
+    alert(`${p.charName} sent to live combat — they will appear in the initiative tracker momentarily.`);
+  } catch {
+    alert('Could not reach the initiative tracker.');
+  }
+}
+
+function addPlayerToEncounter(encIdx) {
+  if (selectedIdx < 0) return;
+  const p = players[selectedIdx];
+  const encs = JSON.parse(localStorage.getItem('thekodia_encounters') || '[]');
+  if (!encs[encIdx]) return;
+
+  const already = encs[encIdx].combatants.find(c => c.name === p.charName);
+  if (already) { alert(`${p.charName} is already in "${encs[encIdx].name}".`); return; }
+
+  encs[encIdx].combatants.push(buildCombatantFromPlayer(p));
+  localStorage.setItem('thekodia_encounters', JSON.stringify(encs));
+  closeModal('encPickerModal');
+  alert(`${p.charName} added to "${encs[encIdx].name}".`);
+}
+
+function addPlayerToNewEncounter() {
+  if (selectedIdx < 0) return;
+  const name = document.getElementById('newEncNameInput').value.trim();
+  if (!name) { document.getElementById('newEncNameInput').focus(); return; }
+  const p = players[selectedIdx];
+  const encs = JSON.parse(localStorage.getItem('thekodia_encounters') || '[]');
+  encs.push({ name, combatants: [buildCombatantFromPlayer(p)] });
+  localStorage.setItem('thekodia_encounters', JSON.stringify(encs));
+  closeModal('encPickerModal');
+  alert(`"${name}" created with ${p.charName}.`);
+}
+
+function buildCombatantFromPlayer(p) {
+  return {
+    id: Date.now() + Math.random(),
+    name: p.charName,
+    type: 'player',
+    init: 0,
+    maxhp: p.maxhp,
+    hp: p.hp,
+    ac: p.ac,
+    temphp: p.temphp || 0,
+    maxReduce: 0,
+    conditions: [],
+    legMax: 0,
+    legCurrent: 0,
+    lairActions: false,
+    conc: false,
+    readied: false,
+    delayed: false,
+    dead: false,
+    notes: [
+      p.skillProficiencies ? `Skills: ${p.skillProficiencies}` : '',
+      p.spellList ? `Spells: ${p.spellList}` : '',
+      p.saveProficiencies ? `Saves: ${p.saveProficiencies}` : ''
+    ].filter(Boolean).join(' | '),
+    thumb: p.thumb || null,
+    group: ''
+  };
+}
+
+function openPasteModal() {
+  document.getElementById('pasteInput').value = '';
+  document.getElementById('pdfStatus').textContent = '';
+  document.getElementById('pdfPreview').innerHTML = '';
+  document.getElementById('pdfDropZone').style.borderColor = 'var(--border2)';
+  currentPDFBase64 = null;
+  switchImportTab('pdf');
+  openModal('pasteModal');
+}
+
+let currentImportTab = 'pdf';
+let currentPDFBase64 = null;
+
+function switchImportTab(tab) {
+  currentImportTab = tab;
+  document.getElementById('importPDFPanel').style.display = tab === 'pdf' ? 'block' : 'none';
+  document.getElementById('importPastePanel').style.display = tab === 'paste' ? 'block' : 'none';
+  document.getElementById('importTabPDF').style.cssText = tab === 'pdf'
+    ? 'background:var(--accent-dim);border-color:var(--accent);color:var(--accent2)'
+    : '';
+  document.getElementById('importTabPaste').style.cssText = tab === 'paste'
+    ? 'background:var(--accent-dim);border-color:var(--accent);color:var(--accent2)'
+    : '';
+}
+
+function handlePDFDrop(event) {
+  event.preventDefault();
+  document.getElementById('pdfDropZone').style.borderColor = 'var(--border2)';
+  const file = event.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') processPDFFile(file);
+  else document.getElementById('pdfStatus').textContent = 'Please drop a PDF file.';
+}
+
+function handlePDFFile(input) {
+  if (!input.files || !input.files[0]) return;
+  processPDFFile(input.files[0]);
+}
+
+function processPDFFile(file) {
+  const status = document.getElementById('pdfStatus');
+  const preview = document.getElementById('pdfPreview');
+  status.style.color = 'var(--text2)';
+  status.textContent = `📄 ${file.name} — ready to import`;
+  preview.innerHTML = `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:13px;color:var(--text2)">File loaded: <strong style="color:var(--accent)">${file.name}</strong> (${(file.size/1024).toFixed(1)} KB)</div>`;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentPDFBase64 = e.target.result.split(',')[1];
+  };
+  reader.readAsDataURL(file);
+}
+
+async function confirmImport() {
+  if (currentImportTab === 'paste') {
+    parseDnDBeyond();
+    return;
+  }
+  if (!currentPDFBase64) {
+    document.getElementById('pdfStatus').textContent = 'Please select a PDF first.';
+    return;
+  }
+  await importFromPDF();
+}
+
+async function importFromPDF() {
+  if (selectedIdx < 0) return;
+  const status = document.getElementById('pdfStatus');
+  const btn = document.getElementById('importConfirmBtn');
+  btn.textContent = 'Reading PDF...';
+  btn.disabled = true;
+  status.style.color = 'var(--amber)';
+
+  // Use native Python parser if server available, else fall back to Claude API
+  const serverUp = typeof ThekodiaStorage !== 'undefined' && await ThekodiaStorage.checkServer();
+  status.textContent = serverUp ? '⏳ Parsing PDF locally...' : '⏳ Sending to Claude for extraction...';
+
+  if (serverUp) {
+    try {
+      const fileInput = document.getElementById('pdfFileInput');
+      const file = fileInput.files[0] || (() => { throw new Error('No file selected'); })();
+      const result = await ThekodiaStorage.parsePDF(file);
+
+      // Visual-render D&D Beyond PDF — fall through to Claude API
+      if (result.error === 'visual_render') {
+        status.textContent = '⏳ Visual PDF detected — sending to Claude for extraction...';
+        // Fall through to Claude API below
+      } else {
+        if (result.error) throw new Error(result.error);
+        const p = players[selectedIdx];
+
+        // Core fields
+        const scalarFields = ['charName','playerName','race','classes','level','background','alignment',
+          'hp','maxhp','ac','speed','temphp','passivePerception','passiveInsight','passiveInvestigation',
+          'proficiencyBonus','str','dex','con','int','wis','cha',
+          'spellSaveDC','spellAttackBonus','spellcastingAbility',
+          'initiative','senses','damageResist','languages',
+          'saveProficiencies','skillProficiencies','spellList','proficienciesTraining'];
+        scalarFields.forEach(k => { if (result[k] !== undefined && result[k] !== null) p[k] = result[k]; });
+
+        // Spell slots
+        if (result.spellSlots) {
+          result.spellSlots.forEach((s, i) => { if (i < 9 && s) p.spellSlots[i] = { max: s.max || 0, used: 0 }; });
+        }
+
+        // Features — append to existing
+        if (result.features && Array.isArray(result.features)) {
+          if (!p.features) p.features = [];
+          result.features.forEach(f => {
+            if (f.name && !p.features.find(x => x.name === f.name)) {
+              p.features.push(f);
+            }
+          });
+        }
+
+        // Attacks — write to notes field if player card has no attack field
+        if (result.attacks && Array.isArray(result.attacks) && result.attacks.length) {
+          const attackText = result.attacks.map(a => `${a.name}: ${a.hit} | ${a.damage}`).join('\n');
+          if (!p.notes) p.notes = '';
+          if (!p.notes.includes('ATTACKS:')) {
+            p.notes = 'ATTACKS:\n' + attackText + (p.notes ? '\n\n' + p.notes : '');
+          }
+        }
+
+        save(); closeModal('pasteModal'); renderSidebar(); renderCard();
+        return;
+      }
+    } catch(err) {
+      if (!err.message.includes('visual_render')) {
+        status.style.color = 'var(--red)';
+        status.textContent = '❌ ' + err.message;
+        btn.textContent = 'Import Character';
+        btn.disabled = false;
+        return;
+      }
+    }
+  }
+
+  const prompt = `You are reading a D&D 5e character sheet PDF. Extract ALL of the following fields and return ONLY a valid JSON object with no markdown, no backticks, no explanation. If a field is not found, use null or 0 as appropriate.
+
+Required JSON structure:
+{
+  "charName": "string",
+  "playerName": "string",
+  "race": "string",
+  "classes": "string (e.g. 'Artificer 5' or 'Fighter 3 / Rogue 2')",
+  "level": number,
+  "background": "string",
+  "alignment": "string",
+  "hp": number,
+  "maxhp": number,
+  "temphp": number,
+  "ac": number,
+  "speed": number,
+  "passivePerception": number,
+  "proficiencyBonus": number,
+  "str": number,
+  "dex": number,
+  "con": number,
+  "int": number,
+  "wis": number,
+  "cha": number,
+  "saveProficiencies": "string listing save proficiencies e.g. 'Con, Int'",
+  "skillProficiencies": "string listing skills with bonuses e.g. 'Arcana +7, History +7'",
+  "spellcastingAbility": "Intelligence or Wisdom or Charisma or empty string",
+  "spellSaveDC": number,
+  "spellAttackBonus": number,
+  "spellSlots": [
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0},
+    {"max": number, "used": 0}
+  ],
+  "spellList": "string with cantrips and spells listed by level",
+  "features": [
+    {"name": "string", "desc": "string"}
+  ]
+}
+
+The spellSlots array must always have exactly 9 entries (levels 1-9). Extract all class features, racial traits, feats, and special abilities into the features array with name and a brief description.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: { type: 'base64', media_type: 'application/pdf', data: currentPDFBase64 }
+            },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const textBlock = data.content?.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No text response from Claude');
+
+    let jsonText = textBlock.text.trim();
+    jsonText = jsonText.replace(/^```json?\s*/i, '').replace(/```\s*$/i, '').trim();
+    const extracted = JSON.parse(jsonText);
+
+    const p = players[selectedIdx];
+    const fields = ['charName','playerName','race','classes','level','background','alignment',
+      'hp','maxhp','temphp','ac','speed','passivePerception','proficiencyBonus',
+      'str','dex','con','int','wis','cha','saveProficiencies','skillProficiencies',
+      'spellcastingAbility','spellSaveDC','spellAttackBonus','spellList'];
+
+    fields.forEach(f => { if (extracted[f] !== null && extracted[f] !== undefined) p[f] = extracted[f]; });
+
+    if (extracted.spellSlots && Array.isArray(extracted.spellSlots)) {
+      extracted.spellSlots.forEach((slot, i) => {
+        if (i < 9 && slot) p.spellSlots[i] = { max: slot.max || 0, used: 0 };
+      });
+    }
+
+    if (extracted.features && Array.isArray(extracted.features)) {
+      p.features = [...(p.features || []), ...extracted.features.filter(f => f.name)];
+    }
+
+    save();
+    closeModal('pasteModal');
+    renderSidebar();
+    renderCard();
+
+  } catch (err) {
+    status.style.color = 'var(--red)';
+    status.textContent = `❌ Import failed: ${err.message}. Try the text paste method instead.`;
+    btn.textContent = 'Import Character';
+    btn.disabled = false;
+  }
+}
+
+
+function parseDnDBeyond() {
+  const text = document.getElementById('pasteInput').value;
+  if (!text.trim() || selectedIdx < 0) return;
+  const p = players[selectedIdx];
+
+  // Name
+  const nameMatch = text.match(/^([A-Z][a-zA-Z\s'-]+)\n/m);
+  if (nameMatch) p.charName = nameMatch[1].trim();
+
+  // Level
+  const levelMatch = text.match(/Level\s*(\d+)/i) || text.match(/(\d+)\s*\/\s*\d+\s*XP/i);
+  if (levelMatch) p.level = +levelMatch[1];
+
+  // Race
+  const raceMatch = text.match(/(Dragonborn|Dwarf|Elf|Gnome|Half-Elf|Half-Orc|Halfling|Human|Tiefling|Aasimar|Tabaxi|Tortle|Kenku|Lizardfolk|Firbolg|Goliath|Genasi|Triton|Yuan-Ti|Vedalken|Loxodon|Simic Hybrid|Gith|Changeling|Kalashtar|Warforged|Shifter|Grung|Locathah|Hadozee|Harengon|Owlin|Fairy|Satyr|Centaur)[^a-z]/i);
+  if (raceMatch) p.race = raceMatch[1];
+
+  // Class
+  const classMatch = text.match(/(Artificer|Barbarian|Bard|Cleric|Druid|Fighter|Monk|Paladin|Ranger|Rogue|Sorcerer|Warlock|Wizard)[^a-z]*/gi);
+  if (classMatch) p.classes = [...new Set(classMatch.map(c => c.trim()))].join(' / ');
+
+  // HP
+  const hpMatch = text.match(/(\d+)\s*\/\s*(\d+)\s*(?:HP|Hit Points)/i) || text.match(/Hit Points\D+(\d+)\s*\/\s*(\d+)/i);
+  if (hpMatch) { p.hp = +hpMatch[1]; p.maxhp = +hpMatch[2]; }
+
+  // AC
+  const acMatch = text.match(/Armor Class\D*(\d+)/i) || text.match(/(\d+)\s*Armor Class/i);
+  if (acMatch) p.ac = +acMatch[1];
+
+  // Speed
+  const speedMatch = text.match(/Speed\D*(\d+)/i);
+  if (speedMatch) p.speed = +speedMatch[1];
+
+  // Passive Perception
+  const ppMatch = text.match(/Passive\s*(?:Wisdom\s*)?(?:\(Perception\))?\s*(\d+)/i) || text.match(/(\d+)\s*Passive/i);
+  if (ppMatch) p.passivePerception = +ppMatch[1];
+
+  // Proficiency
+  const profMatch = text.match(/Proficiency Bonus\D*\+(\d+)/i) || text.match(/\+(\d+)\s*Proficiency/i);
+  if (profMatch) p.proficiencyBonus = +profMatch[1];
+
+  // Ability scores
+  const abilityOrder = ['str','dex','con','int','wis','cha'];
+  const scores = text.match(/\b(STR|DEX|CON|INT|WIS|CHA)\b[\s\S]{0,30}?(\d{1,2})\s*[(\-+]\d+[)]/gi);
+  if (!scores) {
+    // Try sequential number parse
+    const seqMatch = text.match(/(\d{1,2})\s*[(\-+]\d+[)]\s*(\d{1,2})\s*[(\-+]\d+[)]\s*(\d{1,2})\s*[(\-+]\d+[)]\s*(\d{1,2})\s*[(\-+]\d+[)]\s*(\d{1,2})\s*[(\-+]\d+[)]\s*(\d{1,2})\s*[(\-+]\d+[)]/);
+    if (seqMatch) abilityOrder.forEach((a,i) => p[a] = +seqMatch[i+1]);
+  }
+
+  // Spell save DC
+  const dcMatch = text.match(/Spell\s*Save\s*DC\D*(\d+)/i);
+  if (dcMatch) p.spellSaveDC = +dcMatch[1];
+
+  // Spell attack
+  const saMatch = text.match(/Spell\s*Attack\s*(?:Bonus|Modifier)\D*\+(\d+)/i);
+  if (saMatch) p.spellAttackBonus = +saMatch[1];
+
+  save();
+  closeModal('pasteModal');
+  renderSidebar();
+  renderCard();
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+load();
+renderSidebar();
+if (players.length) { selectedIdx = 0; renderCard(); }
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>
