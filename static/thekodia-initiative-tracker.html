@@ -643,11 +643,13 @@ body {
         <button class="mode-btn" onclick="setMode('group',this)">Group</button>
         <button class="mode-btn" onclick="setMode('team',this)">Team</button>
       </div>
+
       <button class="btn primary" onclick="openAddModal()">+ Add Combatant</button>
       <button class="btn" onclick="openEncounterModal()">Load Encounter</button>
       <button class="btn" onclick="sortInitiative()">Sort ↕</button>
       <button class="btn" id="teamRollBtn" style="display:none;border-color:var(--blue-dim);color:var(--blue)" onclick="rollTeamInitiative()">⚄ Roll Team Init</button>
       <button class="btn" id="groupRollBtn" style="display:none;border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Group Init</button>
+      <button class="btn" onclick="window.open('http://localhost:5000/thekodia-player-display.html')">Player View</button>
     </div>
 
     <!-- Turn Banner -->
