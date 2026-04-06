@@ -261,8 +261,8 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
     <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
     <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
     <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
-    <button onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
-    <button onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
+    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
+    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
   </div>
   <button class="btn primary" onclick="newPlayer()">+ Add Player</button>
 </div>
