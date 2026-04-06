@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thekodia DM — Tables</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14; --bg2: #13161e; --bg3: #1a1e28; --panel: #181c26;
+  --border: #2a3045; --border2: #3a4560;
+  --accent: #c8a96e; --accent2: #e8c97e; --accent-dim: #7a6238;
+  --red: #e05555; --red-dim: #7a2828;
+  --green: #4caf7d; --green-dim: #1e5c38;
+  --blue: #5b8de8; --blue-dim: #2a4a8a;
+  --amber: #f0a500; --teal: #4ecdc4;
+  --text: #e8e0d0; --text2: #a09880; --text3: #605848;
+  --radius: 6px; --radius2: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
+
+.app-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
+  position: sticky; top: 0; z-index: 100;
+}
+.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.nav-tab {
+  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  transition: all 0.15s; text-transform: uppercase;
+}
+.nav-tab:hover { border-color: var(--border2); color: var(--text); }
+.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+.btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;
+}
+.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
+.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.btn.primary:hover { background: #8a7040; }
+.btn.small { padding: 3px 10px; font-size: 12px; }
+.btn.danger { border-color: var(--red-dim); color: var(--red); }
+.btn.danger:hover { background: rgba(224,85,85,0.1); }
+
+/* Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 12px;
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Table list */
+.table-list-panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius2); overflow: hidden;
+  display: flex; flex-direction: column;
+  height: fit-content; position: sticky; top: 60px;
+}
+.panel-head {
+  padding: 8px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; }
+.table-list { overflow-y: auto; max-height: 70vh; }
+.table-list-item {
+  padding: 9px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.15s;
+}
+.table-list-item:last-child { border-bottom: none; }
+.table-list-item:hover { background: var(--bg3); }
+.table-list-item.active { background: var(--accent-dim); border-left: 3px solid var(--accent); }
+.table-list-item.active .tli-name { color: var(--accent2); }
+.tli-name { font-weight: 600; font-size: 13px; }
+.tli-die { font-size: 11px; color: var(--text3); background: var(--bg3); padding: 1px 6px; border-radius: 3px; border: 1px solid var(--border); }
+.table-list-item.active .tli-die { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+
+/* Main content */
+.table-content { display: flex; flex-direction: column; gap: 12px; }
+
+/* Roll panel */
+.roll-panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius2); padding: 20px 24px;
+  text-align: center;
+}
+.roll-panel-title { font-family: 'Cinzel', serif; font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+.roll-die-badge {
+  display: inline-block; font-size: 12px; color: var(--text3);
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2px 10px; margin-bottom: 16px;
+}
+.roll-result-number {
+  font-family: 'Cinzel', serif; font-size: 48px; color: var(--amber);
+  line-height: 1; margin-bottom: 8px;
+}
+.roll-result-text {
+  font-size: 16px; color: var(--text); line-height: 1.5;
+  max-width: 600px; margin: 0 auto 16px; white-space: pre-wrap;
+  word-break: break-word;
+}
+.roll-result-text.empty { color: var(--text3); font-style: italic; }
+.roll-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+/* History */
+.history-panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius2); overflow: hidden;
+}
+.history-list {
+  padding: 8px 12px; max-height: 180px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.history-entry {
+  display: flex; gap: 10px; font-size: 12px;
+  padding: 4px 0; border-bottom: 1px solid var(--border);
+}
+.history-entry:last-child { border-bottom: none; }
+.history-roll { color: var(--amber); font-family: 'Cinzel', serif; font-size: 13px; font-weight: 600; flex-shrink: 0; min-width: 32px; }
+.history-result { color: var(--text2); flex: 1; word-break: break-word; }
+
+/* Table editor */
+.editor-panel {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--radius2); overflow: hidden;
+}
+.editor-toolbar {
+  padding: 8px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.editor-table {
+  width: 100%; border-collapse: collapse;
+}
+.editor-table th {
+  padding: 6px 12px; text-align: left; font-size: 11px;
+  color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border); background: var(--bg2);
+  font-weight: 600;
+}
+.editor-table td {
+  padding: 0; border-bottom: 1px solid var(--border); vertical-align: top;
+}
+.editor-table tr:last-child td { border-bottom: none; }
+.editor-table tr:hover td { background: var(--bg3); }
+.cell-input {
+  width: 100%; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px;
+  padding: 7px 12px; resize: none; min-height: 36px;
+  overflow: hidden; line-height: 1.4;
+}
+.cell-input:focus { background: var(--bg2); }
+.cell-input.roll-cell { max-width: 80px; text-align: center; color: var(--amber); font-weight: 600; }
+.cell-del {
+  background: transparent; border: none; color: var(--text3);
+  cursor: pointer; padding: 7px 10px; font-size: 14px; transition: color 0.15s;
+}
+.cell-del:hover { color: var(--red); }
+.editor-scroll { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+
+/* Add table modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 500;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.visible { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius2); padding: 20px; width: 360px;
+  max-width: 90vw;
+}
+.modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--accent); margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.field input, .field select {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px;
+  padding: 6px 10px;
+}
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent-dim); }
+.field select option { background: var(--bg2); }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="nav-tabs">
+    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab active">Tables</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
+    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
+  </div>
+</div>
+<input type="file" id="backupFileInput" accept=".json" style="display:none"
+       onchange="ThekodiaStorage.importBackup(this.files[0]); this.value='';">
+
+<div class="main-layout">
+
+  <!-- Left: table list -->
+  <div class="table-list-panel">
+    <div class="panel-head">
+      <div class="panel-title">Tables</div>
+      <button class="btn small primary" onclick="openNewTableModal()">+ New</button>
+    </div>
+    <div class="table-list" id="tableList"></div>
+    <div style="padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:6px">
+      <label style="flex:1">
+        <input type="file" id="csvFileInput" accept=".csv" style="display:none"
+               onchange="importCSV(this.files[0]); this.value='';">
+        <button class="btn small" style="width:100%" onclick="document.getElementById('csvFileInput').click()">📂 Import CSV</button>
+      </label>
+    </div>
+  </div>
+
+  <!-- Right: content -->
+  <div class="table-content" id="tableContent">
+    <div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3);font-size:14px">
+      Select a table to begin
+    </div>
+  </div>
+
+</div>
+
+<!-- New Table Modal -->
+<div class="modal-overlay" id="newTableModal">
+  <div class="modal">
+    <div class="modal-title">New Table</div>
+    <div class="field">
+      <label>Table Name</label>
+      <input type="text" id="newTableName" placeholder="e.g. Forest Encounters">
+    </div>
+    <div class="field">
+      <label>Die Type</label>
+      <select id="newTableDie">
+        <option>d4</option><option>d6</option><option>d8</option>
+        <option>d10</option><option>d12</option><option selected>d20</option>
+        <option>d100</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('newTableModal')">Cancel</button>
+      <button class="btn primary" onclick="createNewTable()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'thekodia_tables';
+
+// ── Starter tables ────────────────────────────────────────
+const STARTER_TABLES = [
+  {
+    "name": "Common Loot",
+    "die": "d20",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Small Pouch of Coins, Contains 1d10 silver pieces and 1d4 gold pieces., ~5-10 gp"
+      },
+      {
+        "roll": "2",
+        "result": "Healing Herb Bundle, A bundle of dried herbs that restores 1 HP when chewed., 2 gp"
+      },
+      {
+        "roll": "3",
+        "result": "Minor Healing Potion, Restores 1d4 HP., 15 gp"
+      },
+      {
+        "roll": "4",
+        "result": "Wooden Holy Symbol, A simple holy symbol carved from oak used as a spellcasting focus., 5 gp"
+      },
+      {
+        "roll": "5",
+        "result": "Iron Dagger, A plain but serviceable dagger., 2 gp"
+      },
+      {
+        "roll": "6",
+        "result": "Bundle of Arrows (10), Ten arrows tied together with a bit of twine., 1 gp"
+      },
+      {
+        "roll": "7",
+        "result": "Polished Stone Pendant, A non-magical pendant polished to a smooth sheen. May be sentimental to someone., 8 gp"
+      },
+      {
+        "roll": "8",
+        "result": "Small Flask of Oil, Can be used as fuel or to coat weapons; burns for 6 hours when used in a lantern., 1 gp"
+      },
+      {
+        "roll": "9",
+        "result": "Silver Earring, A single silver earring. Could be sold or worn., 10 gp"
+      },
+      {
+        "roll": "10",
+        "result": "Vial of Glittering Sand, A vial of sparkling sand. Useless but mesmerizing to look at., 1 gp"
+      },
+      {
+        "roll": "11",
+        "result": "Bag of Ball Bearings (20), Perfect for setting traps or creating distractions., 1 gp"
+      },
+      {
+        "roll": "12",
+        "result": "Simple Lockpick Set, Crude but functional. Grants advantage on one Dexterity check for lockpicking (then breaks)., 3 gp"
+      },
+      {
+        "roll": "13",
+        "result": "Tattered Map Fragment, A portion of a treasure map. Without the rest its value is questionable., 1 gp"
+      },
+      {
+        "roll": "14",
+        "result": "Lantern, A hooded lantern sturdy and functional., 10 gp"
+      },
+      {
+        "roll": "15",
+        "result": "Potion of Minor Resistance, Grants resistance to one damage type (DM's choice) for 1 minute., 20 gp"
+      },
+      {
+        "roll": "16",
+        "result": "Ring of Cracked Jasper, A cracked gemstone set in a simple ring. Worth more sentimentally than materially., 5 gp"
+      },
+      {
+        "roll": "17",
+        "result": "Small Bag of Marbles, A bag of colorful glass marbles. May be useful for causing small distractions or hazards., 1 gp"
+      },
+      {
+        "roll": "18",
+        "result": "Feather Quill & Ink, A fine feather quill and a small vial of black ink., 5 gp"
+      },
+      {
+        "roll": "19",
+        "result": "Tiny Clockwork Mouse, A wind-up mouse that scurries in a straight line for 10 feet when activated., 8 gp"
+      },
+      {
+        "roll": "20",
+        "result": "Unlit Candle (10), Ten small white candles., 1 gp"
+      }
+    ]
+  },
+  {
+    "name": "Mid Tier Loot",
+    "die": "d20",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Finely Crafted Shortsword, A shortsword with intricate engravings on the hilt. Grants +1 to attack rolls (non-magical)., 50 gp"
+      },
+      {
+        "roll": "2",
+        "result": "Potion of Healing, A standard healing potion that restores 2d4+2 HP when consumed., 50 gp"
+      },
+      {
+        "roll": "3",
+        "result": "Spell Scroll (1st Level), A scroll containing a random 1st-level spell (e.g. Mage Armor Burning Hands)., 75 gp"
+      },
+      {
+        "roll": "4",
+        "result": "Elaborate Silver Brooch, A decorative silver brooch shaped like a crescent moon., 60 gp"
+      },
+      {
+        "roll": "5",
+        "result": "Gilded Mirror, A small handheld mirror with a gold frame worth more to a collector or noble., 80 gp"
+      },
+      {
+        "roll": "6",
+        "result": "Set of Fine Clothes, High-quality attire suitable for noble gatherings or formal events., 30 gp"
+      },
+      {
+        "roll": "7",
+        "result": "Bronze Dragon Figurine, A small exquisitely crafted statue of a dragon faintly warm to the touch (non-magical)., 40 gp"
+      },
+      {
+        "roll": "8",
+        "result": "Potion of Climbing, Grants advantage on Strength (Athletics) checks made to climb for 1 hour., 75 gp"
+      },
+      {
+        "roll": "9",
+        "result": "Carved Ivory Dice (Set of 2), Intricately carved dice that some say bring good luck (non-magical)., 25 gp"
+      },
+      {
+        "roll": "10",
+        "result": "Enchanted Feather Token, When held this token reduces falling damage by 10 feet once per day., 100 gp"
+      },
+      {
+        "roll": "11",
+        "result": "Vial of Alchemist's Fire, Can be thrown as an improvised weapon to deal 1d4 fire damage and ignite flammable objects., 50 gp"
+      },
+      {
+        "roll": "12",
+        "result": "Lockpick Set Masterwork, Grants a +2 bonus to Dexterity (Thieves' Tools) checks for one use then reverts to normal., 75 gp"
+      },
+      {
+        "roll": "13",
+        "result": "Locket with Portrait, A delicate gold locket containing a miniature painted portrait of an unknown noble., 45 gp"
+      },
+      {
+        "roll": "14",
+        "result": "Leather Spellbook, A blank spellbook made of fine leather enchanted to protect its pages from water or fire., 70 gp"
+      },
+      {
+        "roll": "15",
+        "result": "Potion of Water Breathing, Grants the ability to breathe underwater for 1 hour., 100 gp"
+      },
+      {
+        "roll": "16",
+        "result": "Moonstone Pendant, A shimmering moonstone on a silver chain prized by jewelers and collectors., 80 gp"
+      },
+      {
+        "roll": "17",
+        "result": "Bag of Caltrops (Enchanted), Caltrops that briefly glow when stepped on dealing 1 additional damage to creatures affected., 40 gp"
+      },
+      {
+        "roll": "18",
+        "result": "Small Wooden Chest (Locked), Contains 2d10 gold pieces and 1d4 minor gems (worth 10 gp each)., 50-90 gp"
+      },
+      {
+        "roll": "19",
+        "result": "Glass Vial of Perfume, A luxurious fragrance from a distant land sought after by merchants and nobles alike., 25 gp"
+      },
+      {
+        "roll": "20",
+        "result": "Amulet of Minor Fortitude, Grants the wearer +1 temporary HP at the start of each day (effect lasts for 24 hours)., 100 gp"
+      }
+    ]
+  },
+  {
+    "name": "Random Encounters",
+    "die": "d20",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Beast Attack, A starving dire wolf pack ambushes from the brush."
+      },
+      {
+        "roll": "2",
+        "result": "Abomination, A malformed twisted stag with too many eyes watches the party'doesn't attack unless provoked."
+      },
+      {
+        "roll": "3",
+        "result": "Fey Interference, Mischievous moss sprites swap gear while players sleep'recovery possible with sharp tracking."
+      },
+      {
+        "roll": "4",
+        "result": "Forest Guardian, A treant blocks the path demanding the return of nature's stolen coin. Riddle or combat."
+      },
+      {
+        "roll": "5",
+        "result": "Other Team in Combat, Party finds a team (roll 1d2: 1 = classmate 2 = rival) battling a giant forest predator. They can join ignore or loot survivors."
+      },
+      {
+        "roll": "6",
+        "result": "Team Ambush, Another team attempts to ambush the players for coins'success depends on passive Perception."
+      },
+      {
+        "roll": "7",
+        "result": "Rival Scouts, Two stealthy rivals are tracking the party. If spotted they flee. If not they might try to steal during rest."
+      },
+      {
+        "roll": "8",
+        "result": "Occupied Camp, A fortified camp with a neutral team. Players may rest trade info or parley for coin clues."
+      },
+      {
+        "roll": "9",
+        "result": "Abandoned Camp (Fresh), Smoldering campfire signs of struggle. Creature tracks leading away."
+      },
+      {
+        "roll": "10",
+        "result": "Abandoned Camp (Old), Overgrown and looted. Leftover supplies (1d4 useful items). Optional puzzle/clue here."
+      },
+      {
+        "roll": "11",
+        "result": "Natural Obstacle, A flash flood destroyed the trail. Options: reroute bushwhack or build a makeshift bridge."
+      },
+      {
+        "roll": "12",
+        "result": "False Trap (Red Herring), A suspicious-looking rope trap turns out to be harmless. May waste player time if investigated."
+      },
+      {
+        "roll": "13",
+        "result": "Collapsed Tree Maze, Wind-blown trees form a tangled mess. Navigating without magic requires a group check."
+      },
+      {
+        "roll": "14",
+        "result": "Forest Puzzle Site, Players stumble on one of the puzzle coin locations. Roll from the Puzzle Table."
+      },
+      {
+        "roll": "15",
+        "result": "Haunting Sound, Distant whispering or song. Causes confusion or curiosity'actually nothing (unless you want a minor curse trigger)."
+      },
+      {
+        "roll": "16",
+        "result": "Stalking Creature (Shadow), Shadowy predator begins following the party. Will attack if they stop too long."
+      },
+      {
+        "roll": "17",
+        "result": "Hunter Becomes Hunted, Enemy team is stalking make stealth check against parties passive perception. They Plan to attack. Will flee at the first sign of failure."
+      },
+      {
+        "roll": "18",
+        "result": "Coin Flash Trigger, A cursed coin flashes and calls attention. Roll 1d4 to determine who/what notices."
+      },
+      {
+        "roll": "19",
+        "result": "Scavenger Animals, 1d4 intelligent corvian-like birds peck at gear for shiny objects. Distracting not dangerous."
+      },
+      {
+        "roll": "20",
+        "result": "Eerie Calm, The forest is unnaturally quiet. No wildlife. Next encounter will be extreme (double next roll)."
+      }
+    ]
+  },
+  {
+    "name": "Camp Encounter - Bad",
+    "die": "d12",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Stalker Attack: The cursed creature assaults mid-rest. Surprise round unless someone is awake."
+      },
+      {
+        "roll": "2",
+        "result": "Team Raid: Coins and items at risk. Sleight of Hand vs Passive Perception."
+      },
+      {
+        "roll": "3",
+        "result": "Mimic Shelter: Log/tent/tree is a mimic. Surprise attack."
+      },
+      {
+        "roll": "4",
+        "result": "Beast Attack: Wild predator stumbles into camp. Mid-tier threat."
+      },
+      {
+        "roll": "5",
+        "result": "Coin Flash Draws Danger: Cursed coin emits noise  attracts predator."
+      },
+      {
+        "roll": "6",
+        "result": "Campfire Reveals Location: Rival team confronts the party. Social or combat encounter."
+      },
+      {
+        "roll": "7",
+        "result": "Natural Disaster: Flash flood or wind knocks over camp. Lose 1 random item unless secured."
+      },
+      {
+        "roll": "8",
+        "result": "Whispers in Dreams: Unsettling psychic intrusion. Disadvantage on initiative next day."
+      },
+      {
+        "roll": "9",
+        "result": "Biting Insects: Con saves or take 1 level of exhaustion."
+      },
+      {
+        "roll": "10",
+        "result": "Illusory Terrain: Players bed down in what turns out to be a minor illusion hiding rough terrain'disadvantage on first check in the morning."
+      },
+      {
+        "roll": "11",
+        "result": "Hunter Becomes Hunted: Something begins stalking them'delayed encounter triggers later."
+      },
+      {
+        "roll": "12",
+        "result": "Sudden Silence: All ambient noise vanishes. If no watch was kept  danger comes without warning."
+      }
+    ]
+  },
+  {
+    "name": "Camp Encounter - Neutral",
+    "die": "d12",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Coin Flash Trigger: Cursed coin pulses. Roll on Day Encounter table with +2 danger."
+      },
+      {
+        "roll": "2",
+        "result": "Scout Tracks: Tracks spotted in the morning  but no harm done."
+      },
+      {
+        "roll": "3",
+        "result": "Windstorm: Disadvantage on Perception during the night."
+      },
+      {
+        "roll": "4",
+        "result": "Friendly Rival Team Nearby: Uneasy alliance for the night'may trade stories or threats."
+      },
+      {
+        "roll": "5",
+        "result": "Haunting Sound: Strange whispers in the dark. Minor creep factor  no mechanical effect."
+      },
+      {
+        "roll": "6",
+        "result": "Rival Watchers: Team spotted near camp but keeps distance. May interact in morning."
+      },
+      {
+        "roll": "7",
+        "result": "Forest Mood Shift: Nature feels eerie. Arcana checks at advantage or disadvantage next day (DM choice)."
+      },
+      {
+        "roll": "8",
+        "result": "Shiny Theft (Success): 1 random shiny object taken unless caught."
+      },
+      {
+        "roll": "9",
+        "result": "Creeping Fog: 5-foot vision in the morning. Travel delayed."
+      },
+      {
+        "roll": "10",
+        "result": "Wandering Puzzle: Party wakes near a new puzzle site. Optional."
+      },
+      {
+        "roll": "11",
+        "result": "Coin Migration: Coin appears 50 feet away on a pedestal."
+      },
+      {
+        "roll": "12",
+        "result": "False Alarm: A rustle in the night. Party wakes up tense. No actual threa"
+      }
+    ]
+  },
+  {
+    "name": "Camp Encounter - Good",
+    "die": "d10",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Peaceful Night Rest is uninterrupted All players gain 1d4 temporary hit points."
+      },
+      {
+        "roll": "2",
+        "result": "Enchanted Night Bloom Magical flowers bloom nearby Heals 1d6 HP or grants  plus1 to next Nature Survival check."
+      },
+      {
+        "roll": "3",
+        "result": "Dream Intrusion One player experiences a prophetic dream Insight or Arcana DC 13 reveals a useful hint."
+      },
+      {
+        "roll": "4",
+        "result": "Fey Visitors Tiny fey mimic the players by the fire Entertaining and harmless."
+      },
+      {
+        "roll": "5",
+        "result": "Glowing Puzzle Site A hidden puzzle chamber reveals itself 50 feet away Optional challenge for reward."
+      },
+      {
+        "roll": "6",
+        "result": "Quiet Watch A player on watch notices unusual tracks'avoids future ambush Advantage on next forest encounter."
+      },
+      {
+        "roll": "7",
+        "result": "Rival Scout Spotted Party catches someone spying and scares them off  plus1 coin stashed nearby."
+      },
+      {
+        "roll": "8",
+        "result": "Shiny Theft (Failed) Small creatures try to sneak in but are caught Harmless but comical."
+      },
+      {
+        "roll": "9",
+        "result": "Glade of Clarity This spot boosts magical resonance Sorcerers Wizards regain 1 extra spell slot of the lowest level."
+      },
+      {
+        "roll": "10",
+        "result": "Old Song A haunting lullaby. DC 12 Wis save or unsettling dreams; succeed and gain insight into a rival."
+      }
+    ]
+  },
+  {
+    "name": "Weather (Temperate)",
+    "die": "d12",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Clear Skies, Ideal weather. Travel is smooth. Gain advantage on Survival checks to track or navigate."
+      },
+      {
+        "roll": "2",
+        "result": "Humid and Sticky, After 4 hours of travel each player must make a DC 12 Con save. On a fail future travel counts as 1.5x longer for that player. If more than half fail the entire group slows down."
+      },
+      {
+        "roll": "3",
+        "result": "Foggy, Visibility reduced to 30 feet. Survival checks to navigate are at disadvantage. On a failed check the party moves to an incorrect adjacent square without realizing it."
+      },
+      {
+        "roll": "4",
+        "result": "Chilly Morning, Uncomfortable cold. Players make Con saves (DC 10) against cold effects or suffer disadvantage on Constitution checks until warmed."
+      },
+      {
+        "roll": "5",
+        "result": "Rainy, Trails are slick and muddy. Off-trail travel takes twice as long. On-trail add 1 hour per 3 hours traveled. Ranged attacks made with disadvantage unless sheltered."
+      },
+      {
+        "roll": "6",
+        "result": "Thunderstorm, Dangerous travel. All travel takes twice as long. Moving across open spaces requires Dex save (DC 13) or take 1d6 lightning damage. Encounter rate is doubled."
+      },
+      {
+        "roll": "7",
+        "result": "Drizzle, Light rain. No penalty to travel. Stealth checks made with advantage due to softened sound. Good opportunity to ambush or evade."
+      },
+      {
+        "roll": "8",
+        "result": "Cloudy and Gloomy, Mentally draining. Players have disadvantage on Wisdom saving throws vs fear or charm effects."
+      },
+      {
+        "roll": "9",
+        "result": "Windy Gusts, Travel in wooded terrain requires a group Athletics or Acrobatics check (DC 12) or lose 30 minutes clearing debris. Ranged attacks over 30 ft made at disadvantage."
+      },
+      {
+        "roll": "10",
+        "result": "Scorching Heat, Oppressive sun. Anyone in medium or heavy armor must succeed on a DC 10 Con save or gain 1 level of exhaustion. Resting during peak heat avoids this."
+      },
+      {
+        "roll": "11",
+        "result": "Magic-Tinged Weather, The rain glows or the wind hums. The first spell cast today triggers a Wild Magic Surge (or roll on custom table)."
+      },
+      {
+        "roll": "12",
+        "result": "Ominous Stillness, The forest is too quiet. Next random encounter is at +2 difficulty (stronger enemy or worse timing). Arcana/Insight checks to sense danger gain advantage."
+      }
+    ]
+  },
+  {
+    "name": "Wild Magic",
+    "die": "d100",
+    "rows": [
+      {
+        "roll": "1",
+        "result": "Caster speaks in glittery bubbles for 1 minute."
+      },
+      {
+        "roll": "2",
+        "result": "Caster is trailed by dramatic theme music for 1 hour audible to everyone nearby."
+      },
+      {
+        "roll": "3",
+        "result": "Random object within 30 ft turns into cheese for 1 hour."
+      },
+      {
+        "roll": "4",
+        "result": "Swarm of illusory butterflies surrounds caster for 5 minutes."
+      },
+      {
+        "roll": "5",
+        "result": "Caster's clothing randomly changes color and pattern every 6 seconds."
+      },
+      {
+        "roll": "6",
+        "result": "A booming voice announces caster's full name and favorite food to everyone in 100 ft."
+      },
+      {
+        "roll": "7",
+        "result": "Caster uncontrollably dances for 30 seconds."
+      },
+      {
+        "roll": "8",
+        "result": "A floating neon sign appears above the caster's head with a random embarrassing message."
+      },
+      {
+        "roll": "9",
+        "result": "Caster's mouth makes kazoo sounds instead of speech for 30 seconds."
+      },
+      {
+        "roll": "10",
+        "result": "Caster smells overwhelmingly like lilacs for 24 hours."
+      },
+      {
+        "roll": "11",
+        "result": "Slow sarcastic clapping echoes every time caster finishes a sentence for 1 hour."
+      },
+      {
+        "roll": "12",
+        "result": "A random fruit tree sprouts under the caster then vanishes after 1 minute."
+      },
+      {
+        "roll": "13",
+        "result": "Caster and allies of choice within 30 ft gain 10 temp HP."
+      },
+      {
+        "roll": "14",
+        "result": "Caster regains one lowest-level spell slot OR an ally does instead."
+      },
+      {
+        "roll": "15",
+        "result": "Caster glows golden shedding light and gaining advantage on Charisma checks for 10 minutes."
+      },
+      {
+        "roll": "16",
+        "result": "Party recovers 1 hit die and may spend it immediately."
+      },
+      {
+        "roll": "17",
+        "result": "Caster may cast Feather Fall once in the next minute no components required."
+      },
+      {
+        "roll": "18",
+        "result": "Caster gains resistance to all damage for 1 round."
+      },
+      {
+        "roll": "19",
+        "result": "Caster's next spell costs no spell slot."
+      },
+      {
+        "roll": "20",
+        "result": "Party is nourished as if after a full meal; hunger/thirst exhaustion removed."
+      },
+      {
+        "roll": "21",
+        "result": "Caster and up to 2 allies float above ground and ignore difficult terrain for 1 hour."
+      },
+      {
+        "roll": "22",
+        "result": "A random ally treats their next d20 roll as a natural 20."
+      },
+      {
+        "roll": "23",
+        "result": "Caster's speed is doubled for 1 minute."
+      },
+      {
+        "roll": "24",
+        "result": "A spectral hand pats caster restoring 1d8 HP and whispering 'You've got this.'"
+      },
+      {
+        "roll": "25",
+        "result": "Caster takes 1d10 force damage."
+      },
+      {
+        "roll": "26",
+        "result": "Caster must cast Fireball centered on themselves immediately (DC 15 Dex save)."
+      },
+      {
+        "roll": "27",
+        "result": "Caster polymorphs into a sheep for 1 minute."
+      },
+      {
+        "roll": "28",
+        "result": "All magic items within 30 ft deactivate for 1 round."
+      },
+      {
+        "roll": "29",
+        "result": "Caster becomes magnetized for 1 minute; metal items fly toward them."
+      },
+      {
+        "roll": "30",
+        "result": "Caster's next spell targets a random creature in range."
+      },
+      {
+        "roll": "31",
+        "result": "Caster deals 1d6 lightning damage to anyone they touch for 1 minute."
+      },
+      {
+        "roll": "32",
+        "result": "Ground erupts with thorns around caster; caster takes 1d4 piercing damage per 5 ft moved for 1 minute."
+      },
+      {
+        "roll": "33",
+        "result": "Caster is blinded for 1 round by searing light from their own eyes."
+      },
+      {
+        "roll": "34",
+        "result": "Verbal spell components become gibberish; caster can't cast verbal spells for 1 round."
+      },
+      {
+        "roll": "35",
+        "result": "Caster is stunned until end of next turn from magical overload."
+      },
+      {
+        "roll": "36",
+        "result": "A failed saving throw causes a randomly summoned entity to slap the caster and vanish."
+      },
+      {
+        "roll": "37",
+        "result": "20 ft area becomes icy terrain for 1 minute (Dex saves to move safely)."
+      },
+      {
+        "roll": "38",
+        "result": "30 ft of vines grow from the ground creating difficult terrain and light cover."
+      },
+      {
+        "roll": "39",
+        "result": "Chocolate milk rain pours over a 10 ft area for 1 minute. Everything is sticky."
+      },
+      {
+        "roll": "40",
+        "result": "Magical fog forms a 40 ft sphere. 10 ft radius is heavily obscured. Fog re-centers on caster's location at initiative count."
+      },
+      {
+        "roll": "41",
+        "result": "Gravity shifts sideways for 1 round. Creatures fall in a random horizontal direction."
+      },
+      {
+        "roll": "42",
+        "result": "30 ft radius of glowing mushrooms grow; creatures in area may begin laughing uncontrollably."
+      },
+      {
+        "roll": "43",
+        "result": "Small dust devils spin around caster pushing creatures 5 ft randomly each round."
+      },
+      {
+        "roll": "44",
+        "result": "10 ft area around caster is bathed in bright warm sunlight for 1 minute."
+      },
+      {
+        "roll": "45",
+        "result": "Ground becomes shallow water for 1 minute. Caster remains perfectly dry."
+      },
+      {
+        "roll": "46",
+        "result": "Arcane lightning flashes. Next spellcaster to act takes 1d6 lightning damage."
+      },
+      {
+        "roll": "47",
+        "result": "Beautiful wildflowers bloom permanently in a 30 ft radius."
+      },
+      {
+        "roll": "48",
+        "result": "Strong wind pushes outward from caster for 1 minute; ranged attacks into area have disadvantage."
+      },
+      {
+        "roll": "49",
+        "result": "Summon: Creature from the Celestial Plane"
+      },
+      {
+        "roll": "50",
+        "result": "Summon: Creature from the Abyss"
+      },
+      {
+        "roll": "51",
+        "result": "Summon: Entity from the Nine Hells"
+      },
+      {
+        "roll": "52",
+        "result": "Summon: Feywild Entity or Swarm"
+      },
+      {
+        "roll": "53",
+        "result": "Summon: Shadowfell Apparition"
+      },
+      {
+        "roll": "54",
+        "result": "Summon: Creature from the Elemental Plane of Fire"
+      },
+      {
+        "roll": "55",
+        "result": "Summon: Creature from the Plane of Water"
+      },
+      {
+        "roll": "56",
+        "result": "Summon: Entity from the Plane of Earth"
+      },
+      {
+        "roll": "57",
+        "result": "Summon: Elemental from the Plane of Air"
+      },
+      {
+        "roll": "58",
+        "result": "Summon: Modron from Mechanus"
+      },
+      {
+        "roll": "59",
+        "result": "Summon: Chaotic being from Limbo"
+      },
+      {
+        "roll": "60",
+        "result": "Summon: Entity from the Astral Sea"
+      },
+      {
+        "roll": "61",
+        "result": "Summon: Being from the Far Realm"
+      },
+      {
+        "roll": "62",
+        "result": "Summon: Entity from the Plane of Smoke"
+      },
+      {
+        "roll": "63",
+        "result": "Summon: Entity from the Plane of Ice"
+      },
+      {
+        "roll": "64",
+        "result": "Summon: Entity from the Plane of Magma"
+      },
+      {
+        "roll": "65",
+        "result": "Summon: Entity from the Plane of Ooze"
+      },
+      {
+        "roll": "66",
+        "result": "Summon: Entity from the Plane of Ash"
+      },
+      {
+        "roll": "67",
+        "result": "Summon: Entity from the Plane of Dust"
+      },
+      {
+        "roll": "68",
+        "result": "Summon: Entity from the Plane of Lightning"
+      },
+      {
+        "roll": "69",
+        "result": "Summon: Entity from the Plane of Vacuum"
+      },
+      {
+        "roll": "70",
+        "result": "Caster's skin turns crystalline; +2 AC -2 Stealth for 1 minute."
+      },
+      {
+        "roll": "71",
+        "result": "Caster becomes a random Small beast for 1 round (mental stats retained)."
+      },
+      {
+        "roll": "72",
+        "result": "Caster's voice swaps with nearest creature for 10 minutes."
+      },
+      {
+        "roll": "73",
+        "result": "Caster grows or shrinks by 1 foot permanently."
+      },
+      {
+        "roll": "74",
+        "result": "Caster's arms stretch increasing melee range by 5 ft for 1 minute. Disadvantage on Dex saves."
+      },
+      {
+        "roll": "75",
+        "result": "Caster's hair grows 5 feet instantly retracts rapidly over 1 minute."
+      },
+      {
+        "roll": "76",
+        "result": "Caster's eyes glow and change color with emotion for 24 hours."
+      },
+      {
+        "roll": "77",
+        "result": "Caster and a random ally swap bodies (not minds) for 1 minute."
+      },
+      {
+        "roll": "78",
+        "result": "Caster sprouts wings and gains 30 ft fly speed for 1 minute then molts."
+      },
+      {
+        "roll": "79",
+        "result": "Caster becomes 2D for 30 seconds'can squeeze through cracks takes double force damage."
+      },
+      {
+        "roll": "80",
+        "result": "Caster's voice gains unnatural octave shifts and echoes for 1 hour."
+      },
+      {
+        "roll": "81",
+        "result": "Caster's shadow detaches mimicking them. Vanishes if stepped on."
+      },
+      {
+        "roll": "82",
+        "result": "Caster and nearest spellcaster swap known/prepared spells and ability scores for 1 minute. Optional: affects all casters."
+      },
+      {
+        "roll": "83",
+        "result": "Caster is replaced by their alternate universe Fighter self for 1 minute. New physical form no spells full martial proficiencies. Everyone feels like it's always been this way."
+      },
+      {
+        "roll": "97",
+        "result": "Gravity in a 10 ft radius tilts sideways for 1 round (Dex save or fall)."
+      },
+      {
+        "roll": "98",
+        "result": "Sound plays in reverse for 6 seconds'conversations spells weapon swings."
+      },
+      {
+        "roll": "99",
+        "result": "Light bends inward'caster glows dimly from all directions for 1 minute."
+      },
+      {
+        "roll": "100",
+        "result": "For 1 minute all elemental attacks within 60 ft randomly change type (1-Fire 2-Cold 3-Lightning 4-Acid 5-Thunder 6-Force)."
+      }
+    ]
+  }
+];
+
+// ── State ─────────────────────────────────────────────────
+let tables = [];
+let activeIdx = 0;
+let rollHistory = {}; // tableIdx -> [{roll, result}]
+
+// ── Storage ───────────────────────────────────────────────
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tables)); } catch {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      tables = JSON.parse(raw);
+      return;
+    }
+  } catch {}
+  // First load — use starter tables
+  tables = STARTER_TABLES.map(t => ({ ...t }));
+  save();
+}
+
+// ── Roll logic ────────────────────────────────────────────
+function parseDie(dieStr) {
+  return parseInt(dieStr.replace('d', '')) || 20;
+}
+
+function rollDie(dieStr) {
+  const sides = parseDie(dieStr);
+  return Math.floor(Math.random() * sides) + 1;
+}
+
+function findResult(table, rollNum) {
+  for (const row of table.rows) {
+    const roll = row.roll.toString().trim();
+    if (roll.includes('-')) {
+      const [lo, hi] = roll.split('-').map(Number);
+      if (rollNum >= lo && rollNum <= hi) return row.result;
+    } else {
+      if (parseInt(roll) === rollNum) return row.result;
+    }
+  }
+  return 'No result found for roll ' + rollNum;
+}
+
+function doRoll() {
+  const table = tables[activeIdx];
+  if (!table) return;
+  const rollNum = rollDie(table.die);
+  const result = findResult(table, rollNum);
+  // Add to history
+  if (!rollHistory[activeIdx]) rollHistory[activeIdx] = [];
+  rollHistory[activeIdx].unshift({ roll: rollNum, result });
+  if (rollHistory[activeIdx].length > 20) rollHistory[activeIdx].pop();
+  renderRollResult(rollNum, result);
+  renderHistory();
+}
+
+// ── Render ────────────────────────────────────────────────
+function renderTableList() {
+  const list = document.getElementById('tableList');
+  list.innerHTML = tables.map((t, i) => `
+    <div class="table-list-item ${i === activeIdx ? 'active' : ''}" onclick="selectTable(${i})">
+      <span class="tli-name">${t.name}</span>
+      <span class="tli-die">${t.die}</span>
+    </div>`).join('');
+}
+
+function renderRollResult(rollNum, result) {
+  document.getElementById('rollNumber').textContent = rollNum !== null ? rollNum : '—';
+  const el = document.getElementById('rollResultText');
+  if (result) {
+    el.textContent = result;
+    el.classList.remove('empty');
+  } else {
+    el.textContent = 'Roll to see a result';
+    el.classList.add('empty');
+  }
+}
+
+function renderHistory() {
+  const hist = rollHistory[activeIdx] || [];
+  const el = document.getElementById('historyList');
+  if (!hist.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:4px 0">No rolls yet</div>';
+    return;
+  }
+  el.innerHTML = hist.map(h => `
+    <div class="history-entry">
+      <div class="history-roll">${h.roll}</div>
+      <div class="history-result">${h.result}</div>
+    </div>`).join('');
+}
+
+function renderEditor() {
+  const table = tables[activeIdx];
+  if (!table) return;
+  const scroll = document.getElementById('editorScroll');
+  scroll.innerHTML = `
+    <table class="editor-table">
+      <thead><tr>
+        <th style="width:80px">Roll</th>
+        <th>Result</th>
+        <th style="width:36px"></th>
+      </tr></thead>
+      <tbody id="editorBody">
+      </tbody>
+    </table>`;
+  renderEditorRows();
+}
+
+function renderEditorRows() {
+  const table = tables[activeIdx];
+  const body = document.getElementById('editorBody');
+  if (!body) return;
+  body.innerHTML = table.rows.map((row, i) => `
+    <tr>
+      <td><textarea class="cell-input roll-cell" rows="1"
+        oninput="updateRow(${i},'roll',this.value);autoResize(this)"
+        onkeydown="handleCellKey(event,${i},'roll')"
+        >${escHtml(row.roll)}</textarea></td>
+      <td><textarea class="cell-input"
+        oninput="updateRow(${i},'result',this.value);autoResize(this)"
+        onkeydown="handleCellKey(event,${i},'result')"
+        >${escHtml(row.result)}</textarea></td>
+      <td><button class="cell-del" onclick="deleteRow(${i})" title="Delete row">✕</button></td>
+    </tr>`).join('');
+  // Auto-resize all textareas
+  document.querySelectorAll('.cell-input').forEach(autoResize);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderContent() {
+  const table = tables[activeIdx];
+  if (!table) return;
+  document.getElementById('tableContent').innerHTML = `
+    <!-- Roll panel -->
+    <div class="roll-panel">
+      <div class="roll-panel-title">${table.name}</div>
+      <div class="roll-die-badge">${table.die}</div>
+      <div class="roll-result-number" id="rollNumber">—</div>
+      <div class="roll-result-text empty" id="rollResultText">Roll to see a result</div>
+      <div class="roll-btns">
+        <button class="btn primary" style="font-size:15px;padding:8px 28px" onclick="doRoll()">🎲 Roll ${table.die}</button>
+        <button class="btn" onclick="doRoll()">Reroll</button>
+        <button class="btn" onclick="clearHistory()">Clear History</button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="history-panel">
+      <div class="panel-head">
+        <div class="panel-title">Roll History</div>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-panel">
+      <div class="panel-head">
+        <div class="panel-title">Table Rows <span style="color:var(--text3);font-family:Rajdhani,sans-serif;font-size:11px;font-weight:400;text-transform:none">(click any cell to edit)</span></div>
+        <div style="display:flex;gap:6px">
+          <button class="btn small danger" onclick="confirmDeleteTable()">Delete Table</button>
+          <button class="btn small" onclick="renameDieModal()">Change Die</button>
+        </div>
+      </div>
+      <div class="editor-toolbar">
+        <button class="btn small primary" onclick="addRow()">+ Add Row</button>
+        <div style="font-size:12px;color:var(--text3);margin-left:4px">${table.rows.length} rows</div>
+      </div>
+      <div class="editor-scroll" id="editorScroll"></div>
+    </div>`;
+  renderEditorRows();
+  renderHistory();
+}
+
+// ── Actions ───────────────────────────────────────────────
+function selectTable(idx) {
+  activeIdx = idx;
+  renderTableList();
+  renderContent();
+}
+
+function updateRow(rowIdx, field, value) {
+  if (!tables[activeIdx]) return;
+  tables[activeIdx].rows[rowIdx][field] = value;
+  save();
+}
+
+function handleCellKey(e, rowIdx, field) {
+  // Tab between cells
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const cells = document.querySelectorAll('.cell-input');
+    const idx = Array.from(cells).indexOf(e.target);
+    if (idx >= 0 && idx < cells.length - 1) cells[idx + 1].focus();
+  }
+}
+
+function addRow() {
+  const table = tables[activeIdx];
+  if (!table) return;
+  const lastRoll = table.rows.length > 0
+    ? parseInt(table.rows[table.rows.length - 1].roll) + 1
+    : 1;
+  table.rows.push({ roll: String(lastRoll), result: '' });
+  save();
+  renderEditorRows();
+  // Scroll to bottom and focus new row
+  const scroll = document.getElementById('editorScroll');
+  if (scroll) scroll.scrollTop = scroll.scrollHeight;
+  const inputs = document.querySelectorAll('.cell-input');
+  if (inputs.length) inputs[inputs.length - 2].focus(); // focus roll cell of new row
+}
+
+function deleteRow(rowIdx) {
+  tables[activeIdx].rows.splice(rowIdx, 1);
+  save();
+  renderEditorRows();
+  // Update row count display
+  const cnt = document.querySelector('.editor-toolbar div');
+  if (cnt) cnt.textContent = tables[activeIdx].rows.length + ' rows';
+}
+
+function clearHistory() {
+  rollHistory[activeIdx] = [];
+  renderHistory();
+}
+
+function confirmDeleteTable() {
+  const table = tables[activeIdx];
+  if (!confirm(`Delete "${table.name}"? This cannot be undone.`)) return;
+  tables.splice(activeIdx, 1);
+  activeIdx = Math.max(0, activeIdx - 1);
+  save();
+  renderTableList();
+  if (tables.length) renderContent();
+  else document.getElementById('tableContent').innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:var(--text3)">No tables. Create one or import a CSV.</div>';
+}
+
+function renameDieModal() {
+  const table = tables[activeIdx];
+  const die = prompt('Die type (d4/d6/d8/d10/d12/d20/d100):', table.die);
+  if (!die) return;
+  const valid = ['d4','d6','d8','d10','d12','d20','d100'];
+  if (!valid.includes(die.toLowerCase())) { alert('Invalid die type'); return; }
+  table.die = die.toLowerCase();
+  save();
+  renderContent();
+  renderTableList();
+}
+
+// ── New table modal ───────────────────────────────────────
+function openNewTableModal() {
+  document.getElementById('newTableName').value = '';
+  openModal('newTableModal');
+  setTimeout(() => document.getElementById('newTableName').focus(), 50);
+}
+
+function createNewTable() {
+  const name = document.getElementById('newTableName').value.trim();
+  if (!name) { document.getElementById('newTableName').focus(); return; }
+  const die = document.getElementById('newTableDie').value;
+  tables.push({ name, die, rows: [] });
+  save();
+  activeIdx = tables.length - 1;
+  closeModal('newTableModal');
+  renderTableList();
+  renderContent();
+}
+
+// ── CSV Import ────────────────────────────────────────────
+function importCSV(file) {
+  if (!file) return;
+  const name = file.name.replace('.csv', '').replace(/_/g, ' ');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const rows = [];
+    for (const line of text.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      const parts = trimmed.split(',');
+      const roll = parts[0].trim();
+      // Skip header rows
+      if (!roll || roll.toLowerCase() === 'roll' || !roll[0].match(/[0-9]/)) continue;
+      const result = parts.slice(1).join(',').trim();
+      if (result) rows.push({ roll, result });
+    }
+    if (!rows.length) { alert('No valid rows found in CSV.'); return; }
+    // Auto-detect die type from row count
+    const count = rows.length;
+    let die = 'd20';
+    if (count <= 4) die = 'd4';
+    else if (count <= 6) die = 'd6';
+    else if (count <= 8) die = 'd8';
+    else if (count <= 10) die = 'd10';
+    else if (count <= 12) die = 'd12';
+    else if (count <= 20) die = 'd20';
+    else die = 'd100';
+
+    tables.push({ name, die, rows });
+    save();
+    activeIdx = tables.length - 1;
+    renderTableList();
+    renderContent();
+  };
+  reader.readAsText(file);
+}
+
+// ── Modal helpers ─────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('visible'); }
+function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+// Close modal on overlay click
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
+});
+
+// Enter key on new table name
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('newTableModal').classList.contains('visible')) {
+    createNewTable();
+  }
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────
+load();
+renderTableList();
+if (tables.length) renderContent();
+</script>
+<script src="/thekodia-storage.js"></script>
+</body>
+</html>

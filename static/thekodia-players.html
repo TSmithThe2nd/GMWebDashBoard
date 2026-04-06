@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thekodia DM — Players</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thekodia DM — Players</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
 :root {
   --bg: #0d0f14;
   --bg2: #13161e;
@@ -257,17 +257,14 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
   <div class="nav-tabs">
     <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
     <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
-    <button class="nav-tab active" onclick="window.location='thekodia-players.html'">Players</button>
+    <button class="nav-tab active">Players</button>
     <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
     <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-tables.html'">Tables</button>
     <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
-    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
-    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
   </div>
   <button class="btn primary" onclick="newPlayer()">+ Add Player</button>
 </div>
-<input type="file" id="backupFileInput" accept=".json" style="display:none"
-       onchange="ThekodiaStorage.importBackup(this.files[0]); this.value='';">
 
 <div class="main-layout">
 
@@ -847,10 +844,6 @@ function openPasteModal() {
   document.getElementById('pdfPreview').innerHTML = '';
   document.getElementById('pdfDropZone').style.borderColor = 'var(--border2)';
   currentPDFBase64 = null;
-
-  const btn = document.getElementById('importConfirmBtn');
-  if (btn) { btn.textContent = 'Import Character'; btn.disabled = false; }
-
   switchImportTab('pdf');
   openModal('pasteModal');
 }
