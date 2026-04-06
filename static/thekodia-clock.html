@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thekodia DM — Clock</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thekodia DM — Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
 :root {
   --bg: #0d0f14;
   --bg2: #13161e;
@@ -375,6 +375,40 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* Display controls */
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+.weather-opt {
+  padding: 5px 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.weather-opt:hover { border-color: var(--accent-dim); color: var(--text); }
+.weather-opt.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent2); }
+.ev-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px;
+  padding: 5px 8px; width: 100%;
+}
+.ev-input:focus { outline: none; border-color: var(--accent-dim); }
+.ev-row { display: flex; gap: 6px; }
+.mode-btn {
+  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
+  background: var(--bg3); color: var(--text2); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.05em; width: 100%;
+}
+.mode-btn.combat { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.1); }
 </style>
 </head>
 <body>
@@ -493,6 +527,45 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
         </div>
         <button class="btn small primary" onclick="applyCustomAdvance()" style="align-self:flex-end;margin-bottom:1px">Advance</button>
       </div>
+
+      <div class="divider"></div>
+      <div class="controls-title">Display Controls</div>
+
+      <!-- Mode toggle -->
+      <button class="mode-btn" id="modeBtn" onclick="toggleDisplayMode()">Mode: Ambient</button>
+
+      <!-- Weather -->
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">Weather</div>
+      <div class="weather-grid">
+        <div class="weather-opt" onclick="setWeather('☀','Clear skies')">☀ Clear</div>
+        <div class="weather-opt" onclick="setWeather('⛅','Partly cloudy')">⛅ Partly</div>
+        <div class="weather-opt" onclick="setWeather('☁','Overcast')">☁ Overcast</div>
+        <div class="weather-opt" onclick="setWeather('🌧','Light rain')">🌧 Rain</div>
+        <div class="weather-opt" onclick="setWeather('⛈','Thunderstorm')">⛈ Storm</div>
+        <div class="weather-opt" onclick="setWeather('❄','Snow')">❄ Snow</div>
+        <div class="weather-opt" onclick="setWeather('🌫','Foggy')">🌫 Fog</div>
+        <div class="weather-opt" onclick="setWeather('💨','Windy')">💨 Windy</div>
+        <div class="weather-opt" onclick="setWeather('🌪','Severe storm')">🌪 Severe</div>
+      </div>
+      <div class="ev-row" style="margin-top:4px">
+        <input class="ev-input" id="customWeatherInput" placeholder="Custom weather...">
+        <button class="btn small primary" onclick="setCustomWeather()">Set</button>
+      </div>
+      <div id="currentWeatherLabel" style="font-size:12px;color:var(--text2);margin-top:4px;text-align:center"></div>
+
+      <!-- Event countdown -->
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px">Countdown Event</div>
+      <input class="ev-input" id="eventNameInput" placeholder="Event name..." style="margin-bottom:4px">
+      <div class="ev-row" style="margin-bottom:4px">
+        <input class="ev-input" type="number" id="eventDays" placeholder="Days" min="0">
+        <input class="ev-input" type="number" id="eventHours" placeholder="Hours" min="0">
+        <input class="ev-input" type="number" id="eventMins" placeholder="Min" min="0">
+      </div>
+      <div class="ev-row">
+        <button class="btn small" onclick="clearEvent()" style="border-color:var(--red-dim);color:var(--red);flex:1">Clear</button>
+        <button class="btn small primary" onclick="saveEvent()" style="flex:2">Save Event</button>
+      </div>
+      <div id="currentEventLabel" style="font-size:12px;color:var(--amber);margin-top:4px;text-align:center"></div>
 
     </div>
   </div>
@@ -859,10 +932,94 @@ function populateMonthSelect() {
   sel.innerHTML = MONTHS.map((m, i) => `<option value="${i+1}">${m}</option>`).join('');
 }
 
+// ── DISPLAY CONTROLS ─────────────────────────────────────
+
+let displayMode = 'ambient';
+let weather = { icon: '☀', desc: 'Clear skies' };
+let eventData = null;
+
+function loadDisplayControls() {
+  try { weather = JSON.parse(localStorage.getItem('thekodia_weather')) || weather; } catch {}
+  try { eventData = JSON.parse(localStorage.getItem('thekodia_event')); } catch {}
+  try {
+    const ds = JSON.parse(localStorage.getItem('thekodia_display_state'));
+    if (ds && ds.mode) displayMode = ds.mode;
+  } catch {}
+  renderDisplayControls();
+}
+
+function renderDisplayControls() {
+  const btn = document.getElementById('modeBtn');
+  if (btn) {
+    btn.textContent = `Mode: ${displayMode === 'combat' ? 'Combat' : 'Ambient'}`;
+    btn.classList.toggle('combat', displayMode === 'combat');
+  }
+  const wLabel = document.getElementById('currentWeatherLabel');
+  if (wLabel) wLabel.textContent = weather ? `${weather.icon} ${weather.desc}` : '';
+
+  const eLabel = document.getElementById('currentEventLabel');
+  if (eLabel) eLabel.textContent = eventData ? `⏳ ${eventData.name}` : 'No event set';
+
+  // Highlight active weather option
+  document.querySelectorAll('.weather-opt').forEach(el => {
+    el.classList.toggle('active', el.textContent.includes(weather?.desc));
+  });
+}
+
+function toggleDisplayMode() {
+  displayMode = displayMode === 'ambient' ? 'combat' : 'ambient';
+  saveDisplayState();
+  renderDisplayControls();
+}
+
+function setWeather(icon, desc) {
+  weather = { icon, desc };
+  try { localStorage.setItem('thekodia_weather', JSON.stringify(weather)); } catch {}
+  renderDisplayControls();
+}
+
+function setCustomWeather() {
+  const val = document.getElementById('customWeatherInput').value.trim();
+  if (!val) return;
+  setWeather('🌡', val);
+  document.getElementById('customWeatherInput').value = '';
+}
+
+function saveEvent() {
+  const name = document.getElementById('eventNameInput').value.trim();
+  if (!name) return;
+  const days  = parseInt(document.getElementById('eventDays').value)  || 0;
+  const hours = parseInt(document.getElementById('eventHours').value) || 0;
+  const mins  = parseInt(document.getElementById('eventMins').value)  || 0;
+  const ms = (days * 24 * 60 + hours * 60 + mins) * 60000;
+  eventData = { name, targetMs: Date.now() + ms };
+  try { localStorage.setItem('thekodia_event', JSON.stringify(eventData)); } catch {}
+  document.getElementById('eventNameInput').value = '';
+  document.getElementById('eventDays').value = '';
+  document.getElementById('eventHours').value = '';
+  document.getElementById('eventMins').value = '';
+  renderDisplayControls();
+}
+
+function clearEvent() {
+  eventData = null;
+  try { localStorage.removeItem('thekodia_event'); } catch {}
+  renderDisplayControls();
+}
+
+function saveDisplayState() {
+  try {
+    const existing = JSON.parse(localStorage.getItem('thekodia_display_state') || '{}');
+    existing.mode = displayMode;
+    localStorage.setItem('thekodia_display_state', JSON.stringify(existing));
+  } catch {}
+}
+
 loadClock();
 populateMonthSelect();
-calViewMonth = -1; // sentinel — will be set to current month on first render
+calViewMonth = -1;
 calViewYear = 1;
+loadDisplayControls();
 render();
 </script>
 <script src="/thekodia-storage.js"></script>

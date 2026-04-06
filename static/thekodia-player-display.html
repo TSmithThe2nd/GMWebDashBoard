@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Thekodia — Player Display</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thekodia — Player Display</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
 :root {
   --bg: #0a0c10;
   --bg2: #0f1219;
@@ -367,98 +367,13 @@ body {
   letter-spacing: 0.1em;
 }
 
-/* DM Controls overlay */
-.dm-controls {
-  position: fixed;
-  top: 10px; right: 10px;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  opacity: 0.2;
-  transition: opacity 0.2s;
-}
-.dm-controls:hover { opacity: 1; }
-
-.dm-btn {
-  padding: 4px 10px;
-  border-radius: 4px;
-  border: 1px solid var(--border2);
-  background: var(--bg2);
-  color: var(--text2);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.dm-btn:hover { border-color: var(--accent-dim); color: var(--accent); background: var(--bg3); }
-.dm-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
-
-/* Weather modal */
-.weather-modal {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 16px;
-  z-index: 300;
-  min-width: 280px;
-  display: none;
-}
-.weather-modal.visible { display: block; }
-.weather-modal-title { font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent); margin-bottom: 10px; }
-.weather-opt {
-  padding: 7px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text2);
-  transition: background 0.15s;
-  display: flex; align-items: center; gap: 8px;
-}
-.weather-opt:hover { background: var(--bg3); color: var(--text); }
-
-/* Event modal */
-.event-modal {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 10px;
-  padding: 16px;
-  z-index: 300;
-  min-width: 320px;
-  display: none;
-}
-.event-modal.visible { display: block; }
-.event-modal-title { font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent); margin-bottom: 10px; }
-.ev-input {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: 5px;
-  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px;
-  padding: 5px 8px; width: 100%; margin-bottom: 8px;
-}
-.ev-input:focus { outline: none; border-color: var(--accent-dim); }
-.ev-row { display: flex; gap: 6px; }
-.ev-btn { flex: 1; padding: 5px; border-radius: 5px; border: 1px solid var(--border2); background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; }
-.ev-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
 <body>
-
-<!-- DM Controls (hover to reveal) -->
-<div class="dm-controls">
-  <button class="dm-btn" id="modeBtn" onclick="toggleMode()">Mode: Ambient</button>
-  <button class="dm-btn" onclick="openWeatherModal()">Set Weather</button>
-  <button class="dm-btn" onclick="openEventModal()">Set Event</button>
-  <button class="dm-btn" onclick="toggleFullscreen()">Fullscreen</button>
-</div>
 
 <!-- TOP BAR (mirrored for far-side players) -->
 <div class="display-bar bar-top" id="topBar">
@@ -512,46 +427,6 @@ body {
 <!-- BOTTOM BAR -->
 <div class="display-bar bar-bottom" id="bottomBar">
   <div class="bar-world-info" id="bottomBarContent"></div>
-</div>
-
-<!-- Weather Modal -->
-<div class="weather-modal" id="weatherModal">
-  <div class="weather-modal-title">Set Weather</div>
-  ${[
-    ['☀', 'Clear skies'],
-    ['⛅', 'Partly cloudy'],
-    ['☁', 'Overcast'],
-    ['🌧', 'Light rain'],
-    ['⛈', 'Thunderstorm'],
-    ['❄', 'Snow'],
-    ['🌫', 'Foggy'],
-    ['💨', 'Windy'],
-    ['🌪', 'Severe storm'],
-  ].map(([icon, desc]) =>
-    `<div class="weather-opt" onclick="setWeather('${icon}','${desc}')">${icon} ${desc}</div>`
-  ).join('')}
-  <div style="margin-top:8px;display:flex;gap:6px">
-    <input class="ev-input" id="customWeatherInput" placeholder="Custom weather..." style="margin:0">
-    <button class="ev-btn primary" onclick="setCustomWeather()">Set</button>
-  </div>
-  <button class="ev-btn" style="width:100%;margin-top:8px" onclick="closeWeatherModal()">Cancel</button>
-</div>
-
-<!-- Event Modal -->
-<div class="event-modal" id="eventModal">
-  <div class="event-modal-title">Set Countdown Event</div>
-  <input class="ev-input" id="eventNameInput" placeholder="Event name (e.g. 'The Festival of Ash')">
-  <div style="font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">Event happens in...</div>
-  <div class="ev-row" style="margin-bottom:8px">
-    <input class="ev-input" type="number" id="eventDays" placeholder="Days" min="0" style="margin:0">
-    <input class="ev-input" type="number" id="eventHours" placeholder="Hours" min="0" style="margin:0">
-    <input class="ev-input" type="number" id="eventMins" placeholder="Min" min="0" style="margin:0">
-  </div>
-  <div class="ev-row">
-    <button class="ev-btn" onclick="closeEventModal()">Cancel</button>
-    <button class="ev-btn" onclick="clearEvent()" style="border-color:#7a2828;color:#e05555">Clear</button>
-    <button class="ev-btn primary" onclick="saveEvent()">Save</button>
-  </div>
 </div>
 
 <script>
@@ -783,64 +658,6 @@ function render() {
   document.getElementById('topBarContent').innerHTML = barHtml;
   document.getElementById('bottomBarContent').innerHTML = barHtml;
   renderMiddle();
-  document.getElementById('modeBtn').textContent = `Mode: ${displayMode === 'combat' ? 'Combat' : 'Ambient'}`;
-  document.getElementById('modeBtn').classList.toggle('active', displayMode === 'combat');
-}
-
-// ── CONTROLS ─────────────────────────────────────────────
-function toggleMode() {
-  displayMode = displayMode === 'ambient' ? 'combat' : 'ambient';
-  render();
-}
-
-function openWeatherModal() { document.getElementById('weatherModal').classList.add('visible'); }
-function closeWeatherModal() { document.getElementById('weatherModal').classList.remove('visible'); }
-
-function setWeather(icon, desc) {
-  weather = { icon, desc };
-  try { localStorage.setItem('thekodia_weather', JSON.stringify(weather)); } catch {}
-  closeWeatherModal();
-  render();
-}
-
-function setCustomWeather() {
-  const val = document.getElementById('customWeatherInput').value.trim();
-  if (!val) return;
-  setWeather('🌡', val);
-}
-
-function openEventModal() {
-  document.getElementById('eventNameInput').value = eventData ? eventData.name : '';
-  document.getElementById('eventDays').value = '';
-  document.getElementById('eventHours').value = '';
-  document.getElementById('eventMins').value = '';
-  document.getElementById('eventModal').classList.add('visible');
-}
-function closeEventModal() { document.getElementById('eventModal').classList.remove('visible'); }
-
-function saveEvent() {
-  const name = document.getElementById('eventNameInput').value.trim();
-  if (!name) return;
-  const days = parseInt(document.getElementById('eventDays').value)||0;
-  const hours = parseInt(document.getElementById('eventHours').value)||0;
-  const mins = parseInt(document.getElementById('eventMins').value)||0;
-  const ms = (days*24*60 + hours*60 + mins) * 60000;
-  eventData = { name, targetMs: Date.now() + ms };
-  try { localStorage.setItem('thekodia_event', JSON.stringify(eventData)); } catch {}
-  closeEventModal();
-  render();
-}
-
-function clearEvent() {
-  eventData = null;
-  try { localStorage.removeItem('thekodia_event'); } catch {}
-  closeEventModal();
-  render();
-}
-
-function toggleFullscreen() {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-  else document.exitFullscreen();
 }
 
 // ── SYNC FROM INITIATIVE TRACKER ─────────────────────────
