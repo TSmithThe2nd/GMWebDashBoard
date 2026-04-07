@@ -552,6 +552,147 @@ body {
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
+/* Detail panel toggle bar */
+.detail-toggle-bar {
+  display: flex; gap: 5px; padding: 6px 12px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; align-items: center;
+}
+.detail-toggle-bar-label {
+  font-size: 11px; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.06em; margin-right: 4px; white-space: nowrap;
+}
+.field-toggle {
+  padding: 2px 8px; border-radius: 3px; border: 1px solid var(--border);
+  background: transparent; color: var(--text3); font-family: 'Rajdhani', sans-serif;
+  font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.field-toggle.on { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+.field-toggle:hover { border-color: var(--border2); color: var(--text); }
+
+/* Expand button on card */
+.card-expand-btn {
+  padding: 3px 7px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: transparent; color: var(--text3); font-size: 12px; cursor: pointer;
+  transition: all 0.15s; line-height: 1; flex-shrink: 0;
+}
+.card-expand-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+.card-expand-btn.open { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* Detail popup */
+.detail-popup {
+  position: fixed; z-index: 400;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius2); padding: 14px;
+  width: 320px; max-height: 80vh; overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+.detail-popup-name {
+  font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent);
+  margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.detail-close {
+  background: transparent; border: none; color: var(--text3);
+  cursor: pointer; font-size: 16px; padding: 0 2px; transition: color 0.15s;
+}
+.detail-close:hover { color: var(--red); }
+.detail-section { margin-bottom: 10px; }
+.detail-section-title {
+  font-size: 10px; color: var(--text3); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 5px;
+}
+
+/* Ability scores in popup */
+.ability-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+}
+.ability-cell {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 4px 2px; text-align: center;
+}
+.ability-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+.ability-score { font-size: 15px; color: var(--text); font-weight: 600; }
+.ability-mod { font-size: 11px; color: var(--accent); }
+
+/* Attacks in popup */
+.attack-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 0; border-bottom: 1px solid var(--border);
+}
+.attack-row:last-child { border-bottom: none; }
+.attack-name { flex: 1; font-size: 13px; color: var(--text); font-weight: 600; }
+.attack-stats { font-size: 11px; color: var(--text2); }
+.attack-roll-btn {
+  padding: 3px 10px; border-radius: var(--radius); border: 1px solid var(--green-dim);
+  background: transparent; color: var(--green); font-family: 'Rajdhani', sans-serif;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; white-space: nowrap;
+}
+.attack-roll-btn:hover { background: rgba(76,175,125,0.15); }
+.attack-del-btn {
+  background: transparent; border: none; color: var(--text3);
+  cursor: pointer; font-size: 13px; padding: 2px 4px; transition: color 0.15s;
+}
+.attack-del-btn:hover { color: var(--red); }
+
+/* Add attack form */
+.add-attack-row {
+  display: grid; grid-template-columns: 1fr 60px 1fr auto;
+  gap: 4px; margin-top: 6px;
+}
+.atk-input {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 12px;
+  padding: 4px 6px; width: 100%;
+}
+.atk-input:focus { outline: none; border-color: var(--accent-dim); }
+
+/* Spell slots in popup */
+.slot-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.slot-entry {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 3px 8px;
+  font-size: 12px; text-align: center; min-width: 60px;
+}
+.slot-level { font-size: 10px; color: var(--text3); text-transform: uppercase; }
+.slot-pips { display: flex; gap: 3px; justify-content: center; margin-top: 2px; flex-wrap: wrap; }
+.slot-pip {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid var(--border2); background: var(--purple);
+  cursor: pointer; transition: all 0.15s;
+}
+.slot-pip.used { background: var(--bg3); border-color: var(--border); }
+
+/* Notes textarea in popup */
+.detail-notes {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; padding: 6px 8px; resize: vertical; min-height: 60px;
+  line-height: 1.4;
+}
+.detail-notes:focus { outline: none; border-color: var(--accent-dim); }
+
+/* Roll result popup */
+.roll-popup {
+  position: fixed; z-index: 500;
+  background: var(--bg2); border: 1px solid var(--accent);
+  border-radius: var(--radius2); padding: 10px 16px;
+  pointer-events: none; text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  animation: rollPopIn 0.15s ease-out;
+}
+@keyframes rollPopIn {
+  from { opacity: 0; transform: scale(0.85) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.roll-popup-attack { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.roll-popup-hit { font-family: 'Cinzel', serif; font-size: 28px; color: var(--amber); line-height: 1; }
+.roll-popup-hit-label { font-size: 10px; color: var(--text3); text-transform: uppercase; margin-bottom: 4px; }
+.roll-popup-dmg { font-family: 'Cinzel', serif; font-size: 22px; color: var(--red); line-height: 1; }
+.roll-popup-dmg-label { font-size: 10px; color: var(--text3); text-transform: uppercase; }
+
 /* Advantage toggle */
 .adv-toggle {
   display: flex;
@@ -649,6 +790,7 @@ body {
       <button class="btn" onclick="sortInitiative()">Sort ↕</button>
       <button class="btn" id="teamRollBtn" style="display:none;border-color:var(--blue-dim);color:var(--blue)" onclick="rollTeamInitiative()">⚄ Roll Team Init</button>
       <button class="btn" id="groupRollBtn" style="display:none;border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Group Init</button>
+      <button class="btn" onclick="window.open('http://localhost:5000/thekodia-player-display.html')">Player View</button>
     </div>
 
     <!-- Turn Banner -->
@@ -662,6 +804,16 @@ body {
         <div class="on-deck" id="onDeck1"></div>
         <div class="on-deck" id="onDeck2"></div>
       </div>
+    </div>
+
+    <!-- Detail panel field toggles -->
+    <div class="detail-toggle-bar">
+      <span class="detail-toggle-bar-label">Show:</span>
+      <button class="field-toggle on" id="tog_attacks" onclick="toggleField('attacks')">Attacks</button>
+      <button class="field-toggle on" id="tog_stats" onclick="toggleField('stats')">Stats</button>
+      <button class="field-toggle on" id="tog_slots" onclick="toggleField('slots')">Spell Slots</button>
+      <button class="field-toggle on" id="tog_notes" onclick="toggleField('notes')">Notes</button>
+      <button class="field-toggle on" id="tog_speed" onclick="toggleField('speed')">Speed</button>
     </div>
 
     <div class="combatant-list" id="combatantList">
@@ -944,6 +1096,10 @@ let selectedCombatantIdx = -1;
 let editingIdx = -1;
 let advMode = 'none';
 let thumbData = {};
+let openDetailIdx = -1;
+let detailPopupEl = null;
+let detailFields = { attacks: true, stats: true, slots: true, notes: true, speed: true };
+const DETAIL_FIELDS_KEY = 'thekodia_detail_fields';
 
 function getStorage() {
   try { return JSON.parse(localStorage.getItem('thekodia_encounters') || '[]'); } catch { return []; }
@@ -1129,6 +1285,7 @@ function renderCard(c, i) {
         <button class="btn icon" title="Toggle dead/alive" onclick="toggleDead(${i})">☠</button>
         <button class="btn icon" title="Move up" onclick="moveCard(${i},-1)">▲</button>
         <button class="btn icon" title="Move down" onclick="moveCard(${i},1)">▼</button>
+        <button class="card-expand-btn${openDetailIdx===i?' open':''}" id="expandBtn_${i}" title="Show details" onclick="toggleDetail(${i}, this)">◀</button>
       </div>
     </div>
     ${condBadges ? `<div class="conditions-row">${condBadges}</div>` : ''}
@@ -1576,6 +1733,300 @@ function openAddModal() {
 
 renderEncounterList();
 renderList();
+
+function saveCombatants() {
+  // Combatants live in memory during a session.
+  // Re-render the detail content in place without rebuilding the whole list.
+  if (openDetailIdx >= 0 && detailPopupEl) renderDetailContent(openDetailIdx);
+  pushDisplayState();
+}
+
+// ── DETAIL PANEL ─────────────────────────────────────────
+
+function loadDetailFields() {
+  try {
+    const raw = localStorage.getItem(DETAIL_FIELDS_KEY);
+    if (raw) detailFields = { ...detailFields, ...JSON.parse(raw) };
+  } catch {}
+  // Sync toggle button states
+  Object.keys(detailFields).forEach(f => {
+    const btn = document.getElementById('tog_' + f);
+    if (btn) btn.classList.toggle('on', detailFields[f]);
+  });
+}
+
+function toggleField(field) {
+  detailFields[field] = !detailFields[field];
+  const btn = document.getElementById('tog_' + field);
+  if (btn) btn.classList.toggle('on', detailFields[field]);
+  try { localStorage.setItem(DETAIL_FIELDS_KEY, JSON.stringify(detailFields)); } catch {}
+  // Refresh open popup if any
+  if (openDetailIdx >= 0 && detailPopupEl) renderDetailContent(openDetailIdx);
+}
+
+function toggleDetail(idx, btnEl) {
+  if (openDetailIdx === idx) {
+    closeDetail();
+    return;
+  }
+  openDetailIdx = idx;
+  // Close any existing popup
+  if (detailPopupEl) detailPopupEl.remove();
+
+  // Create popup
+  detailPopupEl = document.createElement('div');
+  detailPopupEl.className = 'detail-popup';
+  detailPopupEl.id = 'detailPopup';
+  document.body.appendChild(detailPopupEl);
+
+  positionDetailPopup(btnEl);
+  renderDetailContent(idx);
+
+  // Update all expand buttons
+  renderList();
+}
+
+function positionDetailPopup(btnEl) {
+  if (!detailPopupEl || !btnEl) return;
+  const rect = btnEl.getBoundingClientRect();
+  const popupW = 320;
+  const margin = 8;
+  let left = rect.right + margin;
+  let top = rect.top;
+  // Clamp to viewport
+  if (left + popupW > window.innerWidth - margin) left = rect.left - popupW - margin;
+  if (top + 400 > window.innerHeight - margin) top = window.innerHeight - 400 - margin;
+  if (top < margin) top = margin;
+  detailPopupEl.style.left = left + 'px';
+  detailPopupEl.style.top = top + 'px';
+}
+
+function closeDetail() {
+  openDetailIdx = -1;
+  if (detailPopupEl) { detailPopupEl.remove(); detailPopupEl = null; }
+  renderList();
+}
+
+function renderDetailContent(idx) {
+  const c = combatants[idx];
+  if (!c || !detailPopupEl) return;
+
+  const mod = s => Math.floor((s - 10) / 2);
+  const modStr = s => { const m = mod(s); return (m >= 0 ? '+' : '') + m; };
+
+  let html = `
+    <div class="detail-popup-name">
+      <span>${c.name}</span>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>`;
+
+  // Speed
+  if (detailFields.speed && c.speed) {
+    html += `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">
+      🏃 <strong>${c.speed} ft</strong>
+      ${c.proficiencyBonus ? `&nbsp;·&nbsp; Prof <strong>+${c.proficiencyBonus}</strong>` : ''}
+      ${c.classes ? `&nbsp;·&nbsp; <span style="color:var(--text3)">${c.classes}</span>` : ''}
+    </div>`;
+  }
+
+  // Ability scores
+  if (detailFields.stats && (c.str || c.dex || c.con || c.int || c.wis || c.cha)) {
+    const stats = [
+      {label:'STR', val: c.str||10},
+      {label:'DEX', val: c.dex||10},
+      {label:'CON', val: c.con||10},
+      {label:'INT', val: c.int||10},
+      {label:'WIS', val: c.wis||10},
+      {label:'CHA', val: c.cha||10},
+    ];
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Ability Scores</div>
+      <div class="ability-grid">${stats.map(s => `
+        <div class="ability-cell">
+          <div class="ability-label">${s.label}</div>
+          <div class="ability-score">${s.val}</div>
+          <div class="ability-mod">${modStr(s.val)}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Attacks
+  if (detailFields.attacks) {
+    const attacks = c.attacks || [];
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Attacks</div>
+      <div id="attackList_${idx}">
+        ${attacks.length ? attacks.map((a, ai) => `
+          <div class="attack-row">
+            <div>
+              <div class="attack-name">${a.name}</div>
+              <div class="attack-stats">${a.hit} to hit · ${a.damage}</div>
+            </div>
+            <button class="attack-roll-btn" onclick="rollAttack(${idx},${ai})">🎲 Roll</button>
+            <button class="attack-del-btn" onclick="deleteAttack(${idx},${ai})" title="Remove">✕</button>
+          </div>`).join('') : '<div style="font-size:12px;color:var(--text3)">No attacks defined</div>'}
+      </div>
+      <div class="add-attack-row" style="margin-top:8px">
+        <input class="atk-input" id="atkName_${idx}" placeholder="Name">
+        <input class="atk-input" id="atkHit_${idx}" placeholder="+5">
+        <input class="atk-input" id="atkDmg_${idx}" placeholder="1d6+3 Piercing">
+        <button class="btn small primary" onclick="addAttack(${idx})">+</button>
+      </div>
+    </div>`;
+  }
+
+  // Spell slots
+  if (detailFields.slots && c.spellSlots && c.spellSlots.some(s => s && s.max > 0)) {
+    const ordinals = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Spell Slots</div>
+      <div class="slot-grid">
+        ${c.spellSlots.map((s, lvl) => {
+          if (!s || s.max === 0) return '';
+          const pips = Array.from({length: s.max}, (_, pi) =>
+            `<div class="slot-pip${pi < (s.used||0) ? ' used' : ''}" onclick="toggleSlotPip(${idx},${lvl},${pi})"></div>`
+          ).join('');
+          return `<div class="slot-entry">
+            <div class="slot-level">${ordinals[lvl]}</div>
+            <div class="slot-pips">${pips}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Notes
+  if (detailFields.notes) {
+    html += `<div class="detail-section">
+      <div class="detail-section-title">Notes</div>
+      <textarea class="detail-notes" id="detailNotes_${idx}"
+        oninput="updateDetailNotes(${idx},this.value)"
+        placeholder="Spells remaining, conditions, reminders..."
+        >${(c.notes||'').replace(/</g,'&lt;')}</textarea>
+    </div>`;
+  }
+
+  detailPopupEl.innerHTML = html;
+}
+
+// ── Detail panel actions ──────────────────────────────────
+
+function addAttack(idx) {
+  const c = combatants[idx];
+  if (!c) return;
+  const name = document.getElementById(`atkName_${idx}`)?.value.trim();
+  const hit  = document.getElementById(`atkHit_${idx}`)?.value.trim();
+  const dmg  = document.getElementById(`atkDmg_${idx}`)?.value.trim();
+  if (!name) return;
+  if (!c.attacks) c.attacks = [];
+  c.attacks.push({ name, hit: hit||'+0', damage: dmg||'—' });
+  saveCombatants();
+  renderDetailContent(idx);
+}
+
+function deleteAttack(idx, atkIdx) {
+  const c = combatants[idx];
+  if (!c || !c.attacks) return;
+  c.attacks.splice(atkIdx, 1);
+  saveCombatants();
+  renderDetailContent(idx);
+}
+
+function updateDetailNotes(idx, value) {
+  combatants[idx].notes = value;
+  saveCombatants();
+}
+
+function toggleSlotPip(idx, lvl, pip) {
+  const c = combatants[idx];
+  if (!c || !c.spellSlots || !c.spellSlots[lvl]) return;
+  const slot = c.spellSlots[lvl];
+  // Toggle: if pip < used, reduce used; if pip >= used, increase used
+  slot.used = pip < slot.used ? pip : pip + 1;
+  saveCombatants();
+  renderDetailContent(idx);
+}
+
+// ── Attack roller ─────────────────────────────────────────
+
+function rollAttack(combatantIdx, atkIdx) {
+  const c = combatants[combatantIdx];
+  if (!c || !c.attacks) return;
+  const atk = c.attacks[atkIdx];
+  if (!atk) return;
+
+  // Roll d20 + hit bonus
+  const d20 = Math.floor(Math.random() * 20) + 1;
+  const hitMod = parseInt((atk.hit || '+0').replace('+','')) || 0;
+  const hitTotal = d20 + hitMod;
+  const isCrit = d20 === 20;
+  const isMiss = d20 === 1;
+
+  // Roll damage
+  const dmgTotal = rollDamageStr(atk.damage, isCrit);
+
+  // Show popup near the roll button
+  const btnId = `rollBtn_${combatantIdx}_${atkIdx}`;
+  showRollPopup(atk.name, hitTotal, dmgTotal, isCrit, isMiss);
+}
+
+function rollDamageStr(dmgStr, crit) {
+  // Parse "1d6+3 Piercing" or "2d10 Fire" etc.
+  let total = 0;
+  const diceMatches = [...(dmgStr||'').matchAll(/(\d+)d(\d+)/gi)];
+  for (const m of diceMatches) {
+    const count = parseInt(m[1]) * (crit ? 2 : 1);
+    const sides = parseInt(m[2]);
+    for (let i = 0; i < count; i++) total += Math.floor(Math.random() * sides) + 1;
+  }
+  const flatMatch = dmgStr?.match(/[+-]\s*(\d+)(?!\s*d)/i);
+  if (flatMatch) total += parseInt(flatMatch[0].replace(/\s/g,''));
+  return total || '—';
+}
+
+function showRollPopup(atkName, hit, dmg, crit, miss) {
+  // Remove any existing roll popup
+  const existing = document.getElementById('rollResultPopup');
+  if (existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.className = 'roll-popup';
+  popup.id = 'rollResultPopup';
+
+  const hitColor = crit ? 'var(--green)' : miss ? 'var(--red)' : 'var(--amber)';
+  popup.innerHTML = `
+    <div class="roll-popup-attack">${atkName}</div>
+    <div class="roll-popup-hit-label">To Hit</div>
+    <div class="roll-popup-hit" style="color:${hitColor}">${hit}${crit?' ★':miss?' ✕':''}</div>
+    <div class="roll-popup-dmg-label" style="margin-top:6px">Damage</div>
+    <div class="roll-popup-dmg">${dmg}</div>`;
+
+  // Position in center of detail popup if open, else center of screen
+  document.body.appendChild(popup);
+  if (detailPopupEl) {
+    const r = detailPopupEl.getBoundingClientRect();
+    popup.style.left = (r.left + r.width/2 - 90) + 'px';
+    popup.style.top  = (r.top + 40) + 'px';
+  } else {
+    popup.style.left = (window.innerWidth/2 - 90) + 'px';
+    popup.style.top  = (window.innerHeight/2 - 60) + 'px';
+  }
+
+  // Auto-dismiss after 3s
+  setTimeout(() => { if (popup.parentNode) popup.remove(); }, 3000);
+}
+
+// Close detail popup when clicking outside
+document.addEventListener('click', e => {
+  if (!detailPopupEl) return;
+  if (detailPopupEl.contains(e.target)) return;
+  if (e.target.classList.contains('card-expand-btn')) return;
+  closeDetail();
+});
+
+// ── Init detail fields ────────────────────────────────────
+loadDetailFields();
 
 // Poll for live combatant additions from player cards module
 setInterval(() => {

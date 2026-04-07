@@ -749,7 +749,11 @@ function saveEncounter() {
         lairActions: c.lairActs||false, conc: false,
         readied: false, delayed: false, dead: false,
         notes: [c.spellList ? `Spells: ${c.spellList}` : '', c.notes||''].filter(Boolean).join(' | '),
-        thumb: c.thumb||null, spellSlots: [...(c.spellSlots||[0,0,0,0,0,0,0,0,0])]
+        thumb: c.thumb||null, spellSlots: [...(c.spellSlots||[0,0,0,0,0,0,0,0,0])],
+        attacks: Array.isArray(c.attacks) ? c.attacks.map(a => ({...a})) : [],
+        str: c.str||10, dex: c.dex||10, con: c.con||10,
+        int: c.int||10, wis: c.wis||10, cha: c.cha||10,
+        speed: c.speed||30, proficiencyBonus: c.proficiencyBonus||2
       });
     }
   });
