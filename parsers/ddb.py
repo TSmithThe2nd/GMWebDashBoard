@@ -159,7 +159,7 @@ def extract_from_text(text: str, result: dict) -> None:
 
     # Name: on line containing CLASS&LEVEL — [^\n] prevents crossing newlines
     if 'charName' not in result:
-        m = re.search(r'^([A-Z][^\n]{1,50}?)\s+CLASS(?:&|\s*)LEVEL',
+        m = re.search(r'^([A-Z][^\n]{1,50}?)\s+CLASS\s*&?\s*LEVEL',
                       text, re.MULTILINE | re.IGNORECASE)
         if m:
             result['charName'] = m.group(1).strip()

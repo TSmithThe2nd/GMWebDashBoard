@@ -844,6 +844,9 @@ function openPasteModal() {
   document.getElementById('pdfPreview').innerHTML = '';
   document.getElementById('pdfDropZone').style.borderColor = 'var(--border2)';
   currentPDFBase64 = null;
+  // Reset import button in case previous import left it disabled
+  const btn = document.getElementById('importConfirmBtn');
+  if (btn) { btn.textContent = 'Import Character'; btn.disabled = false; }
   switchImportTab('pdf');
   openModal('pasteModal');
 }
