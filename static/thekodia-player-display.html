@@ -447,7 +447,7 @@ const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
 // ── STATE ────────────────────────────────────────────────
 let displayMode = 'ambient'; // 'ambient' | 'combat'
 let weather = { icon: '☀', desc: 'Clear skies' };
-let eventData = null; // { name, targetMs }
+let eventData = null; // { name, remainingMins }
 let combatState = null;
 let clockState = null;
 
@@ -494,18 +494,16 @@ function getMoonDisplay() {
 
 function getEventDisplay() {
   if (!eventData) return null;
-  const now = Date.now();
-  const diff = eventData.targetMs - now;
-  if (diff <= 0) return { name: eventData.name, text: 'NOW', past: true };
-  const totalMin = Math.floor(diff / 60000);
-  const days = Math.floor(totalMin / (60*24));
-  const hours = Math.floor((totalMin % (60*24)) / 60);
-  const mins = totalMin % 60;
-  let text = '';
-  if (days > 0) text += `${days}d `;
-  if (hours > 0 || days > 0) text += `${hours}h `;
-  text += `${mins}m`;
-  return { name: eventData.name, text: text.trim(), past: false };
+  const rem = eventData.remainingMins || 0;
+  if (rem <= 0) return { name: eventData.name, text: 'NOW', past: true };
+  const days  = Math.floor(rem / 1440);
+  const hours = Math.floor((rem % 1440) / 60);
+  const mins  = rem % 60;
+  const parts = [];
+  if (days)  parts.push(`${days}d`);
+  if (hours) parts.push(`${hours}h`);
+  if (mins || !parts.length) parts.push(`${mins}m`);
+  return { name: eventData.name, text: parts.join(' '), past: false };
 }
 
 // ── RENDER BARS ──────────────────────────────────────────
@@ -667,13 +665,15 @@ function render() {
 // ── POLL ─────────────────────────────────────────────────
 let lastStateStr = '';
 setInterval(() => {
-  const raw = localStorage.getItem('thekodia_display_state') || 'null';
+  const raw      = localStorage.getItem('thekodia_display_state') || 'null';
   const clockRaw = localStorage.getItem('thekodia_clock') || 'null';
-  const stateStr = raw + clockRaw;
+  const eventRaw = localStorage.getItem('thekodia_event') || 'null';
+  const stateStr = raw + clockRaw + eventRaw;
   if (stateStr !== lastStateStr) {
     lastStateStr = stateStr;
     try { combatState = JSON.parse(raw); } catch {}
-    try { clockState = JSON.parse(clockRaw); } catch {}
+    try { clockState  = JSON.parse(clockRaw); } catch {}
+    try { eventData   = JSON.parse(eventRaw); } catch {}
     render();
   }
 }, 1000);

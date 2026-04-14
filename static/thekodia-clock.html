@@ -564,9 +564,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
       </div>
       <div class="ev-row">
         <button class="btn small" onclick="clearEvent()" style="border-color:var(--red-dim);color:var(--red);flex:1">Clear</button>
-        <button class="btn small primary" onclick="saveEvent()" style="flex:2">Save Event</button>
+        <button class="btn small primary" onclick="saveEvent()" style="flex:2">Set Countdown</button>
       </div>
-      <div id="currentEventLabel" style="font-size:12px;color:var(--amber);margin-top:4px;text-align:center"></div>
+      <div id="currentEventLabel" style="font-size:12px;color:var(--amber);margin-top:6px;text-align:center;font-family:'Cinzel',serif"></div>
+      <div id="eventAdjustRow" class="ev-row" style="margin-top:4px;display:none;flex-wrap:wrap;gap:3px">
+        <button class="btn small" onclick="adjustEvent(-1440)" style="flex:1">-1d</button>
+        <button class="btn small" onclick="adjustEvent(-60)" style="flex:1">-1h</button>
+        <button class="btn small" onclick="adjustEvent(-10)" style="flex:1">-10m</button>
+        <button class="btn small" onclick="adjustEvent(10)" style="flex:1">+10m</button>
+        <button class="btn small" onclick="adjustEvent(60)" style="flex:1">+1h</button>
+        <button class="btn small" onclick="adjustEvent(1440)" style="flex:1">+1d</button>
+      </div>
 
     </div>
   </div>
@@ -732,6 +740,7 @@ function advance(hours, minutes, days, logDesc) {
   const totalAdd = days*24*60 + hours*60 + minutes;
   if (!totalAdd) return;
   clockMinutes += totalAdd;
+  tickEventDown(totalAdd);
   saveClock();
   const parts = [];
   if (days) parts.push(`${days}d`);
@@ -809,6 +818,7 @@ function toggleAutoTick() {
   if (autoTick) {
     tickInterval = setInterval(() => {
       clockMinutes += RATIO;
+      tickEventDown(RATIO);
       saveClock();
       render();
     }, 60000); // every real minute
@@ -842,8 +852,8 @@ function renderCalendar() {
   const state = totalMinutesToState(clockMinutes);
   document.getElementById('calMonthLabel').textContent = `${MONTHS[calViewMonth-1]} · ${calViewYear} CE`;
   const grid = document.getElementById('calGrid');
-  // 28-day month, start offset (cycle through so months feel different)
-  const offset = ((calViewMonth - 1) * 3 + (calViewYear - 1)) % 7;
+  // 28-day months = exactly 4 weeks, so every month starts on the same weekday
+  const offset = 0;
   let html = '';
   for (let i = 0; i < offset; i++) html += '<div class="cal-cell empty"></div>';
   for (let d = 1; d <= DAYS_PER_MONTH; d++) {
@@ -922,9 +932,11 @@ function render() {
   renderMoons();
   renderHistory();
 
-  // Push to player display
+  renderDisplayControls();
+
+  // Push to player display (totalMinutes must be included so loadClock() can restore it)
   try {
-    localStorage.setItem('thekodia_clock', JSON.stringify(state));
+    localStorage.setItem('thekodia_clock', JSON.stringify({ totalMinutes: clockMinutes, ...state }));
   } catch {}
 }
 
@@ -959,7 +971,26 @@ function renderDisplayControls() {
   if (wLabel) wLabel.textContent = weather ? `${weather.icon} ${weather.desc}` : '';
 
   const eLabel = document.getElementById('currentEventLabel');
-  if (eLabel) eLabel.textContent = eventData ? `⏳ ${eventData.name}` : 'No event set';
+  const eAdj   = document.getElementById('eventAdjustRow');
+  if (eLabel) {
+    if (eventData) {
+      const rem = eventData.remainingMins || 0;
+      const rd = Math.floor(rem / 1440);
+      const rh = Math.floor((rem % 1440) / 60);
+      const rm = rem % 60;
+      const parts = [];
+      if (rd) parts.push(`${rd}d`);
+      if (rh) parts.push(`${rh}h`);
+      if (rm || !parts.length) parts.push(`${rm}m`);
+      eLabel.textContent = rem > 0 ? `⏳ ${eventData.name} — ${parts.join(' ')}` : `⏳ ${eventData.name} — NOW`;
+      eLabel.style.color = rem <= 1440 ? 'var(--red)' : 'var(--amber)';
+      if (eAdj) eAdj.style.display = 'flex';
+    } else {
+      eLabel.textContent = 'No event set';
+      eLabel.style.color = '';
+      if (eAdj) eAdj.style.display = 'none';
+    }
+  }
 
   // Highlight active weather option
   document.querySelectorAll('.weather-opt').forEach(el => {
@@ -992,13 +1023,25 @@ function saveEvent() {
   const days  = parseInt(document.getElementById('eventDays').value)  || 0;
   const hours = parseInt(document.getElementById('eventHours').value) || 0;
   const mins  = parseInt(document.getElementById('eventMins').value)  || 0;
-  const ms = (days * 24 * 60 + hours * 60 + mins) * 60000;
-  eventData = { name, targetMs: Date.now() + ms };
+  eventData = { name, remainingMins: days * 1440 + hours * 60 + mins };
   try { localStorage.setItem('thekodia_event', JSON.stringify(eventData)); } catch {}
   document.getElementById('eventNameInput').value = '';
   document.getElementById('eventDays').value = '';
   document.getElementById('eventHours').value = '';
   document.getElementById('eventMins').value = '';
+  renderDisplayControls();
+}
+
+function tickEventDown(mins) {
+  if (!eventData || eventData.remainingMins <= 0) return;
+  eventData.remainingMins = Math.max(0, eventData.remainingMins - mins);
+  try { localStorage.setItem('thekodia_event', JSON.stringify(eventData)); } catch {}
+}
+
+function adjustEvent(deltaMins) {
+  if (!eventData) return;
+  eventData.remainingMins = Math.max(0, (eventData.remainingMins || 0) + deltaMins);
+  try { localStorage.setItem('thekodia_event', JSON.stringify(eventData)); } catch {}
   renderDisplayControls();
 }
 
