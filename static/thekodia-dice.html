@@ -438,6 +438,8 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
     <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
     <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
     <button class="nav-tab active">Dice</button>
+    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
+    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
   </div>
 </div>
 

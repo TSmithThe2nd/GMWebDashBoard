@@ -767,6 +767,8 @@ body {
     <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
     <button class="nav-tab" onclick="window.location='/thekodia-tables.html'">Tables</button>
     <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
+    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
   </div>
   <div class="round-display">
     <span class="round-label">Round</span>
@@ -1108,6 +1110,38 @@ function setStorage(data) {
   try { localStorage.setItem('thekodia_encounters', JSON.stringify(data)); } catch {}
 }
 
+const LIVE_KEY = 'thekodia_live_combat';
+
+function saveLiveState() {
+  if (!combatants.length) return; // never overwrite good data with an empty list
+  try {
+    localStorage.setItem(LIVE_KEY, JSON.stringify({ combatants, currentTurnIdx, round }));
+  } catch {
+    // Quota exceeded — retry without thumbnail data
+    try {
+      const slim = combatants.map(c => { const {thumb, ...rest} = c; return rest; });
+      localStorage.setItem(LIVE_KEY, JSON.stringify({ combatants: slim, currentTurnIdx, round }));
+    } catch {}
+  }
+}
+
+function loadLiveState() {
+  let data;
+  try {
+    const raw = localStorage.getItem(LIVE_KEY);
+    if (!raw) return;
+    data = JSON.parse(raw);
+  } catch { return; }
+  if (!data || !Array.isArray(data.combatants) || !data.combatants.length) return;
+  combatants = data.combatants;
+  currentTurnIdx = typeof data.currentTurnIdx === 'number' ? data.currentTurnIdx : -1;
+  round = typeof data.round === 'number' ? data.round : 0;
+  renderList();
+  if (round > 0) {
+    document.getElementById('roundNum').textContent = round;
+  }
+}
+
 function setMode(mode, el) {
   combatMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -1223,6 +1257,7 @@ function addCombatant() {
 }
 
 function renderList() {
+  saveLiveState();
   const list = document.getElementById('combatantList');
   if (!combatants.length) {
     list.innerHTML = '<div class="empty-state"><div class="big">No Combatants</div>Add combatants or load an encounter to begin</div>';
@@ -1566,6 +1601,7 @@ function endCombat() {
   selectedCombatantIdx = -1;
   document.getElementById('quickEditBox').style.display='none';
   document.getElementById('legBox').style.display='none';
+  try { localStorage.removeItem(LIVE_KEY); } catch {}
   pushDisplayState();
   renderList();
 }
@@ -2025,8 +2061,12 @@ document.addEventListener('click', e => {
   closeDetail();
 });
 
-// ── Init detail fields ────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────
 loadDetailFields();
+loadLiveState();
+
+// Re-restore if browser serves page from back/forward cache
+window.addEventListener('pageshow', (e) => { if (e.persisted) loadLiveState(); });
 
 // Poll for live combatant additions from player cards module
 setInterval(() => {
