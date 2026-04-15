@@ -1516,8 +1516,14 @@ function sortInitiative() {
 
 function pushDisplayState() {
   try {
+    let existingMode = 'ambient';
+    try {
+      const ex = JSON.parse(localStorage.getItem('thekodia_display_state') || '{}');
+      if (ex.mode) existingMode = ex.mode;
+    } catch {}
+
     if (!combatants.length || currentTurnIdx < 0) {
-      localStorage.setItem('thekodia_display_state', JSON.stringify({ active: false }));
+      localStorage.setItem('thekodia_display_state', JSON.stringify({ active: false, mode: existingMode }));
       return;
     }
     const CONDITIONS_COLORS = {};
@@ -1542,6 +1548,7 @@ function pushDisplayState() {
 
     localStorage.setItem('thekodia_display_state', JSON.stringify({
       active: true,
+      mode: existingMode,
       round,
       current: makeCombatant(current),
       deck: deck.slice(0,2).map(makeCombatant)

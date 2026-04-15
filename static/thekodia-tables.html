@@ -1098,8 +1098,14 @@ let activeIdx = 0;
 let rollHistory = {}; // tableIdx -> [{roll, result}]
 
 // ── Storage ───────────────────────────────────────────────
+const UI_KEY = 'thekodia_tables_ui';
+
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tables)); } catch {}
+}
+
+function saveUI() {
+  try { localStorage.setItem(UI_KEY, JSON.stringify({ activeIdx, rollHistory })); } catch {}
 }
 
 function load() {
@@ -1107,12 +1113,21 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       tables = JSON.parse(raw);
-      return;
+    } else {
+      // First load — use starter tables
+      tables = STARTER_TABLES.map(t => ({ ...t }));
+      save();
     }
+  } catch {
+    tables = STARTER_TABLES.map(t => ({ ...t }));
+    save();
+  }
+  // Restore UI state (active table + roll history)
+  try {
+    const ui = JSON.parse(localStorage.getItem(UI_KEY) || '{}');
+    if (typeof ui.activeIdx === 'number') activeIdx = Math.min(ui.activeIdx, Math.max(0, tables.length - 1));
+    if (ui.rollHistory && typeof ui.rollHistory === 'object') rollHistory = ui.rollHistory;
   } catch {}
-  // First load — use starter tables
-  tables = STARTER_TABLES.map(t => ({ ...t }));
-  save();
 }
 
 // ── Roll logic ────────────────────────────────────────────
@@ -1147,6 +1162,7 @@ function doRoll() {
   if (!rollHistory[activeIdx]) rollHistory[activeIdx] = [];
   rollHistory[activeIdx].unshift({ roll: rollNum, result });
   if (rollHistory[activeIdx].length > 20) rollHistory[activeIdx].pop();
+  saveUI();
   renderRollResult(rollNum, result);
   renderHistory();
 }
@@ -1280,6 +1296,7 @@ function renderContent() {
 // ── Actions ───────────────────────────────────────────────
 function selectTable(idx) {
   activeIdx = idx;
+  saveUI();
   renderTableList();
   renderContent();
 }

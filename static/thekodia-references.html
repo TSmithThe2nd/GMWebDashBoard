@@ -772,6 +772,7 @@ function switchSection(name, btn) {
   document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('visible');
   btn.classList.add('active');
+  try { localStorage.setItem('thekodia_ref_section', name); } catch {}
   filterAll();
 }
 
@@ -804,6 +805,14 @@ renderConditions();
 renderLanguages();
 renderTools();
 renderCustomNotes();
+// Restore active section tab
+try {
+  const sec = localStorage.getItem('thekodia_ref_section');
+  if (sec && document.getElementById('sec-' + sec)) {
+    const btn = document.querySelector(`.section-tab[onclick*="'${sec}'"]`);
+    if (btn) switchSection(sec, btn);
+  }
+} catch {}
 </script>
 <script src="/thekodia-storage.js"></script>
 </body>

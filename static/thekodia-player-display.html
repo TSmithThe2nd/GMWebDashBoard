@@ -651,6 +651,7 @@ function renderAmbientMiddle() {
 // ── FULL RENDER ──────────────────────────────────────────
 function render() {
   loadState();
+  if (combatState && combatState.mode) displayMode = combatState.mode;
   const inCombat = displayMode === 'combat' && combatState && combatState.active;
   const barHtml = renderBarContent(inCombat);
   document.getElementById('topBarContent').innerHTML = barHtml;
