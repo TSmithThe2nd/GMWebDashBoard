@@ -5,52 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thekodia DM — References</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="thekodia.css">
   <style>
-:root {
-  --bg: #0d0f14;
-  --bg2: #13161e;
-  --bg3: #1a1e28;
-  --panel: #181c26;
-  --border: #2a3045;
-  --border2: #3a4560;
-  --accent: #c8a96e;
-  --accent2: #e8c97e;
-  --accent-dim: #7a6238;
-  --red: #e05555;
-  --red-dim: #7a2828;
-  --green: #4caf7d;
-  --green-dim: #1e5c38;
-  --blue: #5b8de8;
-  --blue-dim: #2a4a8a;
-  --purple: #9b72cf;
-  --purple-dim: #4a2e7a;
-  --teal: #4ecdc4;
-  --amber: #f0a500;
-  --orange: #e07840;
-  --text: #e8e0d0;
-  --text2: #a09880;
-  --text3: #605848;
-  --radius: 6px;
-  --radius2: 10px;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 15px; min-height: 100vh; }
-
-.app-header {
-  background: var(--panel); border-bottom: 1px solid var(--border);
-  padding: 10px 16px; display: flex; align-items: center; gap: 16px;
-  position: sticky; top: 0; z-index: 100;
-}
-.app-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.1em; white-space: nowrap; }
-.nav-tabs { display: flex; gap: 4px; flex: 1; }
-.nav-tab {
-  padding: 5px 14px; border-radius: var(--radius); border: 1px solid var(--border);
-  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
-  transition: all 0.15s; text-transform: uppercase;
-}
-.nav-tab:hover { border-color: var(--border2); color: var(--text); }
-.nav-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
 
 /* Search bar */
 .search-bar {
@@ -186,18 +142,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
 .tool-use { font-size: 13px; color: var(--text2); line-height: 1.5; margin-bottom: 3px; }
 .tool-use::before { content: '▸ '; color: var(--green-dim); }
 
-/* Custom entry button */
-.btn {
-  padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border2);
-  background: transparent; color: var(--text); font-family: 'Rajdhani', sans-serif;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
-  transition: all 0.15s; text-transform: uppercase;
-}
-.btn:hover { background: var(--bg3); border-color: var(--accent-dim); }
-.btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
-.btn.primary:hover { background: #8a7040; }
-.btn.small { padding: 3px 8px; font-size: 12px; }
-
 /* Custom notes card */
 .custom-note {
   background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
@@ -220,9 +164,6 @@ body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-
 .section-title { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); letter-spacing: 0.06em; }
 .section-count { font-size: 12px; color: var(--text3); }
 
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 </style>
 </head>
 <body>
