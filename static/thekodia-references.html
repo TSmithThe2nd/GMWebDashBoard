@@ -180,6 +180,7 @@
     <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
     <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
     <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
+    <button class="nav-tab" onclick="if(confirm('Quit Thekodia?'))fetch('/shutdown',{method:'POST'}).then(()=>document.write('Thekodia has shut down. You may close this tab.'))" style="margin-left:auto;color:var(--red);border-color:var(--red-dim);">✕ Quit</button>
   </div>
 </div>
 

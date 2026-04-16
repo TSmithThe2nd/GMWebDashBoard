@@ -3,6 +3,8 @@ Thekodia DM Dashboard — Flask Server
 Run: python app.py  →  http://localhost:5000
 """
 
+import sys
+import os
 import webbrowser
 import threading
 from pathlib import Path
@@ -13,10 +15,19 @@ from routes.pdf import pdf_bp
 from routes.static_files import static_bp
 import routes.data as _data_mod
 import routes.pdf as _pdf_mod
+import routes.static_files as _static_mod
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / 'data'
+# When frozen by PyInstaller, bundled read-only files live in sys._MEIPASS.
+# Runtime data (data/*.json) is kept next to the executable so it persists.
+if getattr(sys, 'frozen', False):
+    BASE_DIR = Path(sys._MEIPASS)          # bundled assets (static, routes, parsers)
+    EXE_DIR  = Path(sys.executable).parent # writable folder next to the .exe
+else:
+    BASE_DIR = Path(__file__).parent
+    EXE_DIR  = BASE_DIR
+
+DATA_DIR = EXE_DIR / 'data'
 DATA_DIR.mkdir(exist_ok=True)
 
 STORES = {
@@ -41,6 +52,7 @@ def create_app() -> Flask:
     # Inject shared state into route modules
     _data_mod.STORES = STORES
     _pdf_mod.DATA_DIR = DATA_DIR
+    _static_mod.STATIC_DIR = str(BASE_DIR / 'static')
 
     @app.after_request
     def add_cors(response):
@@ -62,6 +74,11 @@ def create_app() -> Flask:
         from parsers.ddb import PDF_SUPPORT, PYPDF_SUPPORT
         return {'status': 'ok', 'pdf_support': PDF_SUPPORT and PYPDF_SUPPORT,
                 'stores': list(STORES.keys())}
+
+    @app.route('/shutdown', methods=['POST'])
+    def shutdown():
+        threading.Timer(0.3, lambda: os._exit(0)).start()
+        return 'ok'
 
     return app
 
