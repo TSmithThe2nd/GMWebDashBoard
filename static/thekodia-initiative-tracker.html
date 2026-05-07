@@ -591,6 +591,7 @@ body { overflow-x: hidden; }
       <button class="btn primary" onclick="openAddModal()">+ Add Combatant</button>
       <button class="btn" onclick="openEncounterModal()">Load Encounter</button>
       <button class="btn" onclick="sortInitiative()">Sort ↕</button>
+      <button class="btn" onclick="syncFromLibrary()" title="Check for stat block updates in Library">⟳ Sync</button>
       <button class="btn" id="teamRollBtn" style="display:none;border-color:var(--blue-dim);color:var(--blue)" onclick="rollTeamInitiative()">⚄ Roll Team Init</button>
       <button class="btn" id="groupRollBtn" style="display:none;border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Group Init</button>
       <button class="btn" onclick="window.open('http://localhost:5000/thekodia-player-display.html')">Player View</button>
@@ -848,6 +849,21 @@ body { overflow-x: hidden; }
     <div class="modal-body" id="encounterModalBody"></div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('encounterModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync from Library Modal -->
+<div class="modal-overlay hidden" id="syncModal">
+  <div class="modal">
+    <div class="modal-head">
+      Sync from Library
+      <button class="btn icon" onclick="closeModal('syncModal')">✕</button>
+    </div>
+    <div class="modal-body" id="syncModalBody"></div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('syncModal')">Cancel</button>
+      <button class="btn primary" onclick="performSync()">Sync Selected</button>
     </div>
   </div>
 </div>
@@ -1861,6 +1877,136 @@ function showRollPopup(atkName, hit, dmg, crit, miss) {
   setTimeout(() => { if (popup.parentNode) popup.remove(); }, 3000);
 }
 
+// ── SYNC FROM LIBRARY ────────────────────────────────────
+
+let syncDiffs = [];
+
+const SYNC_STAT_FIELDS = ['ac', 'str', 'dex', 'con', 'int', 'wis', 'cha', 'speed', 'legMax'];
+const SYNC_FIELD_LABELS = {
+  name: 'Name',
+  maxhp: 'Max HP', ac: 'AC', str: 'STR', dex: 'DEX', con: 'CON',
+  int: 'INT', wis: 'WIS', cha: 'CHA', speed: 'Speed',
+  legMax: 'Leg. Actions', lairActions: 'Lair Actions',
+  attacks: 'Attacks', thumb: 'Image'
+};
+
+function syncFromLibrary() {
+  let library = [];
+  try { library = JSON.parse(localStorage.getItem('thekodia_library') || '[]'); } catch {}
+  if (!library.length) { alert('Library is empty — add creatures in the Library tab first.'); return; }
+
+  syncDiffs = [];
+  combatants.forEach((c, i) => {
+    if (!c.libraryId) return;
+    const src = library.find(l => l.id === c.libraryId);
+    if (!src) return;
+
+    const changes = [];
+
+    const baseName = c.name.replace(/\s+\d+$/, '');
+    if (baseName !== src.name && c.name !== src.name) {
+      const suffix = c.name.slice(baseName.length);
+      changes.push({ field: 'name', from: c.name, to: src.name + suffix });
+    }
+
+    if ((src.maxhp ?? 0) !== (c.maxhp ?? 0))
+      changes.push({ field: 'maxhp', from: c.maxhp, to: src.maxhp });
+
+    SYNC_STAT_FIELDS.forEach(f => {
+      if ((src[f] ?? null) != (c[f] ?? null))
+        changes.push({ field: f, from: c[f], to: src[f] });
+    });
+
+    const libAttacks = JSON.stringify(src.attacks || []);
+    const combatAttacks = JSON.stringify(c.attacks || []);
+    if (libAttacks !== combatAttacks)
+      changes.push({ field: 'attacks', from: null, to: null });
+
+    const libLair = !!src.lairActs;
+    if (libLair !== !!c.lairActions)
+      changes.push({ field: 'lairActions', from: c.lairActions, to: libLair });
+
+    if ((src.thumb || null) !== (c.thumb || null))
+      changes.push({ field: 'thumb', from: null, to: null });
+
+    if (changes.length) syncDiffs.push({ idx: i, name: c.name, libraryName: src.name, changes, src });
+  });
+
+  if (!syncDiffs.length) {
+    const linked = combatants.filter(c => c.libraryId).length;
+    if (!linked) alert('No combatants are linked to the Library. Load an encounter from the Library tab to enable syncing.');
+    else alert('All linked combatants are already up to date with the Library.');
+    return;
+  }
+
+  const body = document.getElementById('syncModalBody');
+  body.innerHTML = `
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">
+      ${syncDiffs.length} combatant${syncDiffs.length > 1 ? 's have' : ' has'} updated stat blocks in the Library.
+      Combat state (current HP, conditions, initiative) will be preserved.
+    </div>
+    ${syncDiffs.map((d, di) => `
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+        background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+        padding:10px;margin-bottom:7px">
+        <input type="checkbox" id="syncCheck_${di}" checked style="margin-top:3px;flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text);margin-bottom:6px">
+            ${d.name}${d.name !== d.libraryName ? `<span style="font-size:11px;color:var(--text3)"> (lib: ${d.libraryName})</span>` : ''}
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${d.changes.map(ch => {
+              const label = SYNC_FIELD_LABELS[ch.field] || ch.field;
+              if (ch.from === null) return `<span style="font-size:11px;padding:2px 7px;border-radius:3px;background:rgba(200,169,110,0.15);border:1px solid var(--accent-dim);color:var(--accent2)">${label} updated</span>`;
+              return `<span style="font-size:11px;padding:2px 7px;border-radius:3px;background:rgba(200,169,110,0.15);border:1px solid var(--accent-dim);color:var(--accent2)">${label}: ${ch.from} → ${ch.to}</span>`;
+            }).join('')}
+          </div>
+        </div>
+      </label>`).join('')}`;
+  openModal('syncModal');
+}
+
+function performSync() {
+  syncDiffs.forEach((d, di) => {
+    const chk = document.getElementById(`syncCheck_${di}`);
+    if (!chk || !chk.checked) return;
+    const c = combatants[d.idx];
+    if (!c) return;
+    const src = d.src;
+
+    const nameChange = d.changes.find(ch => ch.field === 'name');
+    if (nameChange) c.name = nameChange.to;
+
+    const maxHpChange = d.changes.find(ch => ch.field === 'maxhp');
+    if (maxHpChange) {
+      const oldMax = c.maxhp || 1;
+      const newMax = src.maxhp;
+      c.hp = Math.min(newMax, Math.round(c.hp * (newMax / oldMax)));
+      c.maxhp = newMax;
+    }
+
+    SYNC_STAT_FIELDS.forEach(f => {
+      if (d.changes.find(ch => ch.field === f) && src[f] !== undefined) c[f] = src[f];
+    });
+
+    if (d.changes.find(ch => ch.field === 'attacks'))
+      c.attacks = Array.isArray(src.attacks) ? src.attacks.map(a => ({...a})) : [];
+
+    if (d.changes.find(ch => ch.field === 'lairActions'))
+      c.lairActions = !!src.lairActs;
+
+    if (d.changes.find(ch => ch.field === 'thumb'))
+      c.thumb = src.thumb || null;
+
+    if (d.changes.find(ch => ch.field === 'legMax'))
+      c.legCurrent = Math.min(c.legCurrent ?? c.legMax, c.legMax);
+  });
+
+  closeModal('syncModal');
+  renderList();
+  saveLiveState();
+}
+
 // Close detail popup when clicking outside
 document.addEventListener('click', e => {
   if (!detailPopupEl) return;
@@ -1876,20 +2022,23 @@ loadLiveState();
 // Re-restore if browser serves page from back/forward cache
 window.addEventListener('pageshow', (e) => { if (e.persisted) loadLiveState(); });
 
-// Poll for live combatant additions from player cards module
+// Poll for live combatant additions from Library / Players tabs
 setInterval(() => {
   try {
     const raw = localStorage.getItem('thekodia_live_add');
     if (!raw) return;
     localStorage.removeItem('thekodia_live_add');
     const incoming = JSON.parse(raw);
-    if (!incoming || !incoming.name) return;
-    const already = combatants.find(c => c.name === incoming.name);
-    if (already) return;
-    incoming.id = Date.now() + Math.random();
-    combatants.push(incoming);
-    pushDisplayState();
-    renderList();
+    if (!incoming) return;
+    const items = Array.isArray(incoming) ? incoming : [incoming];
+    let added = false;
+    items.forEach(item => {
+      if (!item || !item.name) return;
+      item.id = Date.now() + Math.random();
+      combatants.push(item);
+      added = true;
+    });
+    if (added) { pushDisplayState(); renderList(); }
   } catch {}
 }, 1000);
 </script>

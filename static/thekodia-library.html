@@ -246,6 +246,48 @@
   </div>
 </div>
 
+<!-- Encounter Picker Modal -->
+<div class="modal-overlay hidden" id="encPickerModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <span id="encPickerTitle">Add to Encounter</span>
+      <button class="btn icon" onclick="closeModal('encPickerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <label style="font-size:13px;color:var(--text2)">Count</label>
+        <input type="number" id="encPickerCount" value="1" min="1" max="20"
+          style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+                 color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 6px;text-align:center">
+      </div>
+
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Current build</div>
+      <div onclick="addToEncounterFromPicker()"
+        style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);cursor:pointer;margin-bottom:14px;transition:border-color 0.15s"
+        onmouseover="this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent2)">Add to Current Build</div>
+        <div style="font-size:11px;color:var(--text3)" id="pickerBuildCount">— creatures in build</div>
+      </div>
+
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Saved encounters</div>
+      <div id="encPickerList"></div>
+
+      <div style="height:1px;background:var(--border);margin:12px 0"></div>
+      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">New encounter</div>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="encPickerNewName" placeholder="Encounter name..."
+          style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+                 color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:5px 8px"
+          onkeydown="if(event.key==='Enter')addCreatureToNewEncounter()">
+        <button class="btn small primary" onclick="addCreatureToNewEncounter()">Create</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('encPickerModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Paste Modal -->
 <div class="modal-overlay hidden" id="pasteModal">
   <div class="modal">
@@ -384,7 +426,13 @@ function renderStatBlock() {
         </div>
       </div>
       <div class="stat-block-actions">
-        <button class="btn small primary" onclick="addToEncounter(${selectedIdx})">+ Encounter</button>
+        <button class="btn small primary" onclick="openEncounterPicker(${selectedIdx})">+ Encounter</button>
+        <div style="display:flex;align-items:center;gap:2px">
+          <button class="btn small" style="border-color:var(--green-dim);color:var(--green)" onclick="sendToInitiative(${selectedIdx})">→ Combat</button>
+          <input type="number" id="sendCount" value="1" min="1" max="20"
+            style="width:38px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+                   color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 4px;text-align:center">
+        </div>
         <button class="btn small" onclick="duplicateCreature(${selectedIdx})">Dupe</button>
         <button class="btn small danger" onclick="deleteCreature(${selectedIdx})">Delete</button>
       </div>
@@ -623,6 +671,37 @@ function deleteCreature(i) {
   else document.getElementById('centerPanel').innerHTML = '<div class="empty-state"><div class="big">Library Empty</div>Create a new creature or NPC, or paste a stat block to get started</div>';
 }
 
+function sendToInitiative(i) {
+  const c = creatures[i];
+  const count = Math.max(1, parseInt(document.getElementById('sendCount').value) || 1);
+  const batch = [];
+  for (let n = 1; n <= count; n++) {
+    batch.push({
+      id: Date.now() + Math.random(),
+      libraryId: c.id,
+      name: count > 1 ? `${c.name} ${n}` : c.name,
+      type: c.type, init: 0, maxhp: c.maxhp, hp: c.maxhp,
+      ac: c.ac, temphp: 0, maxReduce: 0, conditions: [],
+      legMax: c.legMax||0, legCurrent: c.legMax||0,
+      lairActions: c.lairActs||false, conc: false,
+      readied: false, delayed: false, dead: false,
+      notes: [c.spellList ? `Spells: ${c.spellList}` : '', c.notes||''].filter(Boolean).join(' | '),
+      thumb: c.thumb||null,
+      attacks: Array.isArray(c.attacks) ? c.attacks.map(a => ({...a})) : [],
+      str: c.str||10, dex: c.dex||10, con: c.con||10,
+      int: c.int||10, wis: c.wis||10, cha: c.cha||10,
+      speed: c.speed||'30 ft', proficiencyBonus: c.proficiencyBonus||2
+    });
+  }
+  try {
+    localStorage.setItem('thekodia_live_add', JSON.stringify(count === 1 ? batch[0] : batch));
+    const btn = event.currentTarget;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Sent';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  } catch { alert('Could not send to Initiative — is the Initiative tab open?'); }
+}
+
 // Encounter builder
 function addToEncounter(i) {
   const c = creatures[i];
@@ -630,6 +709,95 @@ function addToEncounter(i) {
   if (existing) { existing.count++; }
   else { currentEncounter.push({ id: c.id, name: c.name, count: 1 }); }
   renderEncBody();
+}
+
+let pickerCreatureIdx = -1;
+
+function openEncounterPicker(i) {
+  pickerCreatureIdx = i;
+  const c = creatures[i];
+  document.getElementById('encPickerTitle').textContent = `Add ${c.name} to Encounter`;
+  document.getElementById('pickerBuildCount').textContent =
+    `${currentEncounter.length} creature${currentEncounter.length !== 1 ? 's' : ''} in build`;
+  document.getElementById('encPickerCount').value = '1';
+  document.getElementById('encPickerNewName').value = '';
+
+  document.getElementById('encPickerList').innerHTML = encounters.length
+    ? encounters.map((e, ei) => `
+        <div onclick="addCreatureToExistingEnc(${ei})"
+          style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);
+                 cursor:pointer;margin-bottom:5px;transition:border-color 0.15s"
+          onmouseover="this.style.borderColor='var(--accent-dim)'"
+          onmouseout="this.style.borderColor='var(--border)'">
+          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text)">${e.name}</div>
+          <div style="font-size:11px;color:var(--text3)">${e.combatants.length} combatants</div>
+        </div>`).join('')
+    : '<div style="font-size:13px;color:var(--text3);padding:4px 0">No saved encounters yet</div>';
+
+  openModal('encPickerModal');
+}
+
+function pickerCount() {
+  return Math.max(1, parseInt(document.getElementById('encPickerCount').value) || 1);
+}
+
+function addToEncounterFromPicker() {
+  if (pickerCreatureIdx < 0) return;
+  const c = creatures[pickerCreatureIdx];
+  const count = pickerCount();
+  const existing = currentEncounter.find(e => e.id === c.id);
+  if (existing) { existing.count += count; }
+  else { currentEncounter.push({ id: c.id, name: c.name, count }); }
+  closeModal('encPickerModal');
+  renderEncBody();
+}
+
+function buildCombatantsFromCreature(c, count) {
+  const batch = [];
+  for (let n = 1; n <= count; n++) {
+    batch.push({
+      id: Date.now() + Math.random(),
+      libraryId: c.id,
+      name: count > 1 ? `${c.name} ${n}` : c.name,
+      type: c.type, init: 0, maxhp: c.maxhp, hp: c.maxhp,
+      ac: c.ac, temphp: 0, maxReduce: 0, conditions: [],
+      legMax: c.legMax||0, legCurrent: c.legMax||0,
+      lairActions: c.lairActs||false, conc: false,
+      readied: false, delayed: false, dead: false,
+      notes: [c.spellList ? `Spells: ${c.spellList}` : '', c.notes||''].filter(Boolean).join(' | '),
+      thumb: c.thumb||null,
+      attacks: Array.isArray(c.attacks) ? c.attacks.map(a => ({...a})) : [],
+      str: c.str||10, dex: c.dex||10, con: c.con||10,
+      int: c.int||10, wis: c.wis||10, cha: c.cha||10,
+      speed: c.speed||'30 ft', proficiencyBonus: c.proficiencyBonus||2
+    });
+  }
+  return batch;
+}
+
+function addCreatureToExistingEnc(encIdx) {
+  if (pickerCreatureIdx < 0) return;
+  const c = creatures[pickerCreatureIdx];
+  const count = pickerCount();
+  const enc = encounters[encIdx];
+  if (!enc) return;
+  buildCombatantsFromCreature(c, count).forEach(cb => enc.combatants.push(cb));
+  saveEncs();
+  closeModal('encPickerModal');
+  const label = count > 1 ? `${count}× ${c.name}` : c.name;
+  alert(`${label} added to "${enc.name}".`);
+}
+
+function addCreatureToNewEncounter() {
+  if (pickerCreatureIdx < 0) return;
+  const name = document.getElementById('encPickerNewName').value.trim();
+  if (!name) { document.getElementById('encPickerNewName').focus(); return; }
+  const c = creatures[pickerCreatureIdx];
+  const combatants = buildCombatantsFromCreature(c, pickerCount());
+  encounters.push({ name, combatants });
+  saveEncs();
+  closeModal('encPickerModal');
+  switchEncTab('saved');
 }
 
 function renderEncBody() {
@@ -670,6 +838,7 @@ function saveEncounter() {
     for (let i = 1; i <= entry.count; i++) {
       combatants.push({
         id: Date.now() + Math.random(),
+        libraryId: c.id,
         name: entry.count > 1 ? `${c.name} ${i}` : c.name,
         type: c.type, init: 0, maxhp: c.maxhp, hp: c.maxhp,
         ac: c.ac, temphp: 0, maxReduce: 0, conditions: [],
