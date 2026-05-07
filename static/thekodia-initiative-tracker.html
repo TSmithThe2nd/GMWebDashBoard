@@ -571,12 +571,13 @@ body { overflow-x: hidden; }
     <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
     <button class="nav-tab" onclick="if(confirm('Quit Thekodia?'))fetch('/shutdown',{method:'POST'}).then(()=>document.write('Thekodia has shut down. You may close this tab.'))" style="margin-left:auto;color:var(--red);border-color:var(--red-dim);">✕ Quit</button>
   </div>
-  <div class="round-display">
-    <span class="round-label">Round</span>
-    <span class="round-num" id="roundNum">—</span>
-    <button class="btn small" onclick="nextTurn()">Next Turn ▶</button>
-    <button class="btn small danger" onclick="endCombat()">End Combat</button>
-  </div>
+<!--  <div class="round-display">-->
+<!--    <span class="round-label">Round</span>-->
+<!--    <span class="round-num" id="roundNum">—</span>-->
+<!--    <button class="btn small" onclick="prevTurn()">◀ Prev</button>-->
+<!--    <button class="btn small" onclick="nextTurn()">Next Turn ▶</button>-->
+<!--    <button class="btn small danger" onclick="endCombat()">End Combat</button>-->
+<!--  </div>-->
 </div>
 
 <div class="main-layout">
@@ -618,6 +619,13 @@ body { overflow-x: hidden; }
       <button class="field-toggle on" id="tog_slots" onclick="toggleField('slots')">Spell Slots</button>
       <button class="field-toggle on" id="tog_notes" onclick="toggleField('notes')">Notes</button>
       <button class="field-toggle on" id="tog_speed" onclick="toggleField('speed')">Speed</button>
+      <div class="round-display">
+        <span class="round-label">Round</span>
+        <span class="round-num" id="roundNum">—</span>
+        <button class="btn small" onclick="prevTurn()">◀ Prev</button>
+        <button class="btn small" onclick="nextTurn()">Next Turn ▶</button>
+        <button class="btn small danger" onclick="endCombat()">End Combat</button>
+      </div>
     </div>
 
     <div class="combatant-list" id="combatantList">
@@ -633,7 +641,7 @@ body { overflow-x: hidden; }
 
     <!-- Quick HP Edit -->
     <div class="panel-box" id="quickEditBox" style="display:none">
-      <div class="panel-head">Quick Edit — <span id="quickEditName" style="color:var(--text)">—</span></div>
+      <div class="panel-head">  it — <span id="quickEditName" style="color:var(--text)">—</span><button class="btn icon" onclick="closeQuickEdit()">✕</button></div>
       <div class="panel-body">
         <div class="form-row">
           <div class="field">
@@ -905,6 +913,10 @@ const CONDITIONS_5E = [
   {name:'Stunned',color:'#e8e840'},
   {name:'Unconscious',color:'#606060'},
   {name:'Exhaustion',color:'#e06040'},
+  {name:'Healthy',color:'#70c860'},
+  {name:'Hurt',color:'#e8e840'},
+  {name:'Bloodied',color:'#e06040'}
+
 ];
 
 let combatants = [];
@@ -1165,6 +1177,12 @@ function uploadThumb(i, input) {
   reader.readAsDataURL(input.files[0]);
 }
 
+function closeQuickEdit() {
+  selectedCombatantIdx = -1;
+  document.getElementById('quickEditBox').style.display = 'none';
+  document.getElementById('legBox').style.display = 'none';
+}
+
 function selectCombatant(i) {
   selectedCombatantIdx = i;
   const c = combatants[i];
@@ -1196,12 +1214,22 @@ function renderQuickCondPicker(i) {
   ).join('');
 }
 
+const MUTEX_CONDS = [['Healthy','Hurt','Bloodied']];
+
 function toggleCond(i, name, el) {
   const c = combatants[i];
   if (!c.conditions) c.conditions=[];
   const idx = c.conditions.indexOf(name);
-  if (idx>-1) c.conditions.splice(idx,1);
-  else c.conditions.push(name);
+  if (idx>-1) {
+    c.conditions.splice(idx,1);
+  } else {
+    // Remove any mutually exclusive partner before adding
+    const group = MUTEX_CONDS.find(g => g.includes(name));
+    if (group) group.forEach(other => {
+      if (other !== name) c.conditions = c.conditions.filter(x => x !== other);
+    });
+    c.conditions.push(name);
+  }
   el.classList.toggle('selected', c.conditions.includes(name));
   renderList();
   renderQuickCondPicker(i);
@@ -1371,6 +1399,24 @@ function pushDisplayState() {
       deck: deck.slice(0,2).map(makeCombatant)
     }));
   } catch(e) {}
+}
+
+function prevTurn() {
+  if (!combatants.length || currentTurnIdx < 0) return;
+  let prev = currentTurnIdx - 1;
+  while (prev >= 0 && combatants[prev].dead) prev--;
+  if (prev < 0) {
+    prev = combatants.length - 1;
+    while (prev > 0 && combatants[prev].dead) prev--;
+    if (round > 1) round--;
+  }
+  currentTurnIdx = prev;
+  document.getElementById('roundNum').textContent = round;
+  document.getElementById('turnBanner').style.display = 'flex';
+  pushDisplayState();
+  renderList();
+  const card = document.getElementById('card_' + currentTurnIdx);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function nextTurn() {
@@ -1723,7 +1769,11 @@ function renderDetailContent(idx) {
               <div class="attack-name">${a.name}</div>
               <div class="attack-stats">${a.hit} to hit · ${a.damage}</div>
             </div>
-            <button class="attack-roll-btn" onclick="rollAttack(${idx},${ai})">🎲 Roll</button>
+            <div style="display:flex;gap:3px">
+              <button class="attack-roll-btn" onclick="rollHit(${idx},${ai})">🎲 Hit</button>
+              <button class="attack-roll-btn" style="border-color:#7a5000;color:var(--amber)" onclick="rollDamage(${idx},${ai})">Dmg</button>
+              <button class="attack-roll-btn" style="border-color:var(--border2);color:var(--text2)" onclick="rollAttack(${idx},${ai})">Both</button>
+            </div>
             <button class="attack-del-btn" onclick="deleteAttack(${idx},${ai})" title="Remove">✕</button>
           </div>`).join('') : '<div style="font-size:12px;color:var(--text3)">No attacks defined</div>'}
       </div>
@@ -1815,20 +1865,29 @@ function rollAttack(combatantIdx, atkIdx) {
   if (!c || !c.attacks) return;
   const atk = c.attacks[atkIdx];
   if (!atk) return;
-
-  // Roll d20 + hit bonus
   const d20 = Math.floor(Math.random() * 20) + 1;
   const hitMod = parseInt((atk.hit || '+0').replace('+','')) || 0;
-  const hitTotal = d20 + hitMod;
   const isCrit = d20 === 20;
   const isMiss = d20 === 1;
+  showRollPopup(atk.name, d20 + hitMod, rollDamageStr(atk.damage, isCrit), isCrit, isMiss);
+}
 
-  // Roll damage
-  const dmgTotal = rollDamageStr(atk.damage, isCrit);
+function rollHit(combatantIdx, atkIdx) {
+  const c = combatants[combatantIdx];
+  if (!c || !c.attacks) return;
+  const atk = c.attacks[atkIdx];
+  if (!atk) return;
+  const d20 = Math.floor(Math.random() * 20) + 1;
+  const hitMod = parseInt((atk.hit || '+0').replace('+','')) || 0;
+  showRollPopup(atk.name, d20 + hitMod, null, d20 === 20, d20 === 1);
+}
 
-  // Show popup near the roll button
-  const btnId = `rollBtn_${combatantIdx}_${atkIdx}`;
-  showRollPopup(atk.name, hitTotal, dmgTotal, isCrit, isMiss);
+function rollDamage(combatantIdx, atkIdx) {
+  const c = combatants[combatantIdx];
+  if (!c || !c.attacks) return;
+  const atk = c.attacks[atkIdx];
+  if (!atk) return;
+  showRollPopup(atk.name, null, rollDamageStr(atk.damage, false), false, false);
 }
 
 function rollDamageStr(dmgStr, crit) {
@@ -1857,10 +1916,12 @@ function showRollPopup(atkName, hit, dmg, crit, miss) {
   const hitColor = crit ? 'var(--green)' : miss ? 'var(--red)' : 'var(--amber)';
   popup.innerHTML = `
     <div class="roll-popup-attack">${atkName}</div>
+    ${hit !== null ? `
     <div class="roll-popup-hit-label">To Hit</div>
-    <div class="roll-popup-hit" style="color:${hitColor}">${hit}${crit?' ★':miss?' ✕':''}</div>
-    <div class="roll-popup-dmg-label" style="margin-top:6px">Damage</div>
-    <div class="roll-popup-dmg">${dmg}</div>`;
+    <div class="roll-popup-hit" style="color:${hitColor}">${hit}${crit?' ★':miss?' ✕':''}</div>` : ''}
+    ${dmg !== null ? `
+    <div class="roll-popup-dmg-label" style="margin-top:${hit !== null ? 6 : 0}px">Damage</div>
+    <div class="roll-popup-dmg">${dmg}</div>` : ''}`;
 
   // Position in center of detail popup if open, else center of screen
   document.body.appendChild(popup);

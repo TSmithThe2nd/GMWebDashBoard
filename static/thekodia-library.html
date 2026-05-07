@@ -222,27 +222,12 @@
     </div>
   </div>
 
-  <!-- Right: Encounter Builder -->
+  <!-- Right: Saved Encounters -->
   <div class="enc-sidebar">
     <div class="enc-head">
-      <div class="enc-title">Encounters</div>
-      <div class="enc-tabs">
-        <button class="enc-tab active" id="tabBuild" onclick="switchEncTab('build')">Build</button>
-        <button class="enc-tab" id="tabSaved" onclick="switchEncTab('saved')">Saved</button>
-      </div>
+      <div class="enc-title">Saved Encounters</div>
     </div>
-    <div class="enc-body" id="encBody">
-      <div style="font-size:13px;color:var(--text3);padding:8px">Add creatures from the library to build an encounter.</div>
-    </div>
-    <div class="enc-foot" id="encFoot">
-      <div style="display:flex;gap:6px;align-items:center">
-        <input type="text" id="encNameInput" placeholder="Encounter name..." style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:5px 8px">
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn small" style="flex:1" onclick="clearEncounter()">Clear</button>
-        <button class="btn small primary" style="flex:1" onclick="saveEncounter()">Save Encounter</button>
-      </div>
-    </div>
+    <div class="enc-body" id="encBody"></div>
   </div>
 </div>
 
@@ -259,14 +244,6 @@
         <input type="number" id="encPickerCount" value="1" min="1" max="20"
           style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
                  color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 6px;text-align:center">
-      </div>
-
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Current build</div>
-      <div onclick="addToEncounterFromPicker()"
-        style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);cursor:pointer;margin-bottom:14px;transition:border-color 0.15s"
-        onmouseover="this.style.borderColor='var(--accent-dim)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent2)">Add to Current Build</div>
-        <div style="font-size:11px;color:var(--text3)" id="pickerBuildCount">— creatures in build</div>
       </div>
 
       <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Saved encounters</div>
@@ -310,9 +287,7 @@ const ENC_KEY = 'thekodia_encounters';
 let creatures = [];
 let encounters = [];
 let selectedIdx = -1;
-let currentEncounter = [];
 let filters = { monster: true, npc: true, player: true };
-let encTab = 'build';
 
 function load() {
   try { creatures = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { creatures = []; }
@@ -702,23 +677,12 @@ function sendToInitiative(i) {
   } catch { alert('Could not send to Initiative — is the Initiative tab open?'); }
 }
 
-// Encounter builder
-function addToEncounter(i) {
-  const c = creatures[i];
-  const existing = currentEncounter.find(e => e.id === c.id);
-  if (existing) { existing.count++; }
-  else { currentEncounter.push({ id: c.id, name: c.name, count: 1 }); }
-  renderEncBody();
-}
-
 let pickerCreatureIdx = -1;
 
 function openEncounterPicker(i) {
   pickerCreatureIdx = i;
   const c = creatures[i];
   document.getElementById('encPickerTitle').textContent = `Add ${c.name} to Encounter`;
-  document.getElementById('pickerBuildCount').textContent =
-    `${currentEncounter.length} creature${currentEncounter.length !== 1 ? 's' : ''} in build`;
   document.getElementById('encPickerCount').value = '1';
   document.getElementById('encPickerNewName').value = '';
 
@@ -739,17 +703,6 @@ function openEncounterPicker(i) {
 
 function pickerCount() {
   return Math.max(1, parseInt(document.getElementById('encPickerCount').value) || 1);
-}
-
-function addToEncounterFromPicker() {
-  if (pickerCreatureIdx < 0) return;
-  const c = creatures[pickerCreatureIdx];
-  const count = pickerCount();
-  const existing = currentEncounter.find(e => e.id === c.id);
-  if (existing) { existing.count += count; }
-  else { currentEncounter.push({ id: c.id, name: c.name, count }); }
-  closeModal('encPickerModal');
-  renderEncBody();
 }
 
 function buildCombatantsFromCreature(c, count) {
@@ -797,80 +750,7 @@ function addCreatureToNewEncounter() {
   encounters.push({ name, combatants });
   saveEncs();
   closeModal('encPickerModal');
-  switchEncTab('saved');
-}
-
-function renderEncBody() {
-  const body = document.getElementById('encBody');
-  if (encTab === 'saved') { renderSavedEncs(); return; }
-  if (!currentEncounter.length) {
-    body.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px">Add creatures from the library to build an encounter.</div>';
-    return;
-  }
-  body.innerHTML = currentEncounter.map((e,i) => `
-    <div class="enc-entry">
-      <div class="enc-entry-name">${e.name}</div>
-      <input class="enc-entry-count" type="number" min="1" value="${e.count}" onchange="currentEncounter[${i}].count=+this.value">
-      <button class="btn icon danger" onclick="removeFromEnc(${i})">✕</button>
-    </div>`).join('');
-}
-
-function removeFromEnc(i) {
-  currentEncounter.splice(i, 1);
-  renderEncBody();
-}
-
-function clearEncounter() {
-  if (currentEncounter.length && !confirm('Clear current encounter?')) return;
-  currentEncounter = [];
-  renderEncBody();
-}
-
-function saveEncounter() {
-  const name = document.getElementById('encNameInput').value.trim();
-  if (!name) { alert('Enter an encounter name'); return; }
-  if (!currentEncounter.length) { alert('Add at least one creature'); return; }
-
-  const combatants = [];
-  currentEncounter.forEach(entry => {
-    const c = creatures.find(x => x.id === entry.id);
-    if (!c) return;
-    for (let i = 1; i <= entry.count; i++) {
-      combatants.push({
-        id: Date.now() + Math.random(),
-        libraryId: c.id,
-        name: entry.count > 1 ? `${c.name} ${i}` : c.name,
-        type: c.type, init: 0, maxhp: c.maxhp, hp: c.maxhp,
-        ac: c.ac, temphp: 0, maxReduce: 0, conditions: [],
-        legMax: c.legMax||0, legCurrent: c.legMax||0,
-        lairActions: c.lairActs||false, conc: false,
-        readied: false, delayed: false, dead: false,
-        notes: [c.spellList ? `Spells: ${c.spellList}` : '', c.notes||''].filter(Boolean).join(' | '),
-        thumb: c.thumb||null, spellSlots: [...(c.spellSlots||[0,0,0,0,0,0,0,0,0])],
-        attacks: Array.isArray(c.attacks) ? c.attacks.map(a => ({...a})) : [],
-        str: c.str||10, dex: c.dex||10, con: c.con||10,
-        int: c.int||10, wis: c.wis||10, cha: c.cha||10,
-        speed: c.speed||30, proficiencyBonus: c.proficiencyBonus||2
-      });
-    }
-  });
-
-  encounters.push({ name, combatants });
-  saveEncs();
-  document.getElementById('encNameInput').value = '';
-  currentEncounter = [];
-  renderEncBody();
-  switchEncTab('saved');
-}
-
-function switchEncTab(tab) {
-  encTab = tab;
-  document.getElementById('tabBuild').classList.toggle('active', tab==='build');
-  document.getElementById('tabSaved').classList.toggle('active', tab==='saved');
-  const foot = document.getElementById('encFoot');
-  foot.style.display = tab==='build' ? 'flex' : 'none';
-  if (tab==='saved') renderSavedEncs();
-  else renderEncBody();
+  renderSavedEncs();
 }
 
 function renderSavedEncs() {
@@ -959,7 +839,7 @@ function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 load();
 renderCreatureList();
-renderEncBody();
+renderSavedEncs();
 </script>
 <script src="/thekodia-storage.js"></script>
 </body>
