@@ -8,9 +8,9 @@ def test_health_returns_ok(client):
     assert data['status'] == 'ok'
 
 
-def test_health_lists_all_12_stores(client):
+def test_health_lists_all_13_stores(client):
     r = client.get('/health')
-    assert len(r.get_json()['stores']) == 12
+    assert len(r.get_json()['stores']) == 13
 
 
 def test_health_pdf_support_field_is_bool(client):

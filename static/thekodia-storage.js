@@ -22,6 +22,7 @@ const ThekodiaStorage = (() => {
     'thekodia_dice_presets':  'dice_presets',
     'thekodia_dice_history':  'dice_history',
     'thekodia_live_add':      'live_add',
+    'thekodia_groups':        'groups',
   };
 
   async function checkServer() {

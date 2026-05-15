@@ -43,6 +43,7 @@ STORES = {
     'dice_presets':  DATA_DIR / 'dice_presets.json',
     'dice_history':  DATA_DIR / 'dice_history.json',
     'live_add':      DATA_DIR / 'live_add.json',
+    'groups':        DATA_DIR / 'groups.json',
 }
 
 

@@ -76,6 +76,14 @@ body { overflow-x: hidden; }
 .mode-btn:hover { border-color: var(--border2); color: var(--text); }
 .mode-btn.active { background: var(--blue-dim); border-color: var(--blue); color: #aac8ff; }
 
+.ctrl-select {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 12px;
+  padding: 4px 8px; cursor: pointer; height: 28px;
+}
+.ctrl-select:focus { outline: none; border-color: var(--accent-dim); }
+.ctrl-select option { background: var(--bg2); }
+
 .combatant-list {
   display: flex;
   flex-direction: column;
@@ -587,14 +595,20 @@ body { overflow-x: hidden; }
       <div class="initiative-mode">
         <button class="mode-btn active" onclick="setMode('standard',this)">Standard</button>
         <button class="mode-btn" onclick="setMode('group',this)">Group</button>
-        <button class="mode-btn" onclick="setMode('team',this)">Team</button>
       </div>
       <button class="btn primary" onclick="openAddModal()">+ Add Combatant</button>
       <button class="btn" onclick="openEncounterModal()">Load Encounter</button>
       <button class="btn" onclick="sortInitiative()">Sort ↕</button>
       <button class="btn" onclick="syncFromLibrary()" title="Check for stat block updates in Library">⟳ Sync</button>
-      <button class="btn" id="teamRollBtn" style="display:none;border-color:var(--blue-dim);color:var(--blue)" onclick="rollTeamInitiative()">⚄ Roll Team Init</button>
-      <button class="btn" id="groupRollBtn" style="display:none;border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Group Init</button>
+      <div id="groupControls" style="display:none;gap:6px;align-items:center">
+        <select id="groupRollMode" class="ctrl-select" title="Roll method for groups"
+                onchange="groupRollModeVal=this.value">
+          <option value="one">One Roll</option>
+          <option value="avg">Average</option>
+          <option value="high">Highest</option>
+        </select>
+        <button class="btn" style="border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Groups</button>
+      </div>
       <button class="btn" onclick="window.open('http://localhost:5000/thekodia-player-display.html')">Player View</button>
     </div>
 
@@ -679,8 +693,12 @@ body { overflow-x: hidden; }
         </div>
         <div class="form-row">
           <div class="field">
-            <label>Group Name</label>
-            <input type="text" id="quickGroup" placeholder="e.g. Goblins" onchange="applyGroup()">
+            <label>Group</label>
+            <select id="quickGroup" onchange="applyGroup()">
+              <option value="">(None — rolls individually)</option>
+              <option value="Player Character Team">Player Character Team</option>
+              <option value="Monsters">Monsters</option>
+            </select>
           </div>
         </div>
         <div class="divider"></div>
@@ -975,37 +993,50 @@ function setMode(mode, el) {
   combatMode = mode;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  const teamRollBtn = document.getElementById('teamRollBtn');
-  const groupRollBtn = document.getElementById('groupRollBtn');
-  teamRollBtn.style.display = mode === 'team' ? 'inline-block' : 'none';
-  groupRollBtn.style.display = mode === 'group' ? 'inline-block' : 'none';
+  document.getElementById('groupControls').style.display = mode === 'group' ? 'flex' : 'none';
 }
 
-function rollTeamInitiative() {
-  if (!combatants.length) return;
-  const playerRoll = rollD20('none');
-  const enemyRoll = rollD20('none');
-  combatants.forEach(c => {
-    if (c.type === 'player') c.init = playerRoll;
-    else c.init = enemyRoll;
-  });
-  sortInitiative();
-  alert(`Players rolled ${playerRoll} — Enemies rolled ${enemyRoll}`);
-}
+let groupRollModeVal = 'one';
 
 function rollGroupInitiative() {
   if (!combatants.length) return;
-  const playerRoll = rollD20('none');
-  const enemyGroups = {};
+
+  const buckets = {};
+  const solo = [];
   combatants.forEach(c => {
-    if (c.type === 'player') { c.init = playerRoll; return; }
-    const groupKey = c.group && c.group.trim() ? c.group.trim() : c.name.replace(/\s*\d+$/, '').trim();
-    if (!(groupKey in enemyGroups)) enemyGroups[groupKey] = rollD20('none');
-    c.init = enemyGroups[groupKey];
+    const key = c.group && c.group.trim() ? c.group.trim() : null;
+    if (key) {
+      if (!buckets[key]) buckets[key] = [];
+      buckets[key].push(c);
+    } else {
+      solo.push(c);
+    }
   });
+
+  const lines = [];
+
+  if (groupRollModeVal === 'one') {
+    Object.entries(buckets).forEach(([key, members]) => {
+      const roll = rollD20('none');
+      members.forEach(c => c.init = roll);
+      lines.push(`${key}: ${roll}`);
+    });
+  } else {
+    Object.entries(buckets).forEach(([key, members]) => {
+      const rolls = members.map(c => rollD20('none') + (c.initMod || 0));
+      const result = groupRollModeVal === 'high'
+        ? Math.max(...rolls)
+        : Math.round(rolls.reduce((a, b) => a + b, 0) / rolls.length);
+      members.forEach(c => c.init = result);
+      const detail = rolls.map((r, i) => `${members[i].name}: ${r}`).join(', ');
+      lines.push(`${key}: ${result}  (${detail})`);
+    });
+  }
+
+  solo.forEach(c => { c.init = rollD20('none') + (c.initMod || 0); });
+
   sortInitiative();
-  const groupSummary = Object.entries(enemyGroups).map(([k,v]) => `${k}: ${v}`).join(' | ');
-  alert(`Players: ${playerRoll}\n${groupSummary}`);
+  if (lines.length) alert('Group Initiative\n' + lines.join('\n'));
 }
 
 function rollD20(adv) {
@@ -2076,12 +2107,26 @@ document.addEventListener('click', e => {
   closeDetail();
 });
 
+// ── Groups ───────────────────────────────────────────────
+let customGroups = [];
+
+function loadGroups() {
+  try { customGroups = JSON.parse(localStorage.getItem('thekodia_groups') || '[]'); } catch { customGroups = []; }
+  const sel = document.getElementById('quickGroup');
+  if (!sel) return;
+  while (sel.options.length > 3) sel.remove(3); // preserve: None, Player Character Team, Monsters
+  customGroups.forEach(g => sel.appendChild(new Option(g, g)));
+}
+
+window.addEventListener('storage', e => { if (e.key === 'thekodia_groups') loadGroups(); });
+
 // ── Init ─────────────────────────────────────────────────
 loadDetailFields();
 loadLiveState();
+loadGroups();
 
 // Re-restore if browser serves page from back/forward cache
-window.addEventListener('pageshow', (e) => { if (e.persisted) loadLiveState(); });
+window.addEventListener('pageshow', (e) => { if (e.persisted) { loadLiveState(); loadGroups(); } });
 
 // Poll for live combatant additions from Library / Players tabs
 setInterval(() => {
