@@ -694,8 +694,7 @@ function renderCustomNotes() {
   ['cond','lang','tool'].forEach(key => {
     const container = document.getElementById(`custom${key.charAt(0).toUpperCase()+key.slice(1)}Notes`);
     if (!container) return;
-    const noteKey = key === 'cond' ? 'cond' : key === 'lang' ? 'lang' : 'tool';
-    container.innerHTML = (customNotes[noteKey]||[]).map((n,i) =>
+    container.innerHTML = (customNotes[key]||[]).map((n,i) =>
       `<div class="custom-note">
         <div class="custom-note-text">${n}</div>
         <div class="custom-note-del" onclick="deleteCustomNote('${noteKey}',${i})">✕</div>

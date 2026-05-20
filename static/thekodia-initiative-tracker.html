@@ -579,13 +579,6 @@ body { overflow-x: hidden; }
     <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
     <button class="nav-tab" onclick="if(confirm('Quit Thekodia?'))fetch('/shutdown',{method:'POST'}).then(()=>document.write('Thekodia has shut down. You may close this tab.'))" style="margin-left:auto;color:var(--red);border-color:var(--red-dim);">✕ Quit</button>
   </div>
-<!--  <div class="round-display">-->
-<!--    <span class="round-label">Round</span>-->
-<!--    <span class="round-num" id="roundNum">—</span>-->
-<!--    <button class="btn small" onclick="prevTurn()">◀ Prev</button>-->
-<!--    <button class="btn small" onclick="nextTurn()">Next Turn ▶</button>-->
-<!--    <button class="btn small danger" onclick="endCombat()">End Combat</button>-->
-<!--  </div>-->
 </div>
 
 <div class="main-layout">
@@ -655,7 +648,7 @@ body { overflow-x: hidden; }
 
     <!-- Quick HP Edit -->
     <div class="panel-box" id="quickEditBox" style="display:none">
-      <div class="panel-head">  it — <span id="quickEditName" style="color:var(--text)">—</span><button class="btn icon" onclick="closeQuickEdit()">✕</button></div>
+      <div class="panel-head">Edit — <span id="quickEditName" style="color:var(--text)">—</span><button class="btn icon" onclick="closeQuickEdit()">✕</button></div>
       <div class="panel-body">
         <div class="form-row">
           <div class="field">
@@ -1159,7 +1152,7 @@ function renderCard(c, i) {
   <div class="combatant-card${isActive?' active-turn':''}${c.dead?' dead':''}" id="card_${i}">
     <div class="card-main">
       <div class="init-badge" id="initBadge_${i}" onclick="editInitInline(${i})">${c.init}</div>
-      <div class="thumb-wrap" onclick="triggerThumbUpload(${i})" title="Click to change image">
+      <div class="thumb-wrap" title="Click to change image">
         ${thumbHtml}
         <input type="file" accept="image/*" id="thumbInput_${i}" onchange="uploadThumb(${i},this)" style="position:absolute;inset:0;opacity:0;cursor:pointer">
       </div>
@@ -1200,7 +1193,6 @@ function saveInitInline(i, input) {
   renderList();
 }
 
-function triggerThumbUpload(i) {}
 function uploadThumb(i, input) {
   if (!input.files || !input.files[0]) return;
   const reader = new FileReader();
