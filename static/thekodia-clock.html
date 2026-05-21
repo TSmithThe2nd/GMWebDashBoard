@@ -348,7 +348,7 @@
   <div class="nav-tabs">
     <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
     <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
-    <button class="nav-tab" onclick="window.location='thekodia-players.html'">Players</button>
+    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
     <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
     <button class="nav-tab active" onclick="window.location='/thekodia-clock.html'">Clock</button>
     <button class="nav-tab" onclick="window.location='/thekodia-tables.html'">Tables</button>
@@ -634,6 +634,7 @@ function loadClock() {
     if (raw) {
       const data = JSON.parse(raw);
       clockMinutes = data.totalMinutes || 0;
+      autoTick = !!data.autoTick;
     }
   } catch {}
   try {
@@ -646,6 +647,7 @@ function saveClock() {
   try {
     localStorage.setItem(CLOCK_KEY, JSON.stringify({
       totalMinutes: clockMinutes,
+      autoTick,
       ...state
     }));
   } catch {}
@@ -740,22 +742,26 @@ function applyTimeEditor() {
 
 // ── AUTO TICK ─────────────────────────────────────────────
 
-function toggleAutoTick() {
-  autoTick = !autoTick;
+function applyAutoTick() {
   const toggle = document.getElementById('autoTickToggle');
   toggle.classList.toggle('on', autoTick);
   document.getElementById('autoTickStatus').textContent = autoTick ? 'Auto-tick ON' : 'Auto-tick off';
   document.getElementById('autoTickStatus').style.color = autoTick ? 'var(--teal)' : 'var(--text3)';
+  clearInterval(tickInterval);
   if (autoTick) {
     tickInterval = setInterval(() => {
       clockMinutes += RATIO;
       tickEventDown(RATIO);
       saveClock();
       render();
-    }, 60000); // every real minute
-  } else {
-    clearInterval(tickInterval);
+    }, 60000);
   }
+}
+
+function toggleAutoTick() {
+  autoTick = !autoTick;
+  saveClock();
+  applyAutoTick();
 }
 
 // ── CALENDAR ─────────────────────────────────────────────
@@ -996,6 +1002,7 @@ calViewMonth = -1;
 calViewYear = 1;
 loadDisplayControls();
 render();
+applyAutoTick();
 </script>
 <script src="/thekodia-storage.js"></script>
 </body>

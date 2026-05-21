@@ -846,173 +846,65 @@ async function importFromPDF() {
   btn.disabled = true;
   status.style.color = 'var(--amber)';
 
-  // Use native Python parser if server available, else fall back to Claude API
   const serverUp = typeof ThekodiaStorage !== 'undefined' && await ThekodiaStorage.checkServer();
-  status.textContent = serverUp ? '⏳ Parsing PDF locally...' : '⏳ Sending to Claude for extraction...';
-
-  if (serverUp) {
-    try {
-      const fileInput = document.getElementById('pdfFileInput');
-      const file = fileInput.files[0] || (() => { throw new Error('No file selected'); })();
-      const result = await ThekodiaStorage.parsePDF(file);
-
-      // Visual-render D&D Beyond PDF — fall through to Claude API
-      if (result.error === 'visual_render') {
-        status.textContent = '⏳ Visual PDF detected — sending to Claude for extraction...';
-        // Fall through to Claude API below
-      } else {
-        if (result.error) throw new Error(result.error);
-        const p = players[selectedIdx];
-
-        // Core fields
-        const scalarFields = ['charName','playerName','race','classes','level','background','alignment',
-          'hp','maxhp','ac','speed','temphp','passivePerception','passiveInsight','passiveInvestigation',
-          'proficiencyBonus','str','dex','con','int','wis','cha',
-          'spellSaveDC','spellAttackBonus','spellcastingAbility',
-          'initiative','senses','damageResist','languages',
-          'saveProficiencies','skillProficiencies','spellList','proficienciesTraining'];
-        scalarFields.forEach(k => { if (result[k] !== undefined && result[k] !== null) p[k] = result[k]; });
-
-        // Spell slots
-        if (result.spellSlots) {
-          result.spellSlots.forEach((s, i) => { if (i < 9 && s) p.spellSlots[i] = { max: s.max || 0, used: 0 }; });
-        }
-
-        // Features — append to existing
-        if (result.features && Array.isArray(result.features)) {
-          if (!p.features) p.features = [];
-          result.features.forEach(f => {
-            if (f.name && !p.features.find(x => x.name === f.name)) {
-              p.features.push(f);
-            }
-          });
-        }
-
-        // Attacks — write to notes field if player card has no attack field
-        if (result.attacks && Array.isArray(result.attacks) && result.attacks.length) {
-          const attackText = result.attacks.map(a => `${a.name}: ${a.hit} | ${a.damage}`).join('\n');
-          if (!p.notes) p.notes = '';
-          if (!p.notes.includes('ATTACKS:')) {
-            p.notes = 'ATTACKS:\n' + attackText + (p.notes ? '\n\n' + p.notes : '');
-          }
-        }
-
-        save(); closeModal('pasteModal'); renderSidebar(); renderCard();
-        return;
-      }
-    } catch(err) {
-      if (!err.message.includes('visual_render')) {
-        status.style.color = 'var(--red)';
-        status.textContent = '❌ ' + err.message;
-        btn.textContent = 'Import Character';
-        btn.disabled = false;
-        return;
-      }
-    }
+  if (!serverUp) {
+    status.style.color = 'var(--red)';
+    status.textContent = '❌ Server not available. Start the app to use PDF import.';
+    btn.textContent = 'Import Character';
+    btn.disabled = false;
+    return;
   }
 
-  const prompt = `You are reading a D&D 5e character sheet PDF. Extract ALL of the following fields and return ONLY a valid JSON object with no markdown, no backticks, no explanation. If a field is not found, use null or 0 as appropriate.
-
-Required JSON structure:
-{
-  "charName": "string",
-  "playerName": "string",
-  "race": "string",
-  "classes": "string (e.g. 'Artificer 5' or 'Fighter 3 / Rogue 2')",
-  "level": number,
-  "background": "string",
-  "alignment": "string",
-  "hp": number,
-  "maxhp": number,
-  "temphp": number,
-  "ac": number,
-  "speed": number,
-  "passivePerception": number,
-  "proficiencyBonus": number,
-  "str": number,
-  "dex": number,
-  "con": number,
-  "int": number,
-  "wis": number,
-  "cha": number,
-  "saveProficiencies": "string listing save proficiencies e.g. 'Con, Int'",
-  "skillProficiencies": "string listing skills with bonuses e.g. 'Arcana +7, History +7'",
-  "spellcastingAbility": "Intelligence or Wisdom or Charisma or empty string",
-  "spellSaveDC": number,
-  "spellAttackBonus": number,
-  "spellSlots": [
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0},
-    {"max": number, "used": 0}
-  ],
-  "spellList": "string with cantrips and spells listed by level",
-  "features": [
-    {"name": "string", "desc": "string"}
-  ]
-}
-
-The spellSlots array must always have exactly 9 entries (levels 1-9). Extract all class features, racial traits, feats, and special abilities into the features array with name and a brief description.`;
-
+  status.textContent = '⏳ Parsing PDF locally...';
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: { type: 'base64', media_type: 'application/pdf', data: currentPDFBase64 }
-            },
-            { type: 'text', text: prompt }
-          ]
-        }]
-      })
-    });
+    const fileInput = document.getElementById('pdfFileInput');
+    const file = fileInput.files[0] || (() => { throw new Error('No file selected'); })();
+    const result = await ThekodiaStorage.parsePDF(file);
 
-    const data = await response.json();
-    const textBlock = data.content?.find(b => b.type === 'text');
-    if (!textBlock) throw new Error('No text response from Claude');
+    if (result.error === 'visual_render') {
+      status.style.color = 'var(--red)';
+      status.textContent = '❌ Visual/image-only PDF detected. Please use the Text Paste method instead.';
+      btn.textContent = 'Import Character';
+      btn.disabled = false;
+      return;
+    }
 
-    let jsonText = textBlock.text.trim();
-    jsonText = jsonText.replace(/^```json?\s*/i, '').replace(/```\s*$/i, '').trim();
-    const extracted = JSON.parse(jsonText);
-
+    if (result.error) throw new Error(result.error);
     const p = players[selectedIdx];
-    const fields = ['charName','playerName','race','classes','level','background','alignment',
-      'hp','maxhp','temphp','ac','speed','passivePerception','proficiencyBonus',
-      'str','dex','con','int','wis','cha','saveProficiencies','skillProficiencies',
-      'spellcastingAbility','spellSaveDC','spellAttackBonus','spellList'];
 
-    fields.forEach(f => { if (extracted[f] !== null && extracted[f] !== undefined) p[f] = extracted[f]; });
+    const scalarFields = ['charName','playerName','race','classes','level','background','alignment',
+      'hp','maxhp','ac','speed','temphp','passivePerception','passiveInsight','passiveInvestigation',
+      'proficiencyBonus','str','dex','con','int','wis','cha',
+      'spellSaveDC','spellAttackBonus','spellcastingAbility',
+      'initiative','senses','damageResist','languages',
+      'saveProficiencies','skillProficiencies','spellList','proficienciesTraining'];
+    scalarFields.forEach(k => { if (result[k] !== undefined && result[k] !== null) p[k] = result[k]; });
 
-    if (extracted.spellSlots && Array.isArray(extracted.spellSlots)) {
-      extracted.spellSlots.forEach((slot, i) => {
-        if (i < 9 && slot) p.spellSlots[i] = { max: slot.max || 0, used: 0 };
+    if (result.spellSlots) {
+      result.spellSlots.forEach((s, i) => { if (i < 9 && s) p.spellSlots[i] = { max: s.max || 0, used: 0 }; });
+    }
+
+    if (result.features && Array.isArray(result.features)) {
+      if (!p.features) p.features = [];
+      result.features.forEach(f => {
+        if (f.name && !p.features.find(x => x.name === f.name)) {
+          p.features.push(f);
+        }
       });
     }
 
-    if (extracted.features && Array.isArray(extracted.features)) {
-      p.features = [...(p.features || []), ...extracted.features.filter(f => f.name)];
+    if (result.attacks && Array.isArray(result.attacks) && result.attacks.length) {
+      const attackText = result.attacks.map(a => `${a.name}: ${a.hit} | ${a.damage}`).join('\n');
+      if (!p.notes) p.notes = '';
+      if (!p.notes.includes('ATTACKS:')) {
+        p.notes = 'ATTACKS:\n' + attackText + (p.notes ? '\n\n' + p.notes : '');
+      }
     }
 
-    save();
-    closeModal('pasteModal');
-    renderSidebar();
-    renderCard();
-
-  } catch (err) {
+    save(); closeModal('pasteModal'); renderSidebar(); renderCard();
+  } catch(err) {
     status.style.color = 'var(--red)';
-    status.textContent = `❌ Import failed: ${err.message}. Try the text paste method instead.`;
+    status.textContent = '❌ ' + err.message;
     btn.textContent = 'Import Character';
     btn.disabled = false;
   }

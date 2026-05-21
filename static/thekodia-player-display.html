@@ -366,10 +366,6 @@ body {
   letter-spacing: 0.1em;
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 </style>
 </head>
 <body>
@@ -658,10 +654,6 @@ function render() {
   renderMiddle();
 }
 
-// ── SYNC FROM INITIATIVE TRACKER ─────────────────────────
-// Initiative tracker writes to thekodia_display_state when turn advances
-// Format: { active: bool, round, current: {displayName, type, thumb, conditions, hpPct}, deck: [...] }
-
 // ── POLL ─────────────────────────────────────────────────
 let lastStateStr = '';
 setInterval(() => {
@@ -680,6 +672,5 @@ setInterval(() => {
 
 render();
 </script>
-<script src="/thekodia-storage.js"></script>
 </body>
 </html>

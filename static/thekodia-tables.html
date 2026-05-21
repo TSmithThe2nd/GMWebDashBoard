@@ -122,28 +122,7 @@
 .cell-del:hover { color: var(--red); }
 .editor-scroll { overflow-x: auto; max-height: 400px; overflow-y: auto; }
 
-/* Add table modal */
-.modal-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7); z-index: 500;
-  align-items: center; justify-content: center;
-}
-.modal-overlay.visible { display: flex; }
-.modal {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius2); padding: 20px; width: 360px;
-  max-width: 90vw;
-}
 .modal-title { font-family: 'Cinzel', serif; font-size: 15px; color: var(--accent); margin-bottom: 14px; }
-.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-.field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
-.field input, .field select {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px;
-  padding: 6px 10px;
-}
-.field input:focus, .field select:focus { outline: none; border-color: var(--accent-dim); }
-.field select option { background: var(--bg2); }
 .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
 
 ::-webkit-scrollbar { height: 5px; }
@@ -197,7 +176,7 @@
 </div>
 
 <!-- New Table Modal -->
-<div class="modal-overlay" id="newTableModal">
+<div class="modal-overlay hidden" id="newTableModal">
   <div class="modal">
     <div class="modal-title">New Table</div>
     <div class="field">
@@ -1384,8 +1363,8 @@ function importCSV(file) {
 }
 
 // ── Modal helpers ─────────────────────────────────────────
-function openModal(id) { document.getElementById(id).classList.add('visible'); }
-function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 // Close modal on overlay click
 document.addEventListener('click', e => {
@@ -1394,11 +1373,11 @@ document.addEventListener('click', e => {
 
 // Enter key on new table name
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && document.getElementById('newTableModal').classList.contains('visible')) {
+  if (e.key === 'Enter' && !document.getElementById('newTableModal').classList.contains('hidden')) {
     createNewTable();
   }
   if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.visible').forEach(m => m.classList.remove('visible'));
+    document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => m.classList.add('hidden'));
   }
 });
 

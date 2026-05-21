@@ -148,7 +148,11 @@
 .enc-tab:hover { border-color: var(--border2); color: var(--text); }
 .enc-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
 
-.enc-body { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.enc-body { flex: 1 1 0; min-height: 80px; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.groups-body { overflow-y: auto; max-height: 190px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+.group-entry { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
+.group-entry-name { font-size: 12px; color: var(--text); flex: 1; }
+.group-built-in { font-size: 10px; color: var(--text3); flex-shrink: 0; }
 .enc-foot { padding: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 
 .enc-entry {
@@ -222,12 +226,26 @@
     </div>
   </div>
 
-  <!-- Right: Saved Encounters -->
+  <!-- Right: Saved Encounters + Groups -->
   <div class="enc-sidebar">
     <div class="enc-head">
       <div class="enc-title">Saved Encounters</div>
     </div>
     <div class="enc-body" id="encBody"></div>
+
+    <div class="enc-head" style="border-top:2px solid var(--border2)">
+      <div class="enc-title">Initiative Groups</div>
+    </div>
+    <div class="groups-body" id="groupsBody"></div>
+    <div class="enc-foot">
+      <div style="display:flex;gap:6px">
+        <input type="text" id="newGroupInput" class="search-input"
+               placeholder="New group name..."
+               style="flex:1;font-size:12px;padding:4px 8px"
+               onkeydown="if(event.key==='Enter')addGroup()">
+        <button class="btn small" onclick="addGroup()">+ Add</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -837,9 +855,69 @@ function parsePaste() {
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
+// ── GROUPS ───────────────────────────────────────────────
+const HARDCODED_GROUPS = ['Player Character Team', 'Monsters'];
+let customGroups = [];
+
+function loadGroups() {
+  try { customGroups = JSON.parse(localStorage.getItem('thekodia_groups') || '[]'); } catch { customGroups = []; }
+  renderGroups();
+}
+
+function saveGroups() {
+  const val = JSON.stringify(customGroups);
+  localStorage.setItem('thekodia_groups', val);
+  ThekodiaStorage.setItem('thekodia_groups', val);
+}
+
+function renderGroups() {
+  const body = document.getElementById('groupsBody');
+  let html = HARDCODED_GROUPS.map(g =>
+    `<div class="group-entry">
+      <span class="group-entry-name">${g}</span>
+      <span class="group-built-in">built-in</span>
+    </div>`
+  ).join('');
+
+  if (!customGroups.length) {
+    html += '<div style="font-size:12px;color:var(--text3);padding:2px 0">No custom groups yet.</div>';
+  } else {
+    html += customGroups.map((g, i) =>
+      `<div class="group-entry">
+        <span class="group-entry-name">${g}</span>
+        <button class="btn icon" onclick="deleteGroup(${i})" style="font-size:11px;padding:2px 5px">✕</button>
+      </div>`
+    ).join('');
+  }
+  body.innerHTML = html;
+}
+
+function addGroup() {
+  const input = document.getElementById('newGroupInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if ([...HARDCODED_GROUPS, ...customGroups].some(g => g.toLowerCase() === name.toLowerCase())) {
+    input.value = '';
+    return;
+  }
+  customGroups.push(name);
+  saveGroups();
+  input.value = '';
+  renderGroups();
+}
+
+function deleteGroup(i) {
+  if (i < 0 || i >= customGroups.length) return;
+  if (!confirm(`Remove group "${customGroups[i]}"?`)) return;
+  customGroups.splice(i, 1);
+  saveGroups();
+  renderGroups();
+}
+
 load();
 renderCreatureList();
 renderSavedEncs();
+loadGroups();
 </script>
 <script src="/thekodia-storage.js"></script>
 </body>
