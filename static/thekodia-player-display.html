@@ -425,17 +425,33 @@ body {
 </div>
 
 <script>
-const THEKODIA_MONTHS = [
-  'Wahuary','Dosuary','Tresuary','Nneuary','Wuuary',
-  'Situary','Sietuary','Octuary','Tisauary','Shiuary',
-  'Hdashuary','Docuary'
-];
+// Load settings from localStorage (written by thekodia-settings.js on any DM page)
+const _displayRawSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings') || '{}'); } catch { return {}; } })();
+const _displayCal = _displayRawSettings.calendar || {};
+const _displayPD  = _displayRawSettings.playerDisplay || {};
 
-const MOON_DATA = [
-  { name: 'Nox', cycle: 14 },
-  { name: 'Tharis', cycle: 24 },
-  { name: 'Cerath', cycle: 36 }
-];
+const THEKODIA_MONTHS = Array.isArray(_displayCal.months) && _displayCal.months.length > 0
+  ? _displayCal.months
+  : ['Wahuary','Dosuary','Tresuary','Nneuary','Wuuary',
+     'Situary','Sietuary','Octuary','Tisauary','Shiuary',
+     'Hdashuary','Docuary'];
+const DAYS_PER_MONTH_DISPLAY = (_displayCal.daysPerMonth > 0) ? _displayCal.daysPerMonth : 28;
+const WORLD_NAME = (_displayRawSettings.worldName || 'Thekodia').trim() || 'Thekodia';
+const DISPLAY_ERA_NAME = ((_displayCal.eraName || '').trim()) || 'CE';
+
+// Display control flags from DM settings
+const SHOW_HP_BARS    = _displayPD.showHpBars    !== false;
+const SHOW_CONDITIONS = _displayPD.showConditions !== false;
+const MASK_ENEMIES    = !!_displayPD.maskEnemies;
+
+const _savedMoonsDisplay = _displayRawSettings.moons;
+const MOON_DATA = Array.isArray(_savedMoonsDisplay) && _savedMoonsDisplay.length > 0
+  ? _savedMoonsDisplay.map(m => ({ name: m.name, cycle: m.cycle }))
+  : [
+    { name: 'Nox', cycle: 14 },
+    { name: 'Tharis', cycle: 24 },
+    { name: 'Cerath', cycle: 36 },
+  ];
 
 const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
 
@@ -461,14 +477,14 @@ function loadState() {
 
 // ── CLOCK HELPERS ────────────────────────────────────────
 function getClockDisplay() {
-  if (!clockState) return { time: '—:—', date: '— CE' };
+  if (!clockState) return { time: '—:—', date: `— ${DISPLAY_ERA_NAME}` };
   const { hour, minute, day, month, year } = clockState;
   const h = String(hour||0).padStart(2,'0');
   const m = String(minute||0).padStart(2,'0');
-  const monthName = THEKODIA_MONTHS[(month||1)-1] || 'Wahuary';
+  const monthName = THEKODIA_MONTHS[(month||1)-1] || THEKODIA_MONTHS[0] || '?';
   return {
     time: `${h}:${m}`,
-    date: `Day ${day||1} of ${monthName}, ${year||1} CE`
+    date: `Day ${day||1} of ${monthName}, ${year||1} ${DISPLAY_ERA_NAME}`
   };
 }
 
@@ -478,7 +494,8 @@ function getMoonPhase(cycleDays, currentDay) {
 }
 
 function getMoonDisplay() {
-  const day = clockState ? (clockState.day + (clockState.month-1)*28 + (clockState.year-1)*336) : 1;
+  const dpm = DAYS_PER_MONTH_DISPLAY;
+  const day = clockState ? (clockState.day + (clockState.month-1)*dpm + (clockState.year-1)*dpm*12) : 1;
   return MOON_DATA.map(m => ({
     name: m.name,
     phase: getMoonPhase(m.cycle, day),
@@ -581,14 +598,20 @@ function renderCombatMiddle() {
   const thumbEl = document.getElementById('activeThumb');
   thumbEl.innerHTML = c.thumb ? `<img src="${c.thumb}">` : (c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀');
 
-  document.getElementById('activeName').textContent = c.displayName;
+  // Respect DM settings: mask enemy names if enabled
+  const displayLabel = (MASK_ENEMIES && c.type !== 'player' && c.type !== 'npc') ? '???' : c.displayName;
+  document.getElementById('activeName').textContent = displayLabel;
 
   const condEl = document.getElementById('activeConditions');
-  condEl.innerHTML = (c.conditions||[]).map(cond =>
-    `<span class="cond-pill" style="background:${cond.color}22;border:1px solid ${cond.color}55;color:${cond.color}">${cond.name}</span>`
-  ).join('');
+  if (SHOW_CONDITIONS) {
+    condEl.innerHTML = (c.conditions||[]).map(cond =>
+      `<span class="cond-pill" style="background:${cond.color}22;border:1px solid ${cond.color}55;color:${cond.color}">${cond.name}</span>`
+    ).join('');
+  } else {
+    condEl.innerHTML = '';
+  }
 
-  if (c.type === 'player' && c.hpPct !== undefined) {
+  if (SHOW_HP_BARS && c.type === 'player' && c.hpPct !== undefined) {
     document.getElementById('activeHPWrap').style.display = 'block';
     const bar = document.getElementById('activeHPBar');
     const pct = Math.round(Math.min(1, Math.max(0, c.hpPct)) * 100);
@@ -602,18 +625,21 @@ function renderCombatMiddle() {
   const deckRow = document.getElementById('deckRow');
   if (!deck.length) { deckRow.style.display = 'none'; return; }
   deckRow.style.display = 'flex';
-  deckRow.innerHTML = deck.slice(0,2).map((d, i) => `
-    <div class="deck-card">
+  deckRow.innerHTML = deck.slice(0,2).map((d, i) => {
+    const dLabel = (MASK_ENEMIES && d.type !== 'player' && d.type !== 'npc') ? '???' : d.displayName;
+    const hpHtml = SHOW_HP_BARS && d.type === 'player' && d.hpPct !== undefined
+      ? `<div class="hp-bar-track" style="width:40px;margin-left:auto">
+          <div class="hp-bar-fill" style="width:${Math.round(d.hpPct*100)}%;background:${d.hpPct>0.6?'var(--green)':d.hpPct>0.3?'var(--amber)':'var(--red)'}"></div>
+         </div>` : '';
+    return `<div class="deck-card">
       <div class="deck-thumb">${d.thumb ? `<img src="${d.thumb}">` : (d.type==='player'?'🧙':d.type==='npc'?'🗣':'💀')}</div>
       <div>
         <div class="deck-label">${i===0?'On Deck':'Then'}</div>
-        <div class="deck-name">${d.displayName}</div>
+        <div class="deck-name">${dLabel}</div>
       </div>
-      ${d.type==='player' && d.hpPct!==undefined ? `
-        <div class="hp-bar-track" style="width:40px;margin-left:auto">
-          <div class="hp-bar-fill" style="width:${Math.round(d.hpPct*100)}%;background:${d.hpPct>0.6?'var(--green)':d.hpPct>0.3?'var(--amber)':'var(--red)'}"></div>
-        </div>` : ''}
-    </div>`).join('');
+      ${hpHtml}
+    </div>`;
+  }).join('');
 }
 
 function renderAmbientMiddle() {

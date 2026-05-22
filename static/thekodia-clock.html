@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -344,7 +344,7 @@
 <body>
 
 <div class="app-header">
-  <div class="app-title">⚔ Thekodia DM</div>
+  <div class="app-title" id="appTitle">⚔ Thekodia DM</div>
   <div class="nav-tabs">
     <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
     <button class="nav-tab" onclick="window.location='/thekodia-library.html'">Library</button>
@@ -384,7 +384,7 @@
       <div class="clock-era" id="clockEra">Year 1 CE</div>
 
       <div class="ratio-badge">
-        Real-time ratio: <span id="ratioLabel">1 min = 5 in-world min</span>
+        Real-time ratio: <span id="ratioLabel">1 min = ? in-world min</span>
         &nbsp;·&nbsp;
         <span id="autoTickStatus" style="color:var(--text3)">Auto-tick off</span>
       </div>
@@ -436,7 +436,7 @@
           <select id="setMonth"></select>
         </div>
         <div class="time-field" style="max-width:80px">
-          <label>Year CE</label>
+          <label id="setYearLabel">Year CE</label>
           <input type="number" id="setYear" min="1" placeholder="1">
         </div>
         <button class="btn small primary" onclick="applyManualSet()" style="align-self:flex-end;margin-bottom:1px">Set</button>
@@ -524,9 +524,7 @@
         </div>
       </div>
       <div class="calendar-grid">
-        <div class="cal-days-header">
-          ${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="cal-day-label">${d}</div>`).join('')}
-        </div>
+        <div class="cal-days-header" id="calDaysHeader"></div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
@@ -534,7 +532,7 @@
     <!-- Moons -->
     <div class="moon-panel">
       <div class="panel-head">
-        <div class="panel-title">Moons of Thekodia</div>
+        <div class="panel-title">Moons</div>
       </div>
       <div class="moon-list" id="moonList"></div>
     </div>
@@ -552,19 +550,35 @@
 </div>
 
 <script>
-const MONTHS = ['Wahuary','Dosuary','Tresuary','Nneuary','Wuuary','Situary','Sietuary','Octuary','Tisauary','Shiuary','Hdashuary','Docuary'];
-const DAYS_PER_MONTH = 28;
-const MONTHS_PER_YEAR = 12;
-const MOONS = [
-  { name: 'Nox',    cycle: 14, color: '#a0c8e8' },
-  { name: 'Tharis', cycle: 24, color: '#c8a96e' },
-  { name: 'Cerath', cycle: 36, color: '#9b72cf' }
-];
+// Load all calendar settings (falls back to Thekodia defaults)
+const _rawSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings') || '{}'); } catch { return {}; } })();
+const _cal = _rawSettings.calendar || {};
+
+let MONTHS = Array.isArray(_cal.months) && _cal.months.length > 0
+  ? _cal.months
+  : ['Wahuary','Dosuary','Tresuary','Nneuary','Wuuary','Situary','Sietuary','Octuary','Tisauary','Shiuary','Hdashuary','Docuary'];
+let DAYS_PER_MONTH = (_cal.daysPerMonth > 0) ? _cal.daysPerMonth : 28;
+const MONTHS_PER_YEAR = MONTHS.length;
+const ERA_NAME = ((_cal.eraName || '').trim()) || 'CE';
+let WEEK_DAYS = Array.isArray(_cal.weekDays) && _cal.weekDays.length > 0
+  ? _cal.weekDays
+  : ['Wahday','Dosday','Tresday','Nneday','Wuday','Sitday','Sietday'];
+const DAYS_PER_WEEK = WEEK_DAYS.length;
+
+const _savedMoons = _rawSettings.moons;
+let MOONS = Array.isArray(_savedMoons) && _savedMoons.length > 0
+  ? _savedMoons
+  : [
+    { name: 'Nox',    cycle: 14, color: '#a0c8e8' },
+    { name: 'Tharis', cycle: 24, color: '#c8a96e' },
+    { name: 'Cerath', cycle: 36, color: '#9b72cf' },
+  ];
+
 const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
 const MOON_PHASE_NAMES = ['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
 
 // Real-time ratio: 1 real minute = RATIO in-world minutes
-const RATIO = 5;
+let RATIO = (_rawSettings.clockRatio > 0) ? _rawSettings.clockRatio : 5;
 
 // Clock state: minutes since epoch (start of Year 1, Day 1, 00:00)
 const CLOCK_KEY = 'thekodia_clock';
@@ -593,7 +607,9 @@ function totalMinutesToState(totalMins) {
   remaining = remaining % minutesPerDay;
   const hour = Math.floor(remaining / 60);
   const minute = remaining % 60;
-  return { year, month, day, hour, minute };
+  const totalDays = Math.floor(Math.max(0, totalMins) / minutesPerDay);
+  const dayOfWeek = DAYS_PER_WEEK > 0 ? totalDays % DAYS_PER_WEEK : 0;
+  return { year, month, day, hour, minute, dayOfWeek };
 }
 
 function stateToTotalMinutes(year, month, day, hour, minute) {
@@ -655,7 +671,7 @@ function saveClock() {
 
 function pushHistory(desc) {
   const state = totalMinutesToState(clockMinutes);
-  const timeStr = `${String(state.hour).padStart(2,'0')}:${String(state.minute).padStart(2,'0')} Day ${state.day} ${MONTHS[state.month-1]} ${state.year} CE`;
+  const timeStr = `${String(state.hour).padStart(2,'0')}:${String(state.minute).padStart(2,'0')} Day ${state.day} ${MONTHS[state.month-1]} ${state.year} ${ERA_NAME}`;
   history.unshift({ time: timeStr, desc });
   if (history.length > 50) history = history.slice(0, 50);
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch {}
@@ -712,7 +728,7 @@ function applyManualSet() {
   calViewMonth = mo;
   calViewYear = y;
   saveClock();
-  pushHistory(`Time set manually to ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} Day ${d} ${MONTHS[mo-1]} ${y} CE`);
+  pushHistory(`Time set manually to ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')} Day ${d} ${MONTHS[mo-1]} ${y} ${ERA_NAME}`);
   render();
 }
 
@@ -768,29 +784,44 @@ function toggleAutoTick() {
 
 function calPrev() {
   calViewMonth--;
-  if (calViewMonth < 1) { calViewMonth = 12; calViewYear--; if (calViewYear < 1) { calViewYear = 1; calViewMonth = 1; } }
+  if (calViewMonth < 1) { calViewMonth = MONTHS_PER_YEAR; calViewYear--; if (calViewYear < 1) { calViewYear = 1; calViewMonth = 1; } }
   renderCalendar();
 }
 
 function calNext() {
   calViewMonth++;
-  if (calViewMonth > 12) { calViewMonth = 1; calViewYear++; }
+  if (calViewMonth > MONTHS_PER_YEAR) { calViewMonth = 1; calViewYear++; }
   renderCalendar();
 }
 
 function jumpToDay(day) {
   clockMinutes = stateToTotalMinutes(calViewYear, calViewMonth, day, totalMinutesToState(clockMinutes).hour, totalMinutesToState(clockMinutes).minute);
   saveClock();
-  pushHistory(`Jumped to Day ${day} ${MONTHS[calViewMonth-1]} ${calViewYear} CE`);
+  pushHistory(`Jumped to Day ${day} ${MONTHS[calViewMonth-1]} ${calViewYear} ${ERA_NAME}`);
   render();
 }
 
 function renderCalendar() {
   const state = totalMinutesToState(clockMinutes);
-  document.getElementById('calMonthLabel').textContent = `${MONTHS[calViewMonth-1]} · ${calViewYear} CE`;
+  document.getElementById('calMonthLabel').textContent = `${MONTHS[calViewMonth-1] || '?'} · ${calViewYear} ${ERA_NAME}`;
+
+  // Weekday header — rebuild dynamically so column count matches DAYS_PER_WEEK
+  const header = document.querySelector('.cal-days-header');
+  if (header) {
+    const cols = `repeat(${DAYS_PER_WEEK}, 1fr)`;
+    header.style.gridTemplateColumns = cols;
+    header.innerHTML = WEEK_DAYS.map(d => `<div class="cal-day-label">${d.slice(0,3)}</div>`).join('');
+  }
+
+  // Grid column count
   const grid = document.getElementById('calGrid');
-  // 28-day months = exactly 4 weeks, so every month starts on the same weekday
-  const offset = 0;
+  grid.style.gridTemplateColumns = `repeat(${DAYS_PER_WEEK}, 1fr)`;
+
+  // Offset: how many weekdays in before day 1 of this view-month
+  const totalDaysToMonthStart = (calViewYear - 1) * MONTHS_PER_YEAR * DAYS_PER_MONTH
+                              + (calViewMonth - 1) * DAYS_PER_MONTH;
+  const offset = DAYS_PER_WEEK > 0 ? totalDaysToMonthStart % DAYS_PER_WEEK : 0;
+
   let html = '';
   for (let i = 0; i < offset; i++) html += '<div class="cal-cell empty"></div>';
   for (let d = 1; d <= DAYS_PER_MONTH; d++) {
@@ -848,8 +879,11 @@ function render() {
   document.getElementById('timeOfDayLabel').textContent = tod.label.toUpperCase();
   document.getElementById('clockTime').textContent = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
   document.getElementById('clockPeriod').textContent = tod.period;
-  document.getElementById('clockDate').textContent = `Day ${day} of ${MONTHS[month-1]}`;
-  document.getElementById('clockEra').textContent = `Year ${year} CE`;
+  const weekdayName = WEEK_DAYS[state.dayOfWeek] || '';
+  document.getElementById('clockDate').textContent = weekdayName
+    ? `${weekdayName} · Day ${day} of ${MONTHS[month-1]}`
+    : `Day ${day} of ${MONTHS[month-1]}`;
+  document.getElementById('clockEra').textContent = `Year ${year} ${ERA_NAME}`;
 
   // Only sync calendar view when no manual nav has occurred
   // (calViewMonth/Year start at -1 as sentinel)
@@ -1001,9 +1035,13 @@ populateMonthSelect();
 calViewMonth = -1;
 calViewYear = 1;
 loadDisplayControls();
+document.getElementById('ratioLabel').textContent = `1 min = ${RATIO} in-world min`;
+const _yearLbl = document.getElementById('setYearLabel');
+if (_yearLbl) _yearLbl.textContent = `Year ${ERA_NAME}`;
 render();
 applyAutoTick();
 </script>
 <script src="/thekodia-storage.js"></script>
+<script src="/thekodia-settings.js"></script>
 </body>
 </html>

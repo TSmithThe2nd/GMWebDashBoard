@@ -23,6 +23,7 @@ const ThekodiaStorage = (() => {
     'thekodia_dice_history':  'dice_history',
     'thekodia_live_add':      'live_add',
     'thekodia_groups':        'groups',
+    'thekodia_settings':      'settings',
   };
 
   async function checkServer() {
@@ -102,5 +103,50 @@ const ThekodiaStorage = (() => {
     }
   }
 
-  return { getItem, setItem, removeItem, syncFromServer, parsePDF, checkServer };
+  async function exportBackup() {
+    const backup = {};
+    const server = await checkServer();
+    for (const [lsKey, store] of Object.entries(KEY_MAP)) {
+      if (server) {
+        try {
+          const r = await fetch(`${BASE}/data/${store}`);
+          const data = await r.json();
+          if (data !== null) { backup[store] = data; continue; }
+        } catch {}
+      }
+      const raw = localStorage.getItem(lsKey);
+      if (raw) try { backup[store] = JSON.parse(raw); } catch {}
+    }
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `thekodia-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  async function importBackup(file) {
+    let backup;
+    try { backup = JSON.parse(await file.text()); } catch { alert('Invalid backup file.'); return; }
+    const server = await checkServer();
+    for (const [store, data] of Object.entries(backup)) {
+      const lsKey = Object.keys(KEY_MAP).find(k => KEY_MAP[k] === store);
+      if (lsKey) localStorage.setItem(lsKey, JSON.stringify(data));
+      if (server) {
+        try {
+          await fetch(`${BASE}/data/${store}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+        } catch {}
+      }
+    }
+    location.reload();
+  }
+
+  return { getItem, setItem, removeItem, syncFromServer, parsePDF, checkServer, exportBackup, importBackup };
 })();
