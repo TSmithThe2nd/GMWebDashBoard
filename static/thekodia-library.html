@@ -687,7 +687,8 @@ function sendToInitiative(i) {
     });
   }
   try {
-    localStorage.setItem('thekodia_live_add', JSON.stringify(count === 1 ? batch[0] : batch));
+    const _prev = (() => { try { const v = JSON.parse(localStorage.getItem('thekodia_live_add')||'null'); return Array.isArray(v) ? v : v ? [v] : []; } catch { return []; } })();
+    localStorage.setItem('thekodia_live_add', JSON.stringify([..._prev, ...batch]));
     const btn = event.currentTarget;
     const orig = btn.textContent;
     btn.textContent = '✓ Sent';
@@ -914,10 +915,14 @@ function deleteGroup(i) {
   renderGroups();
 }
 
-load();
-renderCreatureList();
-renderSavedEncs();
-loadGroups();
+function _doInit() {
+  load();
+  renderCreatureList();
+  renderSavedEncs();
+  loadGroups();
+}
+if (localStorage.getItem('thekodia_library')) _doInit();
+else window.addEventListener('thekodiaReady', _doInit);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>

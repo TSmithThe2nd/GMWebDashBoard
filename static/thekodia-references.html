@@ -741,19 +741,22 @@ function deleteCustomNote(key, i) {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-loadCustomNotes();
-renderConditions();
-renderLanguages();
-renderTools();
-renderCustomNotes();
-// Restore active section tab
-try {
-  const sec = localStorage.getItem('thekodia_ref_section');
-  if (sec && document.getElementById('sec-' + sec)) {
-    const btn = document.querySelector(`.section-tab[onclick*="'${sec}'"]`);
-    if (btn) switchSection(sec, btn);
-  }
-} catch {}
+function _doInit() {
+  loadCustomNotes();
+  renderConditions();
+  renderLanguages();
+  renderTools();
+  renderCustomNotes();
+  try {
+    const sec = localStorage.getItem('thekodia_ref_section');
+    if (sec && document.getElementById('sec-' + sec)) {
+      const btn = document.querySelector(`.section-tab[onclick*="'${sec}'"]`);
+      if (btn) switchSection(sec, btn);
+    }
+  } catch {}
+}
+if (localStorage.getItem('thekodia_ref_notes')) _doInit();
+else window.addEventListener('thekodiaReady', _doInit);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>

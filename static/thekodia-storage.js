@@ -21,9 +21,28 @@ const ThekodiaStorage = (() => {
     'thekodia_ref_notes':     'ref_notes',
     'thekodia_dice_presets':  'dice_presets',
     'thekodia_dice_history':  'dice_history',
-    'thekodia_live_add':      'live_add',
+    // live_add is intentionally excluded — it's a transient cross-tab signal, not persistent data
     'thekodia_groups':        'groups',
     'thekodia_settings':      'settings',
+  };
+
+  // Intercept localStorage.setItem so every write also persists to the Flask server.
+  // Pages write to localStorage directly; this makes that write also reach disk-backed JSON.
+  const _nativeSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function(key, value) {
+    _nativeSetItem(key, value);
+    const store = KEY_MAP[key];
+    if (store) {
+      checkServer().then(avail => {
+        if (avail) {
+          fetch(`${BASE}/data/${store}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: value,
+          }).catch(() => {});
+        }
+      });
+    }
   };
 
   async function checkServer() {
@@ -50,8 +69,8 @@ const ThekodiaStorage = (() => {
   }
 
   async function setItem(key, value) {
-    // Always write to localStorage for instant cross-tab sync
-    localStorage.setItem(key, value);
+    // Use native setItem — the override would double-write to server
+    _nativeSetItem(key, value);
     const store = KEY_MAP[key];
     if (store && await checkServer()) {
       try {
@@ -82,7 +101,7 @@ const ThekodiaStorage = (() => {
         const r = await fetch(`${BASE}/data/${store}`);
         const data = await r.json();
         if (data !== null) {
-          localStorage.setItem(lsKey, JSON.stringify(data));
+          _nativeSetItem(lsKey, JSON.stringify(data));
         }
       } catch {}
     }
@@ -134,7 +153,7 @@ const ThekodiaStorage = (() => {
     const server = await checkServer();
     for (const [store, data] of Object.entries(backup)) {
       const lsKey = Object.keys(KEY_MAP).find(k => KEY_MAP[k] === store);
-      if (lsKey) localStorage.setItem(lsKey, JSON.stringify(data));
+      if (lsKey) _nativeSetItem(lsKey, JSON.stringify(data));
       if (server) {
         try {
           await fetch(`${BASE}/data/${store}`, {
@@ -148,5 +167,9 @@ const ThekodiaStorage = (() => {
     location.reload();
   }
 
-  return { getItem, setItem, removeItem, syncFromServer, parsePDF, checkServer, exportBackup, importBackup };
+  // Sync from server on load; dispatches 'thekodiaReady' when complete.
+  // Pages listen for this event so init runs after server data is in localStorage.
+  const ready = syncFromServer().then(() => window.dispatchEvent(new Event('thekodiaReady')));
+
+  return { getItem, setItem, removeItem, syncFromServer, parsePDF, checkServer, exportBackup, importBackup, ready };
 })();

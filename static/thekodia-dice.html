@@ -793,10 +793,14 @@ document.addEventListener('keydown', e => {
 });
 
 // ── INIT ─────────────────────────────────────────────────
-loadStorage();
-renderPresets();
-renderHistory();
-updateFormulaDisplay();
+function _doInit() {
+  loadStorage();
+  renderPresets();
+  renderHistory();
+  updateFormulaDisplay();
+}
+if (localStorage.getItem('thekodia_dice_presets')) _doInit();
+else window.addEventListener('thekodiaReady', _doInit);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>

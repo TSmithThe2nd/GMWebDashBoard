@@ -708,7 +708,8 @@ function addPlayerToLiveCombat() {
   const p = players[selectedIdx];
   const combatant = buildCombatantFromPlayer(p);
   try {
-    localStorage.setItem('thekodia_live_add', JSON.stringify(combatant));
+    const _prev = (() => { try { const v = JSON.parse(localStorage.getItem('thekodia_live_add')||'null'); return Array.isArray(v) ? v : v ? [v] : []; } catch { return []; } })();
+    localStorage.setItem('thekodia_live_add', JSON.stringify([..._prev, combatant]));
     closeModal('encPickerModal');
     alert(`${p.charName} sent to live combat — they will appear in the initiative tracker momentarily.`);
   } catch {
@@ -978,9 +979,13 @@ function parseDnDBeyond() {
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-load();
-renderSidebar();
-if (players.length) { selectedIdx = 0; renderCard(); }
+function _doInit() {
+  load();
+  renderSidebar();
+  if (players.length) { selectedIdx = 0; renderCard(); }
+}
+if (localStorage.getItem('thekodia_players')) _doInit();
+else window.addEventListener('thekodiaReady', _doInit);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>

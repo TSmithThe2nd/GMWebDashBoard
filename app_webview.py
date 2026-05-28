@@ -4,16 +4,37 @@ Runs Flask in a background thread and opens the app as a native window.
 Use app.py directly if you want the browser-based experience instead.
 """
 
+import os
 import sys
 import threading
 import time
 import urllib.request
+from pathlib import Path
 
 import webview
 
 from app import create_app
 
+STORAGE_PATH = str(Path(os.environ.get('APPDATA', Path.home())) / 'Thekodia' / 'webdata')
+Path(STORAGE_PATH).mkdir(parents=True, exist_ok=True)
+
 URL = 'http://localhost:5000'
+
+
+class Api:
+    def open_player_display(self):
+        """Open the player-facing display as a second always-on-top PyWebView window."""
+        for w in webview.windows:
+            if w.title == 'Thekodia — Player View':
+                return  # already open, don't duplicate
+        webview.create_window(
+            'Thekodia — Player View',
+            f'{URL}/thekodia-player-display.html',
+            width=1280,
+            height=720,
+            resizable=True,
+            on_top=True,
+        )
 
 
 def _wait_for_server(timeout: float = 10.0) -> bool:
@@ -42,13 +63,15 @@ if __name__ == '__main__':
         print('ERROR: Flask did not start within 10 seconds. Check for port conflicts.')
         sys.exit(1)
 
+    api = Api()
     webview.create_window(
         'Thekodia DM',
         URL,
+        js_api=api,
         width=1400,
         height=900,
         min_size=(900, 600),
         resizable=True,
     )
 
-    webview.start()
+    webview.start(storage_path=STORAGE_PATH)

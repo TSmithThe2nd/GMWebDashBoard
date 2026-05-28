@@ -1382,9 +1382,13 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Init ──────────────────────────────────────────────────
-load();
-renderTableList();
-if (tables.length) renderContent();
+function _doInit() {
+  load();
+  renderTableList();
+  if (tables.length) renderContent();
+}
+if (localStorage.getItem(STORAGE_KEY)) _doInit();
+else window.addEventListener('thekodiaReady', _doInit);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>
