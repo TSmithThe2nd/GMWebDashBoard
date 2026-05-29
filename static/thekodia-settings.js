@@ -24,7 +24,8 @@ const ThekodiaSettings = (() => {
       { name: 'Cerath', cycle: 36, color: '#9b72cf' },
     ],
     playerDisplay: {
-      showHpBars: true,
+      showPlayerHpBars: true,
+      showMonsterHpBars: false,
       showConditions: true,
       maskEnemies: false,
     },
@@ -265,10 +266,17 @@ const ThekodiaSettings = (() => {
         </p>
         <div class="settings-toggle-row">
           <div>
-            <div style="font-size:14px;font-weight:600;color:var(--text)">Show HP Bars</div>
-            <div style="font-size:12px;color:var(--text3)">Display the HP bar for the current player character</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">Show Player HP Bars</div>
+            <div style="font-size:12px;color:var(--text3)">Display HP bars for player characters on the player display</div>
           </div>
-          <label class="toggle-switch"><input type="checkbox" id="dispShowHp"><span class="toggle-slider"></span></label>
+          <label class="toggle-switch"><input type="checkbox" id="dispShowPlayerHp"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="settings-toggle-row">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text)">Show Monster/NPC HP Bars</div>
+            <div style="font-size:12px;color:var(--text3)">Display HP bars for monsters and NPCs on the player display</div>
+          </div>
+          <label class="toggle-switch"><input type="checkbox" id="dispShowMonsterHp"><span class="toggle-slider"></span></label>
         </div>
         <div class="settings-toggle-row">
           <div>
@@ -356,12 +364,16 @@ const ThekodiaSettings = (() => {
 
     // Player display
     const pd = settings.playerDisplay || {};
-    const showHp = document.getElementById('dispShowHp');
-    const showCond = document.getElementById('dispShowConditions');
-    const maskEnem = document.getElementById('dispMaskEnemies');
-    if (showHp)   showHp.checked   = pd.showHpBars    !== false;
-    if (showCond) showCond.checked = pd.showConditions !== false;
-    if (maskEnem) maskEnem.checked = !!pd.maskEnemies;
+    // Migrate: old saves used showHpBars; new saves use showPlayerHpBars
+    const _legacyHp = pd.showHpBars !== false;
+    const showPlayerHp  = document.getElementById('dispShowPlayerHp');
+    const showMonsterHp = document.getElementById('dispShowMonsterHp');
+    const showCond      = document.getElementById('dispShowConditions');
+    const maskEnem      = document.getElementById('dispMaskEnemies');
+    if (showPlayerHp)  showPlayerHp.checked  = 'showPlayerHpBars'  in pd ? pd.showPlayerHpBars  !== false : _legacyHp;
+    if (showMonsterHp) showMonsterHp.checked = !!pd.showMonsterHpBars;
+    if (showCond)      showCond.checked      = pd.showConditions !== false;
+    if (maskEnem)      maskEnem.checked      = !!pd.maskEnemies;
 
     showTab(tab || 'campaign');
   }
@@ -543,9 +555,10 @@ const ThekodiaSettings = (() => {
 
     // Player display
     settings.playerDisplay = {
-      showHpBars:     !!(document.getElementById('dispShowHp')?.checked),
-      showConditions: !!(document.getElementById('dispShowConditions')?.checked),
-      maskEnemies:    !!(document.getElementById('dispMaskEnemies')?.checked),
+      showPlayerHpBars:  !!(document.getElementById('dispShowPlayerHp')?.checked),
+      showMonsterHpBars: !!(document.getElementById('dispShowMonsterHp')?.checked),
+      showConditions:    !!(document.getElementById('dispShowConditions')?.checked),
+      maskEnemies:       !!(document.getElementById('dispMaskEnemies')?.checked),
     };
 
     const json = JSON.stringify(settings);

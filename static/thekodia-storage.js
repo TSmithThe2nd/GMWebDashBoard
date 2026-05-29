@@ -24,6 +24,7 @@ const ThekodiaStorage = (() => {
     // live_add is intentionally excluded — it's a transient cross-tab signal, not persistent data
     'thekodia_groups':        'groups',
     'thekodia_settings':      'settings',
+    'thekodia_live_combat':   'live_combat',
   };
 
   // Intercept localStorage.setItem so every write also persists to the Flask server.

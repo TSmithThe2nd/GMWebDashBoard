@@ -801,8 +801,12 @@ body { overflow-x: hidden; }
       </div>
       <div class="form-row">
         <div class="field">
-          <label>Group Name <span style="color:var(--text3);font-size:11px">(for Group Initiative)</span></label>
-          <input type="text" id="f_group" placeholder="e.g. Goblins, Bandits, Boss">
+          <label>Group <span style="color:var(--text3);font-size:11px">(for Group Initiative)</span></label>
+          <select id="f_group">
+            <option value="">(No Group)</option>
+            <option value="Player Character Team">Player Character Team</option>
+            <option value="Monsters">Monsters</option>
+          </select>
         </div>
       </div>
       <div class="form-row">
@@ -1121,6 +1125,14 @@ function renderList() {
   list.innerHTML = combatants.map((c,i) => renderCard(c,i)).join('');
   updateBanner();
   renderEncounterList();
+  // Keep the detail popup in sync after cards re-render
+  if (openDetailIdx >= 0 && detailPopupEl) {
+    const _btn = document.getElementById('expandBtn_' + openDetailIdx);
+    if (_btn) positionDetailPopup(_btn);
+    renderDetailContent(openDetailIdx);
+  }
+  // Push HP, conditions, and any other mid-turn changes to the player display
+  if (currentTurnIdx >= 0) pushDisplayState();
 }
 
 function hpColor(pct) {
@@ -1397,16 +1409,21 @@ function pushDisplayState() {
     const CONDITIONS_COLORS = {};
     CONDITIONS_5E.forEach(c => { CONDITIONS_COLORS[c.name] = c.color; });
 
+    const _pdSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings')||'{}').playerDisplay || {}; } catch { return {}; } })();
+    const _showPlayerHp  = _pdSettings.showPlayerHpBars  !== false;
+    const _showMonsterHp = !!_pdSettings.showMonsterHpBars;
+
     const makeCombatant = (c) => {
       if (!c) return null;
       const isPlayer = c.type === 'player';
       const effectiveMax = Math.max(1, c.maxhp - (c.maxReduce||0));
+      const showHp = isPlayer ? _showPlayerHp : _showMonsterHp;
       return {
         displayName: c.name,
         type: c.type,
         thumb: c.thumb,
         conditions: (c.conditions||[]).map(name => ({ name, color: CONDITIONS_COLORS[name]||'#888' })),
-        hpPct: isPlayer ? (c.hp / effectiveMax) : undefined
+        hpPct: showHp ? (c.hp / effectiveMax) : undefined
       };
     };
 
@@ -1518,7 +1535,13 @@ function openEditModal(i) {
     <div class="form-row">
       <div class="field"><label>Initiative</label><input type="number" id="e_init" value="${c.init}"></div>
       <div class="field"><label>AC</label><input type="number" id="e_ac" value="${c.ac}"></div>
-      <div class="field"><label>Group Name</label><input type="text" id="e_group" value="${c.group||''}" placeholder="e.g. Goblins"></div>
+      <div class="field"><label>Group</label>
+        <select id="e_group">
+          ${['', 'Player Character Team', 'Monsters', ...customGroups]
+            .map(g => `<option value="${g}"${(c.group||'')===g?' selected':''}>${g||'(No Group)'}</option>`)
+            .join('')}
+        </select>
+      </div>
     </div>
     <div class="form-row">
       <div class="field"><label>Max HP</label><input type="number" id="e_maxhp" value="${c.maxhp}"></div>
@@ -2104,10 +2127,12 @@ let customGroups = [];
 
 function loadGroups() {
   try { customGroups = JSON.parse(localStorage.getItem('thekodia_groups') || '[]'); } catch { customGroups = []; }
-  const sel = document.getElementById('quickGroup');
-  if (!sel) return;
-  while (sel.options.length > 3) sel.remove(3); // preserve: None, Player Character Team, Monsters
-  customGroups.forEach(g => sel.appendChild(new Option(g, g)));
+  for (const selId of ['quickGroup', 'f_group']) {
+    const sel = document.getElementById(selId);
+    if (!sel) continue;
+    while (sel.options.length > 3) sel.remove(3); // preserve: None, Player Character Team, Monsters
+    customGroups.forEach(g => sel.appendChild(new Option(g, g)));
+  }
 }
 
 window.addEventListener('storage', e => { if (e.key === 'thekodia_groups') loadGroups(); });
@@ -2118,8 +2143,13 @@ function _doInit() {
   loadLiveState();
   loadGroups();
 }
-if (localStorage.getItem('thekodia_groups') || localStorage.getItem('thekodia_encounters')) _doInit();
-else window.addEventListener('thekodiaReady', _doInit);
+_doInit();
+// After server sync completes, reload everything that was rendered before localStorage was populated
+window.addEventListener('thekodiaReady', () => {
+  if (!combatants.length) loadLiveState();
+  loadGroups();
+  renderEncounterList();
+});
 
 // Re-restore if browser serves page from back/forward cache
 window.addEventListener('pageshow', (e) => { if (e.persisted) { loadLiveState(); loadGroups(); } });

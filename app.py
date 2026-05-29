@@ -40,7 +40,7 @@ CONFIG_PATH   = DATA_DIR / 'config.json'
 STORE_KEYS = [
     'encounters', 'library', 'players', 'clock', 'clock_history',
     'display_state', 'weather', 'event', 'ref_notes', 'dice_presets',
-    'dice_history', 'groups', 'settings',
+    'dice_history', 'groups', 'settings', 'live_combat',
 ]
 
 
