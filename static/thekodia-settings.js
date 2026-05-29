@@ -640,6 +640,15 @@ const ThekodiaSettings = (() => {
       });
       const data = await r.json();
       if (data.error) { alert(data.error); return; }
+      // Clear all campaign-scoped localStorage so the new campaign loads fresh from server.
+      // Without this, stale calendar settings from the old campaign corrupt clock math on reload.
+      [
+        'thekodia_encounters', 'thekodia_library', 'thekodia_players',
+        'thekodia_clock', 'thekodia_clock_history', 'thekodia_display_state',
+        'thekodia_weather', 'thekodia_event', 'thekodia_ref_notes',
+        'thekodia_dice_presets', 'thekodia_dice_history', 'thekodia_groups',
+        'thekodia_settings', 'thekodia_live_combat',
+      ].forEach(k => localStorage.removeItem(k));
       location.reload();
     } catch {
       alert('Error switching campaign — is the server running?');
