@@ -202,13 +202,16 @@
       <div class="section-count" id="condCount"></div>
     </div>
     <div class="conditions-grid" id="conditionsGrid"></div>
+    <div id="condCustomCards" style="margin-top:10px"></div>
     <div style="margin-top:14px">
       <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
       <div id="customCondNotes"></div>
       <div class="add-custom-row">
         <input class="add-custom-input" type="text" id="condNoteInput" placeholder="Add a custom condition note..." onkeydown="if(event.key==='Enter')addCustomNote('cond')">
-        <button class="btn small primary" onclick="addCustomNote('cond')">Add</button>
+        <button class="btn small primary" onclick="addCustomNote('cond')">Add Note</button>
+        <button class="btn small" onclick="openCardForm('cond')" style="border-color:var(--accent-dim);color:var(--accent)">+ Card</button>
       </div>
+      <div id="cardForm-cond" style="display:none"></div>
     </div>
   </div>
 
@@ -219,13 +222,16 @@
       <div class="section-count" id="langCount"></div>
     </div>
     <div class="lang-grid" id="languagesGrid"></div>
+    <div id="langCustomCards" style="margin-top:10px"></div>
     <div style="margin-top:14px">
       <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
       <div id="customLangNotes"></div>
       <div class="add-custom-row">
         <input class="add-custom-input" type="text" id="langNoteInput" placeholder="Add a custom language note..." onkeydown="if(event.key==='Enter')addCustomNote('lang')">
-        <button class="btn small primary" onclick="addCustomNote('lang')">Add</button>
+        <button class="btn small primary" onclick="addCustomNote('lang')">Add Note</button>
+        <button class="btn small" onclick="openCardForm('lang')" style="border-color:var(--accent-dim);color:var(--accent)">+ Card</button>
       </div>
+      <div id="cardForm-lang" style="display:none"></div>
     </div>
   </div>
 
@@ -236,13 +242,16 @@
       <div class="section-count" id="toolCount"></div>
     </div>
     <div class="tools-grid" id="toolsGrid"></div>
+    <div id="toolCustomCards" style="margin-top:10px"></div>
     <div style="margin-top:14px">
       <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM NOTES</div>
       <div id="customToolNotes"></div>
       <div class="add-custom-row">
         <input class="add-custom-input" type="text" id="toolNoteInput" placeholder="Add a custom tool note..." onkeydown="if(event.key==='Enter')addCustomNote('tool')">
-        <button class="btn small primary" onclick="addCustomNote('tool')">Add</button>
+        <button class="btn small primary" onclick="addCustomNote('tool')">Add Note</button>
+        <button class="btn small" onclick="openCardForm('tool')" style="border-color:var(--accent-dim);color:var(--accent)">+ Card</button>
       </div>
+      <div id="cardForm-tool" style="display:none"></div>
     </div>
   </div>
 
@@ -605,12 +614,26 @@ const TOOLS = [
 
 // ─── STATE ──────────────────────────────────────────────────────────────────
 let customNotes = { cond: [], lang: [], tool: [] };
+let customCards = { cond: [], lang: [], tool: [] };
 
 function loadCustomNotes() {
-  try { customNotes = JSON.parse(localStorage.getItem('thekodia_ref_notes') || '{"cond":[],"lang":[],"tool":[]}'); } catch {}
+  try {
+    const raw = JSON.parse(localStorage.getItem('thekodia_ref_notes') || '{}');
+    customNotes.cond = Array.isArray(raw.cond) ? raw.cond : [];
+    customNotes.lang = Array.isArray(raw.lang) ? raw.lang : [];
+    customNotes.tool = Array.isArray(raw.tool) ? raw.tool : [];
+    customCards.cond = Array.isArray(raw.cond_cards) ? raw.cond_cards : [];
+    customCards.lang = Array.isArray(raw.lang_cards) ? raw.lang_cards : [];
+    customCards.tool = Array.isArray(raw.tool_cards) ? raw.tool_cards : [];
+  } catch {}
 }
 function saveCustomNotes() {
-  try { localStorage.setItem('thekodia_ref_notes', JSON.stringify(customNotes)); } catch {}
+  try {
+    localStorage.setItem('thekodia_ref_notes', JSON.stringify({
+      cond: customNotes.cond, lang: customNotes.lang, tool: customNotes.tool,
+      cond_cards: customCards.cond, lang_cards: customCards.lang, tool_cards: customCards.tool,
+    }));
+  } catch {}
 }
 
 // ─── RENDER ─────────────────────────────────────────────────────────────────
@@ -697,9 +720,124 @@ function renderCustomNotes() {
     container.innerHTML = (customNotes[key]||[]).map((n,i) =>
       `<div class="custom-note">
         <div class="custom-note-text">${n}</div>
-        <div class="custom-note-del" onclick="deleteCustomNote('${noteKey}',${i})">✕</div>
+        <div class="custom-note-del" onclick="deleteCustomNote('${key}',${i})">✕</div>
       </div>`
     ).join('');
+  });
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderCustomCards() {
+  const MAP = { cond: 'condCustomCards', lang: 'langCustomCards', tool: 'toolCustomCards' };
+  for (const [key, id] of Object.entries(MAP)) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const cards = customCards[key] || [];
+    if (!cards.length) { el.innerHTML = ''; continue; }
+    el.innerHTML =
+      `<div style="font-family:'Cinzel',serif;font-size:13px;color:var(--accent);margin-bottom:8px;letter-spacing:0.06em">CUSTOM CARDS</div>
+       <div class="conditions-grid">` +
+      cards.map((c, i) => {
+        const col = c.color || '#c8a96e';
+        return `
+        <div class="condition-card" onclick="toggleCard(this)">
+          <div class="condition-header">
+            <div class="condition-icon" style="background:${col}22;border:1px solid ${col}44">${escHtml(c.icon||'📌')}</div>
+            <div style="flex:1;min-width:0">
+              <div class="condition-name" style="color:${col}">${escHtml(c.name)}</div>
+              ${c.summary ? `<div class="condition-summary">${escHtml(c.summary)}</div>` : ''}
+            </div>
+            <button class="btn small" style="color:var(--red);border-color:var(--red-dim);padding:1px 6px;font-size:11px;margin-right:6px;flex-shrink:0"
+              onclick="event.stopPropagation();deleteCustomCard('${key}',${i})">✕</button>
+            <div class="expand-arrow">▼</div>
+          </div>
+          <div class="condition-body">
+            ${(c.points||[]).map(p => `<div class="condition-effect">${escHtml(p)}</div>`).join('')}
+          </div>
+        </div>`;
+      }).join('') +
+      `</div>`;
+  }
+}
+
+function openCardForm(key) {
+  const form = document.getElementById('cardForm-' + key);
+  if (!form) return;
+  form.style.display = '';
+  document.getElementById('cf-' + key + '-name').value = '';
+  document.getElementById('cf-' + key + '-icon').value = '📌';
+  document.getElementById('cf-' + key + '-color').value = '#c8a96e';
+  document.getElementById('cf-' + key + '-summary').value = '';
+  document.getElementById('cf-' + key + '-points').value = '';
+  document.getElementById('cf-' + key + '-name').focus();
+}
+
+function closeCardForm(key) {
+  const form = document.getElementById('cardForm-' + key);
+  if (form) form.style.display = 'none';
+}
+
+function saveCustomCard(key) {
+  const name = document.getElementById('cf-' + key + '-name').value.trim();
+  if (!name) return;
+  const icon    = document.getElementById('cf-' + key + '-icon').value.trim() || '📌';
+  const color   = document.getElementById('cf-' + key + '-color').value || '#c8a96e';
+  const summary = document.getElementById('cf-' + key + '-summary').value.trim();
+  const points  = document.getElementById('cf-' + key + '-points').value
+    .split('\n').map(s => s.trim()).filter(Boolean);
+  customCards[key].push({ name, icon, color, summary, points });
+  saveCustomNotes();
+  closeCardForm(key);
+  renderCustomCards();
+}
+
+function deleteCustomCard(key, i) {
+  customCards[key].splice(i, 1);
+  saveCustomNotes();
+  renderCustomCards();
+}
+
+function injectCardForms() {
+  ['cond','lang','tool'].forEach(key => {
+    const target = document.getElementById('cardForm-' + key);
+    if (!target) return;
+    target.innerHTML = `
+      <div style="background:var(--bg3);border:1px solid var(--accent-dim);border-radius:var(--radius2);padding:12px 14px;display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <div style="font-family:'Cinzel',serif;font-size:12px;color:var(--accent);letter-spacing:0.06em">NEW CARD</div>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px">Name *</label>
+            <input class="add-custom-input" id="cf-${key}-name" placeholder="Card title..." style="width:100%"
+              onkeydown="if(event.key==='Enter')saveCustomCard('${key}')">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px">Icon</label>
+            <input class="add-custom-input" id="cf-${key}-icon" value="📌" style="width:52px;text-align:center;font-size:16px">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px">Color</label>
+            <input type="color" id="cf-${key}-color" value="#c8a96e"
+              style="width:40px;height:32px;border:1px solid var(--border);border-radius:4px;padding:2px;background:var(--bg2);cursor:pointer">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px">Summary <span style="font-weight:400;text-transform:none">(optional tagline)</span></label>
+          <input class="add-custom-input" id="cf-${key}-summary" placeholder="One-line description..." style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:3px">Bullet points <span style="font-weight:400;text-transform:none">(one per line)</span></label>
+          <textarea class="add-custom-input" id="cf-${key}-points" rows="3"
+            placeholder="First point&#10;Second point&#10;..."
+            style="width:100%;resize:vertical;font-family:'Rajdhani',sans-serif;font-size:13px;line-height:1.5"></textarea>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn small" onclick="closeCardForm('${key}')">Cancel</button>
+          <button class="btn small primary" onclick="saveCustomCard('${key}')">Save Card</button>
+        </div>
+      </div>`;
   });
 }
 
@@ -741,12 +879,7 @@ function deleteCustomNote(key, i) {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-function _doInit() {
-  loadCustomNotes();
-  renderConditions();
-  renderLanguages();
-  renderTools();
-  renderCustomNotes();
+function _restoreSection() {
   try {
     const sec = localStorage.getItem('thekodia_ref_section');
     if (sec && document.getElementById('sec-' + sec)) {
@@ -755,8 +888,22 @@ function _doInit() {
     }
   } catch {}
 }
-if (localStorage.getItem('thekodia_ref_notes')) _doInit();
-else window.addEventListener('thekodiaReady', _doInit);
+
+// Render static data immediately — no localStorage needed
+renderConditions();
+renderLanguages();
+renderTools();
+injectCardForms();
+_restoreSection();
+
+// Load user data (notes + cards); re-run after server sync to pick up persisted data
+function _loadUserData() {
+  loadCustomNotes();
+  renderCustomNotes();
+  renderCustomCards();
+}
+_loadUserData();
+window.addEventListener('thekodiaReady', _loadUserData);
 </script>
 <script src="/thekodia-storage.js"></script>
 <script src="/thekodia-settings.js"></script>
