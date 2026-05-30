@@ -603,6 +603,8 @@ body { overflow-x: hidden; }
         <button class="btn" style="border-color:var(--amber);color:var(--amber)" onclick="rollGroupInitiative()">⚄ Roll Groups</button>
       </div>
       <button class="btn" onclick="typeof pywebview!=='undefined' ? pywebview.api.open_player_display() : window.open('http://localhost:5000/thekodia-player-display.html')">Player View</button>
+      <button class="btn" onclick="typeof pywebview!=='undefined' ? pywebview.api.open_player_panel() : window.open('http://localhost:5000/thekodia-popout-player-panel.html','_blank','width=620,height=400')" title="Compact player panel — combat turn & ambient clock">Player Panel ⊕</button>
+      <button class="btn" onclick="typeof pywebview!=='undefined' ? pywebview.api.open_initiative() : window.open('http://localhost:5000/thekodia-popout-initiative.html','_blank','width=360,height=620')" title="Read-only initiative order popout">Initiative ⊕</button>
     </div>
 
     <!-- Turn Banner -->

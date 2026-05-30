@@ -23,15 +23,57 @@ URL = 'http://localhost:5000'
 
 class Api:
     def open_player_display(self):
-        """Open the player-facing display as a second always-on-top PyWebView window."""
+        """Open the full player-facing display as a second always-on-top window."""
         for w in webview.windows:
             if w.title == 'Thekodia — Player View':
-                return  # already open, don't duplicate
+                return
         webview.create_window(
             'Thekodia — Player View',
             f'{URL}/thekodia-player-display.html',
             width=1280,
             height=720,
+            resizable=True,
+            on_top=True,
+        )
+
+    def open_player_panel(self):
+        """Open the compact player-panel popout (combat/ambient) as an always-on-top window."""
+        for w in webview.windows:
+            if w.title == 'Thekodia — Player Panel':
+                return
+        webview.create_window(
+            'Thekodia — Player Panel',
+            f'{URL}/thekodia-popout-player-panel.html',
+            width=620,
+            height=400,
+            resizable=True,
+            on_top=True,
+        )
+
+    def open_initiative(self):
+        """Open the read-only initiative tracker popout as an always-on-top window."""
+        for w in webview.windows:
+            if w.title == 'Thekodia — Initiative':
+                return
+        webview.create_window(
+            'Thekodia — Initiative',
+            f'{URL}/thekodia-popout-initiative.html',
+            width=360,
+            height=620,
+            resizable=True,
+            on_top=True,
+        )
+
+    def open_dice(self):
+        """Open the dice roller popout as an always-on-top window."""
+        for w in webview.windows:
+            if w.title == 'Thekodia — Dice':
+                return
+        webview.create_window(
+            'Thekodia — Dice',
+            f'{URL}/thekodia-popout-dice.html',
+            width=400,
+            height=580,
             resizable=True,
             on_top=True,
         )

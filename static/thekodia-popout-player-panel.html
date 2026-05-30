@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thekodia — Player Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #0f1219;
+  --bg3: #161a24;
+  --border: #1e2535;
+  --border2: #2a3448;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #5a4428;
+  --red: #e05555;
+  --green: #4caf7d;
+  --blue: #5b8de8;
+  --purple: #9b72cf;
+  --teal: #4ecdc4;
+  --amber: #f0a500;
+  --text: #e8e0d0;
+  --text2: #8a8070;
+  --text3: #3a3428;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* ── MIDDLE AREA ──────────────────────────────────────── */
+.middle-area {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── COMBAT MODE ─────────────────────────────────────── */
+.combat-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 24px;
+}
+
+.round-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  color: var(--text2);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.active-turn-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(90deg, rgba(200,169,110,0.08), transparent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 10px;
+  padding: 10px 20px 10px 12px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.active-thumb {
+  width: 52px; height: 52px;
+  border-radius: 8px;
+  background: var(--bg3);
+  border: 2px solid var(--accent-dim);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.active-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.active-info { flex: 1; }
+.active-label { font-size: 11px; color: var(--accent-dim); text-transform: uppercase; letter-spacing: 0.12em; }
+.active-name { font-family: 'Cinzel', serif; font-size: 22px; color: var(--accent2); line-height: 1.1; }
+.active-conditions { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 4px; }
+
+.cond-pill {
+  font-size: 10px; font-weight: 600; padding: 1px 7px;
+  border-radius: 3px; text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.active-hp-bar { width: 80px; }
+.hp-bar-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; text-align: center; }
+.hp-bar-track {
+  height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden;
+  border: 1px solid var(--border2);
+}
+.hp-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+.deck-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.deck-card {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.deck-thumb {
+  width: 30px; height: 30px;
+  border-radius: 5px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.deck-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.deck-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+.deck-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); }
+
+/* ── AMBIENT MODE ────────────────────────────────────── */
+.ambient-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.ambient-time-block { text-align: center; }
+
+.ambient-time {
+  font-family: 'Cinzel', serif;
+  font-size: 48px;
+  color: var(--accent2);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.ambient-date {
+  font-size: 16px;
+  color: var(--text2);
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
+.ambient-info-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.ambient-info-block { text-align: center; }
+
+.ambient-info-val {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--text);
+}
+
+.ambient-info-label {
+  font-size: 11px;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 3px;
+}
+
+.ambient-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border2);
+}
+
+.event-block {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.event-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+.event-name { font-family: 'Cinzel', serif; font-size: 16px; color: var(--accent); margin-top: 2px; }
+.event-countdown { font-family: 'Cinzel', serif; font-size: 24px; color: var(--amber); margin-top: 4px; }
+
+.moon-row { display: flex; gap: 20px; align-items: center; }
+.moon-block { text-align: center; }
+.moon-phase { font-size: 24px; }
+.moon-name { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+.moon-day { font-size: 12px; color: var(--text3); }
+
+.weather-icon { font-size: 32px; }
+.weather-desc { font-size: 14px; color: var(--text2); margin-top: 4px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="middle-area">
+  <!-- Combat view -->
+  <div class="combat-view" id="combatView" style="display:none">
+    <div class="round-badge" id="roundBadge">Round 1</div>
+    <div class="active-turn-block" id="activeTurnBlock">
+      <div class="active-thumb" id="activeThumb">⚔</div>
+      <div class="active-info">
+        <div class="active-label">Current Turn</div>
+        <div class="active-name" id="activeName">—</div>
+        <div class="active-conditions" id="activeConditions"></div>
+      </div>
+      <div class="active-hp-bar" id="activeHPWrap" style="display:none">
+        <div class="hp-bar-label">HP</div>
+        <div class="hp-bar-track">
+          <div class="hp-bar-fill" id="activeHPBar"></div>
+        </div>
+      </div>
+    </div>
+    <div class="deck-row" id="deckRow"></div>
+  </div>
+
+  <!-- Ambient view -->
+  <div class="ambient-view" id="ambientView">
+    <div class="ambient-time-block">
+      <div class="ambient-time" id="ambientTime">—</div>
+      <div class="ambient-date" id="ambientDate">—</div>
+    </div>
+    <div class="ambient-info-row">
+      <div class="ambient-info-block" id="ambientWeatherBlock">
+        <div class="weather-icon" id="ambientWeatherIcon">☀</div>
+        <div class="weather-desc" id="ambientWeatherDesc">Clear skies</div>
+      </div>
+      <div class="ambient-divider" id="moonDivider"></div>
+      <div class="moon-row" id="moonRow"></div>
+    </div>
+    <div class="event-block" id="ambientEventBlock" style="display:none">
+      <div class="event-label" id="ambientEventLabel">Until Event</div>
+      <div class="event-name" id="ambientEventName">—</div>
+      <div class="event-countdown" id="ambientEventCountdown">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const _rawSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings') || '{}'); } catch { return {}; } })();
+const _cal = _rawSettings.calendar || {};
+const _pd  = _rawSettings.playerDisplay || {};
+
+const THEKODIA_MONTHS = Array.isArray(_cal.months) && _cal.months.length > 0
+  ? _cal.months
+  : ['Wahuary','Dosuary','Tresuary','Nneuary','Wuuary',
+     'Situary','Sietuary','Octuary','Tisauary','Shiuary',
+     'Hdashuary','Docuary'];
+const DAYS_PER_MONTH_DISPLAY = (_cal.daysPerMonth > 0) ? _cal.daysPerMonth : 28;
+const DISPLAY_ERA_NAME = ((_cal.eraName || '').trim()) || 'CE';
+
+const SHOW_HP_BARS    = _pd.showHpBars    !== false;
+const SHOW_CONDITIONS = _pd.showConditions !== false;
+const MASK_ENEMIES    = !!_pd.maskEnemies;
+
+const _savedMoons = _rawSettings.moons;
+const MOON_DATA = Array.isArray(_savedMoons) && _savedMoons.length > 0
+  ? _savedMoons.map(m => ({ name: m.name, cycle: m.cycle }))
+  : [{ name: 'Nox', cycle: 14 }, { name: 'Tharis', cycle: 24 }, { name: 'Cerath', cycle: 36 }];
+
+const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+
+// ── STATE ────────────────────────────────────────────────
+let displayMode = 'ambient';
+let weather = { icon: '☀', desc: 'Clear skies' };
+let eventData = null;
+let combatState = null;
+let clockState = null;
+
+function loadState() {
+  try { weather = JSON.parse(localStorage.getItem('thekodia_weather') || '{"icon":"☀","desc":"Clear skies"}'); } catch {}
+  try { eventData = JSON.parse(localStorage.getItem('thekodia_event') || 'null'); } catch {}
+  try { const r = localStorage.getItem('thekodia_display_state'); if (r) combatState = JSON.parse(r); } catch {}
+  try { const r = localStorage.getItem('thekodia_clock'); if (r) clockState = JSON.parse(r); } catch {}
+}
+
+// ── CLOCK HELPERS ────────────────────────────────────────
+function getClockDisplay() {
+  if (!clockState) return { time: '—:—', date: `— ${DISPLAY_ERA_NAME}` };
+  const { hour, minute, day, month, year } = clockState;
+  const h = String(hour||0).padStart(2,'0');
+  const m = String(minute||0).padStart(2,'0');
+  const monthName = THEKODIA_MONTHS[(month||1)-1] || THEKODIA_MONTHS[0] || '?';
+  return { time: `${h}:${m}`, date: `Day ${day||1} of ${monthName}, ${year||1} ${DISPLAY_ERA_NAME}` };
+}
+
+function getMoonPhase(cycleDays, currentDay) {
+  return MOON_PHASES[Math.floor(((currentDay % cycleDays) / cycleDays) * 8) % 8];
+}
+
+function getMoonDisplay() {
+  const dpm = DAYS_PER_MONTH_DISPLAY;
+  const day = clockState ? (clockState.day + (clockState.month-1)*dpm + (clockState.year-1)*dpm*12) : 1;
+  return MOON_DATA.map(m => ({
+    name: m.name,
+    phase: getMoonPhase(m.cycle, day),
+    dayInCycle: (day % m.cycle) + 1,
+    cycle: m.cycle
+  }));
+}
+
+function getEventDisplay() {
+  if (!eventData) return null;
+  const rem = eventData.remainingMins || 0;
+  if (rem <= 0) return { name: eventData.name, text: 'NOW', past: true };
+  const days  = Math.floor(rem / 1440);
+  const hours = Math.floor((rem % 1440) / 60);
+  const mins  = rem % 60;
+  const parts = [];
+  if (days)  parts.push(`${days}d`);
+  if (hours) parts.push(`${hours}h`);
+  if (mins || !parts.length) parts.push(`${mins}m`);
+  return { name: eventData.name, text: parts.join(' '), past: false };
+}
+
+// ── RENDER ───────────────────────────────────────────────
+function renderMiddle() {
+  const inCombat = displayMode === 'combat' && combatState && combatState.active;
+  document.getElementById('combatView').style.display  = inCombat ? 'flex' : 'none';
+  document.getElementById('ambientView').style.display = inCombat ? 'none' : 'flex';
+  if (inCombat) renderCombatMiddle();
+  else renderAmbientMiddle();
+}
+
+function renderCombatMiddle() {
+  const cs = combatState;
+  if (!cs || !cs.current) return;
+  const c = cs.current;
+
+  document.getElementById('roundBadge').textContent = `Round ${cs.round || 1}`;
+
+  const thumbEl = document.getElementById('activeThumb');
+  thumbEl.innerHTML = c.thumb ? `<img src="${c.thumb}">` : (c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀');
+
+  const displayLabel = (MASK_ENEMIES && c.type !== 'player' && c.type !== 'npc') ? '???' : c.displayName;
+  document.getElementById('activeName').textContent = displayLabel;
+
+  const condEl = document.getElementById('activeConditions');
+  if (SHOW_CONDITIONS) {
+    condEl.innerHTML = (c.conditions||[]).map(cond =>
+      `<span class="cond-pill" style="background:${cond.color}22;border:1px solid ${cond.color}55;color:${cond.color}">${cond.name}</span>`
+    ).join('');
+  } else {
+    condEl.innerHTML = '';
+  }
+
+  if (SHOW_HP_BARS && c.type === 'player' && c.hpPct !== undefined) {
+    document.getElementById('activeHPWrap').style.display = 'block';
+    const bar = document.getElementById('activeHPBar');
+    const pct = Math.round(Math.min(1, Math.max(0, c.hpPct)) * 100);
+    bar.style.width = pct + '%';
+    bar.style.background = pct > 60 ? 'var(--green)' : pct > 30 ? 'var(--amber)' : 'var(--red)';
+  } else {
+    document.getElementById('activeHPWrap').style.display = 'none';
+  }
+
+  const deck = cs.deck || [];
+  const deckRow = document.getElementById('deckRow');
+  if (!deck.length) { deckRow.style.display = 'none'; return; }
+  deckRow.style.display = 'flex';
+  deckRow.innerHTML = deck.slice(0,2).map((d, i) => {
+    const dLabel = (MASK_ENEMIES && d.type !== 'player' && d.type !== 'npc') ? '???' : d.displayName;
+    const hpHtml = SHOW_HP_BARS && d.type === 'player' && d.hpPct !== undefined
+      ? `<div class="hp-bar-track" style="width:40px;margin-left:auto">
+          <div class="hp-bar-fill" style="width:${Math.round(d.hpPct*100)}%;background:${d.hpPct>0.6?'var(--green)':d.hpPct>0.3?'var(--amber)':'var(--red)'}"></div>
+         </div>` : '';
+    return `<div class="deck-card">
+      <div class="deck-thumb">${d.thumb ? `<img src="${d.thumb}">` : (d.type==='player'?'🧙':d.type==='npc'?'🗣':'💀')}</div>
+      <div>
+        <div class="deck-label">${i===0?'On Deck':'Then'}</div>
+        <div class="deck-name">${dLabel}</div>
+      </div>
+      ${hpHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderAmbientMiddle() {
+  const clock = getClockDisplay();
+  document.getElementById('ambientTime').textContent = clock.time;
+  document.getElementById('ambientDate').textContent = clock.date;
+  document.getElementById('ambientWeatherIcon').textContent = weather.icon;
+  document.getElementById('ambientWeatherDesc').textContent = weather.desc;
+
+  document.getElementById('moonRow').innerHTML = getMoonDisplay().map(m => `
+    <div class="moon-block">
+      <div class="moon-phase">${m.phase}</div>
+      <div class="moon-name">${m.name}</div>
+      <div class="moon-day">Day ${m.dayInCycle}/${m.cycle}</div>
+    </div>`).join('');
+
+  const ev = getEventDisplay();
+  const evBlock = document.getElementById('ambientEventBlock');
+  if (ev) {
+    evBlock.style.display = 'block';
+    document.getElementById('ambientEventLabel').textContent = ev.past ? 'Event' : 'Until';
+    document.getElementById('ambientEventName').textContent = ev.name;
+    document.getElementById('ambientEventCountdown').textContent = ev.text;
+  } else {
+    evBlock.style.display = 'none';
+  }
+}
+
+function render() {
+  loadState();
+  if (combatState && combatState.mode) displayMode = combatState.mode;
+  renderMiddle();
+}
+
+// ── POLL ─────────────────────────────────────────────────
+let lastStateStr = '';
+setInterval(() => {
+  const raw      = localStorage.getItem('thekodia_display_state') || 'null';
+  const clockRaw = localStorage.getItem('thekodia_clock') || 'null';
+  const eventRaw = localStorage.getItem('thekodia_event') || 'null';
+  const wxRaw    = localStorage.getItem('thekodia_weather') || 'null';
+  const stateStr = raw + clockRaw + eventRaw + wxRaw;
+  if (stateStr !== lastStateStr) {
+    lastStateStr = stateStr;
+    try { combatState = JSON.parse(raw); } catch {}
+    try { clockState  = JSON.parse(clockRaw); } catch {}
+    try { eventData   = JSON.parse(eventRaw); } catch {}
+    try { weather     = JSON.parse(wxRaw); } catch {}
+    render();
+  }
+}, 1000);
+
+render();
+</script>
+</body>
+</html>

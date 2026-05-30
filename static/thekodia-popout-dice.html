@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thekodia — Dice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #0f1219;
+  --bg3: #161a24;
+  --border: #1e2535;
+  --border2: #2a3448;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent-dim: #5a4428;
+  --red: #e05555;
+  --red-dim: #5a2020;
+  --green: #4caf7d;
+  --amber: #f0a500;
+  --purple: #9b72cf;
+  --teal: #4ecdc4;
+  --blue: #5b8de8;
+  --text: #e8e0d0;
+  --text2: #8a8070;
+  --text3: #3a3428;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── RESULT ──────────────────────────────────────────────── */
+.result-area {
+  padding: 14px 16px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  flex-shrink: 0;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-empty {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  color: var(--border2);
+  letter-spacing: 0.1em;
+}
+
+.result-formula {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.result-total {
+  font-family: 'Cinzel', serif;
+  font-size: 60px;
+  line-height: 1;
+  font-weight: 700;
+}
+.result-total.crit { color: var(--amber); }
+.result-total.fail { color: var(--red); }
+.result-total.normal { color: var(--accent2); }
+
+.result-crit-label {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.result-breakdown {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 4px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.die-result {
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  font-weight: 600;
+}
+.die-result.max { border-color: var(--amber); color: var(--amber); background: rgba(240,165,0,0.08); }
+.die-result.min { border-color: var(--red-dim); color: var(--red); background: rgba(224,85,85,0.08); }
+.die-result.dropped { opacity: 0.3; text-decoration: line-through; }
+
+@keyframes rollIn {
+  0%   { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(2deg); }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+.rolling { animation: rollIn 0.3s ease-out; }
+
+/* ── CONTROLS ─────────────────────────────────────────────── */
+.controls-area {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dice-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.die-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  user-select: none;
+}
+.die-btn:hover { transform: translateY(-2px); }
+.die-btn:active { transform: translateY(0); }
+
+.die-icon { font-size: 18px; line-height: 1; }
+.die-label { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text2); margin-top: 2px; }
+
+.die-btn.d4   { --die-color: #4ecdc4; }
+.die-btn.d6   { --die-color: #5b8de8; }
+.die-btn.d8   { --die-color: #9b72cf; }
+.die-btn.d10  { --die-color: #c8a96e; }
+.die-btn.d12  { --die-color: #e07840; }
+.die-btn.d20  { --die-color: #e05555; }
+.die-btn.d100 { --die-color: #4caf7d; }
+.die-btn:hover { border-color: var(--die-color); }
+.die-btn:hover .die-label { color: var(--die-color); }
+
+.die-count {
+  position: absolute; top: -4px; right: -4px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  font-size: 9px; font-weight: 700;
+  color: var(--accent2);
+  display: none;
+  align-items: center; justify-content: center;
+}
+.die-count.visible { display: flex; }
+
+.options-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.opt-label {
+  font-size: 11px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mod-input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  text-align: center;
+  padding: 3px 6px;
+  width: 58px;
+}
+.mod-input:focus { outline: none; border-color: var(--accent-dim); }
+
+.toggle-group { display: flex; gap: 3px; }
+
+.tog-btn {
+  padding: 3px 9px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.tog-btn:hover { border-color: var(--border2); color: var(--text2); }
+.tog-btn.adv.on { background: rgba(76,175,125,0.2); border-color: var(--green); color: var(--green); }
+.tog-btn.dis.on { background: rgba(224,85,85,0.2); border-color: var(--red); color: var(--red); }
+.tog-btn.drop.on { background: rgba(155,114,207,0.2); border-color: var(--purple); color: var(--purple); }
+
+.formula-display {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.04em;
+  text-align: center;
+  min-height: 16px;
+}
+
+.action-row {
+  display: flex;
+  gap: 6px;
+}
+
+.roll-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent2);
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.roll-btn:hover { background: #8a7040; }
+.roll-btn:active { transform: scale(0.98); }
+
+.small-btn {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.small-btn:hover { border-color: var(--accent-dim); color: var(--text); }
+
+/* ── CUSTOM FORMULA ─────────────────────────────────────── */
+.formula-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.formula-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  padding: 5px 9px;
+}
+.formula-input:focus { outline: none; border-color: var(--accent-dim); }
+.formula-input::placeholder { color: var(--text3); font-size: 12px; font-family: 'Rajdhani', sans-serif; }
+
+.formula-roll-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent-dim);
+  background: transparent;
+  color: var(--accent);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+}
+.formula-roll-btn:hover { background: var(--accent-dim); color: var(--accent2); }
+
+/* ── HISTORY ──────────────────────────────────────────────── */
+.history-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.history-area::-webkit-scrollbar { width: 4px; }
+.history-area::-webkit-scrollbar-track { background: transparent; }
+.history-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 6px;
+  flex-shrink: 0;
+}
+.history-title {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.history-clear {
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Rajdhani', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.history-clear:hover { color: var(--red); }
+
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 7px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.history-entry:hover { border-color: var(--accent-dim); }
+
+.h-total {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 30px;
+  text-align: center;
+}
+.h-total.crit { color: var(--amber); }
+.h-total.fail { color: var(--red); }
+.h-total.normal { color: var(--accent2); }
+
+.h-formula { font-size: 11px; color: var(--text2); flex: 1; }
+.h-breakdown { font-size: 10px; color: var(--text3); }
+
+.history-empty {
+  font-size: 12px;
+  color: var(--text3);
+  padding: 8px 4px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.06em;
+}
+  </style>
+</head>
+<body>
+
+<!-- Result display -->
+<div class="result-area" id="resultArea">
+  <div class="result-empty" id="resultEmpty">Roll the Dice</div>
+  <div id="resultContent" style="display:none;width:100%;text-align:center">
+    <div class="result-formula" id="resultFormula"></div>
+    <div class="result-total normal" id="resultTotal">0</div>
+    <div class="result-crit-label" id="resultCritLabel"></div>
+    <div class="result-breakdown" id="resultBreakdown"></div>
+  </div>
+</div>
+
+<!-- Dice controls -->
+<div class="controls-area">
+  <div class="dice-grid">
+    <div class="die-btn d4"   onclick="addDie(4)">   <div class="die-count" id="cnt4"></div>   <div class="die-icon">⬦</div><div class="die-label">d4</div>   </div>
+    <div class="die-btn d6"   onclick="addDie(6)">   <div class="die-count" id="cnt6"></div>   <div class="die-icon">⬡</div><div class="die-label">d6</div>   </div>
+    <div class="die-btn d8"   onclick="addDie(8)">   <div class="die-count" id="cnt8"></div>   <div class="die-icon">◈</div><div class="die-label">d8</div>   </div>
+    <div class="die-btn d10"  onclick="addDie(10)">  <div class="die-count" id="cnt10"></div>  <div class="die-icon">⬟</div><div class="die-label">d10</div>  </div>
+    <div class="die-btn d12"  onclick="addDie(12)">  <div class="die-count" id="cnt12"></div>  <div class="die-icon">⬠</div><div class="die-label">d12</div>  </div>
+    <div class="die-btn d20"  onclick="addDie(20)">  <div class="die-count" id="cnt20"></div>  <div class="die-icon">⬡</div><div class="die-label">d20</div>  </div>
+    <div class="die-btn d100" onclick="addDie(100)"> <div class="die-count" id="cnt100"></div> <div class="die-icon">⊙</div><div class="die-label">d100</div> </div>
+  </div>
+
+  <div class="options-row">
+    <div class="opt-label">Mod</div>
+    <input class="mod-input" type="number" id="modInput" value="0">
+    <div class="opt-label" style="margin-left:4px">ADV</div>
+    <div class="toggle-group">
+      <button class="tog-btn adv" id="advBtn" onclick="toggleAdv('adv')">ADV</button>
+      <button class="tog-btn dis" id="disBtn" onclick="toggleAdv('dis')">DIS</button>
+    </div>
+    <div class="opt-label" style="margin-left:4px">Drop</div>
+    <div class="toggle-group">
+      <button class="tog-btn drop" id="dropLoBtn" onclick="toggleDrop('low')">Lo</button>
+      <button class="tog-btn drop" id="dropHiBtn" onclick="toggleDrop('high')">Hi</button>
+    </div>
+  </div>
+
+  <div class="formula-display" id="formulaDisplay">—</div>
+
+  <div class="action-row">
+    <button class="roll-btn" id="rollBtn" onclick="rollDice()" disabled>Roll</button>
+    <button class="small-btn" onclick="reroll()" title="Reroll same formula">↺</button>
+    <button class="small-btn" onclick="clearDice()">Clear</button>
+  </div>
+</div>
+
+<!-- Custom formula -->
+<div class="formula-row">
+  <input class="formula-input" type="text" id="formulaInput" placeholder="2d6+5  or  4d6dl1  or  1d20+3"
+         onkeydown="if(event.key==='Enter')rollFormula()">
+  <button class="formula-roll-btn" onclick="rollFormula()">Roll</button>
+</div>
+
+<!-- History -->
+<div class="history-area">
+  <div class="history-header">
+    <div class="history-title">Roll History</div>
+    <button class="history-clear" onclick="clearHistory()">Clear</button>
+  </div>
+  <div id="historyList">
+    <div class="history-empty">No rolls yet</div>
+  </div>
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────
+let diceCounts = {};
+let advMode  = 'none';
+let dropMode = 'none';
+let rollHistory = [];
+let lastFormula = null;
+
+const HISTORY_KEY = 'thekodia_dice_history';
+
+function loadHistory() {
+  try { rollHistory = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { rollHistory = []; }
+}
+function saveHistory() {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(rollHistory.slice(0, 100))); } catch {}
+}
+
+// ── DICE LOGIC ───────────────────────────────────────────
+function rollOne(sides) { return Math.floor(Math.random() * sides) + 1; }
+
+function parseFormula(formula) {
+  const f = formula.trim().toLowerCase().replace(/\s/g, '');
+  const match = f.match(/^(\d+)d(\d+)(dl(\d+))?(dh(\d+))?([+-]\d+)?$/);
+  if (!match) return null;
+  return {
+    count: parseInt(match[1]),
+    sides: parseInt(match[2]),
+    dropLow: match[4]  ? parseInt(match[4]) : 0,
+    dropHigh: match[6] ? parseInt(match[6]) : 0,
+    mod: match[7] ? parseInt(match[7]) : 0,
+  };
+}
+
+function executeRoll(count, sides, mod, drop, advOverride) {
+  const adv = advOverride || advMode;
+  let rolls = [];
+
+  if (sides === 20 && count === 1 && adv !== 'none') {
+    const r1 = rollOne(20), r2 = rollOne(20);
+    const kept    = adv === 'adv' ? Math.max(r1, r2) : Math.min(r1, r2);
+    const dropped = adv === 'adv' ? Math.min(r1, r2) : Math.max(r1, r2);
+    rolls = [{ val: kept, dropped: false }, { val: dropped, dropped: true }];
+  } else {
+    for (let i = 0; i < count; i++) rolls.push({ val: rollOne(sides), dropped: false });
+    if (drop === 'low'  || dropMode === 'low')  { [...rolls].sort((a,b) => a.val-b.val)[0].dropped = true; }
+    if (drop === 'high' || dropMode === 'high') { [...rolls].sort((a,b) => b.val-a.val)[0].dropped = true; }
+  }
+
+  const total  = rolls.filter(r => !r.dropped).reduce((s, r) => s + r.val, 0) + mod;
+  const isCrit = sides === 20 && rolls.some(r => !r.dropped && r.val === 20);
+  const isFail = sides === 20 && rolls.filter(r => !r.dropped).every(r => r.val === 1);
+  return { rolls, total, mod, isCrit, isFail };
+}
+
+// ── UI ───────────────────────────────────────────────────
+function addDie(sides) {
+  diceCounts[sides] = (diceCounts[sides] || 0) + 1;
+  updateBadges();
+  updateFormula();
+}
+
+function updateBadges() {
+  [4,6,8,10,12,20,100].forEach(s => {
+    const el = document.getElementById('cnt' + s);
+    const n  = diceCounts[s] || 0;
+    el.textContent = n;
+    el.classList.toggle('visible', n > 0);
+  });
+}
+
+function buildFormula() {
+  const parts = Object.entries(diceCounts)
+    .filter(([,c]) => c > 0)
+    .sort(([a],[b]) => parseInt(a) - parseInt(b))
+    .map(([s,c]) => `${c}d${s}`);
+  if (!parts.length) return null;
+  const mod = parseInt(document.getElementById('modInput').value) || 0;
+  let f = parts.join('+');
+  if (mod > 0) f += `+${mod}`;
+  if (mod < 0) f += `${mod}`;
+  if (dropMode === 'low')   f += ' (dl1)';
+  if (dropMode === 'high')  f += ' (dh1)';
+  if (advMode !== 'none')   f += ` (${advMode.toUpperCase()})`;
+  return f;
+}
+
+function updateFormula() {
+  const f = buildFormula();
+  document.getElementById('formulaDisplay').textContent = f || '—';
+  document.getElementById('rollBtn').disabled = !f;
+}
+
+function toggleAdv(mode) {
+  advMode = advMode === mode ? 'none' : mode;
+  document.getElementById('advBtn').classList.toggle('on', advMode === 'adv');
+  document.getElementById('disBtn').classList.toggle('on', advMode === 'dis');
+  updateFormula();
+}
+
+function toggleDrop(mode) {
+  dropMode = dropMode === mode ? 'none' : mode;
+  document.getElementById('dropLoBtn').classList.toggle('on', dropMode === 'low');
+  document.getElementById('dropHiBtn').classList.toggle('on', dropMode === 'high');
+  updateFormula();
+}
+
+function clearDice() {
+  diceCounts = {};
+  advMode = dropMode = 'none';
+  document.getElementById('advBtn').classList.remove('on');
+  document.getElementById('disBtn').classList.remove('on');
+  document.getElementById('dropLoBtn').classList.remove('on');
+  document.getElementById('dropHiBtn').classList.remove('on');
+  document.getElementById('modInput').value = 0;
+  updateBadges();
+  updateFormula();
+}
+
+// ── ROLLING ──────────────────────────────────────────────
+function rollDice() {
+  const mod = parseInt(document.getElementById('modInput').value) || 0;
+  const diceList = Object.entries(diceCounts).filter(([,c]) => c > 0);
+  if (!diceList.length) return;
+
+  let allRolls = [], grandTotal = mod, anyCrit = false, anyFail = false, parts = [];
+
+  diceList.forEach(([sides, count]) => {
+    const r = executeRoll(count, parseInt(sides), 0, null, null);
+    allRolls.push({ sides: parseInt(sides), rolls: r.rolls });
+    grandTotal += r.rolls.filter(x => !x.dropped).reduce((s, x) => s + x.val, 0);
+    if (r.isCrit) anyCrit = true;
+    if (r.isFail) anyFail = true;
+    parts.push(`${count}d${sides}`);
+  });
+
+  let formula = parts.join('+');
+  if (mod > 0) formula += `+${mod}`;
+  if (mod < 0) formula += `${mod}`;
+
+  lastFormula = { type: 'counts', diceCounts: {...diceCounts}, mod, advMode, dropMode };
+  showResult(grandTotal, formula, allRolls, mod, anyCrit, anyFail);
+  pushHistory(grandTotal, formula, allRolls, mod, anyCrit, anyFail);
+}
+
+function rollFormula() {
+  const raw = document.getElementById('formulaInput').value.trim();
+  if (!raw) return;
+  const parsed = parseFormula(raw);
+  if (!parsed) {
+    const inp = document.getElementById('formulaInput');
+    inp.style.borderColor = 'var(--red)';
+    setTimeout(() => inp.style.borderColor = '', 1000);
+    return;
+  }
+  const r = executeRoll(parsed.count, parsed.sides, parsed.mod,
+    parsed.dropLow ? 'low' : parsed.dropHigh ? 'high' : 'none', 'none');
+  lastFormula = { type: 'formula', raw };
+  showResult(r.total, raw, [{ sides: parsed.sides, rolls: r.rolls }], parsed.mod, r.isCrit, r.isFail);
+  pushHistory(r.total, raw, [{ sides: parsed.sides, rolls: r.rolls }], parsed.mod, r.isCrit, r.isFail);
+}
+
+function reroll() {
+  if (!lastFormula) return;
+  if (lastFormula.type === 'formula') rollFormula();
+  else rollDice();
+}
+
+// ── DISPLAY ──────────────────────────────────────────────
+function showResult(total, formula, allRolls, mod, isCrit, isFail) {
+  document.getElementById('resultEmpty').style.display = 'none';
+  document.getElementById('resultContent').style.display = 'block';
+  document.getElementById('resultFormula').textContent = formula.toUpperCase();
+
+  const totalEl = document.getElementById('resultTotal');
+  totalEl.textContent = total;
+  totalEl.className = 'result-total ' + (isCrit ? 'crit' : isFail ? 'fail' : 'normal');
+  totalEl.classList.add('rolling');
+  setTimeout(() => totalEl.classList.remove('rolling'), 400);
+
+  const critEl = document.getElementById('resultCritLabel');
+  if (isCrit) { critEl.textContent = '✦ CRITICAL HIT ✦'; critEl.style.color = 'var(--amber)'; }
+  else if (isFail) { critEl.textContent = '✦ CRITICAL FAIL ✦'; critEl.style.color = 'var(--red)'; }
+  else { critEl.textContent = ''; }
+
+  document.getElementById('resultBreakdown').innerHTML = allRolls.map(group => {
+    const max = group.sides;
+    return group.rolls.map(r => {
+      const cls = r.dropped ? 'die-result dropped'
+                : r.val === max ? 'die-result max'
+                : r.val === 1  ? 'die-result min'
+                : 'die-result';
+      return `<span class="${cls}">${r.val}</span>`;
+    }).join('');
+  }).join('<span style="color:var(--text3);padding:0 3px">+</span>');
+}
+
+// ── HISTORY ──────────────────────────────────────────────
+function pushHistory(total, formula, allRolls, mod, isCrit, isFail) {
+  rollHistory.unshift({ total, formula, allRolls, mod, isCrit, isFail });
+  if (rollHistory.length > 100) rollHistory = rollHistory.slice(0, 100);
+  saveHistory();
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!rollHistory.length) {
+    el.innerHTML = '<div class="history-empty">No rolls yet</div>';
+    return;
+  }
+  el.innerHTML = rollHistory.map((h, i) => {
+    const cls = h.isCrit ? 'crit' : h.isFail ? 'fail' : 'normal';
+    const bd  = h.allRolls.map(g => g.rolls.filter(r => !r.dropped).map(r => r.val).join(',')).join('|');
+    return `<div class="history-entry" onclick="replayRoll(${i})">
+      <div class="h-total ${cls}">${h.total}</div>
+      <div>
+        <div class="h-formula">${h.formula.toUpperCase()}</div>
+        <div class="h-breakdown">[${bd}]${h.mod ? (h.mod > 0 ? '+' : '') + h.mod : ''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function replayRoll(i) {
+  const h = rollHistory[i];
+  showResult(h.total, h.formula, h.allRolls, h.mod, h.isCrit, h.isFail);
+}
+
+function clearHistory() {
+  rollHistory = [];
+  saveHistory();
+  renderHistory();
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id !== 'formulaInput') rollDice();
+  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); reroll(); }
+});
+
+// ── INIT ─────────────────────────────────────────────────
+loadHistory();
+renderHistory();
+updateFormula();
+</script>
+</body>
+</html>
