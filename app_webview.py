@@ -37,21 +37,23 @@ class Api:
         )
 
     def open_player_panel(self):
-        """Open the compact player-panel popout (combat/ambient) as an always-on-top window."""
-        for w in webview.windows:
-            if w.title == 'Thekodia — Player Panel':
-                return
+        """Open the compact player-panel popout (combat/ambient) as an always-on-top transparent window.
+        Multiple panels can be opened simultaneously for players at different seats."""
+        existing = sum(1 for w in webview.windows if w.title.startswith('Thekodia — Player Panel'))
+        title = f'Thekodia — Player Panel {existing + 1}' if existing else 'Thekodia — Player Panel'
         webview.create_window(
-            'Thekodia — Player Panel',
+            title,
             f'{URL}/thekodia-popout-player-panel.html',
-            width=620,
-            height=400,
+            width=580,
+            height=220,
             resizable=True,
             on_top=True,
+            transparent=True,
+            frameless=True,
         )
 
     def open_initiative(self):
-        """Open the read-only initiative tracker popout as an always-on-top window."""
+        """Open the interactive initiative tracker popout as an always-on-top transparent window."""
         for w in webview.windows:
             if w.title == 'Thekodia — Initiative':
                 return
@@ -62,6 +64,8 @@ class Api:
             height=620,
             resizable=True,
             on_top=True,
+            transparent=True,
+            frameless=True,
         )
 
     def open_dice(self):

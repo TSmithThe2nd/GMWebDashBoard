@@ -63,6 +63,15 @@ body {
 }
 
 /* ── HOVER ROTATE BUTTON ─────────────────────────────── */
+.drag-strip {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 10px;
+  -webkit-app-region: drag;
+  z-index: 999;
+  cursor: move;
+}
+
 .rotate-btn {
   position: fixed;
   top: 8px;
@@ -274,6 +283,7 @@ body:hover .rotate-btn { opacity: 1; }
 </head>
 <body>
 
+<div class="drag-strip"></div>
 <button class="rotate-btn" onclick="cycleRotation()" title="Rotate view">↻</button>
 
 <div id="outerWrap">
