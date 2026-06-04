@@ -88,6 +88,8 @@ class Api:
             height=580,
             resizable=True,
             on_top=True,
+            transparent=True,
+            frameless=True,
             js_api=self,
         )
 

@@ -30,8 +30,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html { background-color: rgba(0,0,0,0) !important; }
+
 body {
-  background: var(--bg);
+  background-color: rgba(0,0,0,0) !important;
   color: var(--text);
   font-family: 'Rajdhani', sans-serif;
   height: 100vh;
@@ -40,12 +42,44 @@ body {
   flex-direction: column;
 }
 
+/* ── FRAMELESS CONTROLS ──────────────────────────────────── */
+.drag-strip {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 10px;
+  -webkit-app-region: drag;
+  z-index: 999;
+  cursor: move;
+  background: transparent;
+}
+
+.close-btn {
+  position: fixed;
+  top: 8px; right: 8px;
+  z-index: 1000;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: rgba(10,12,16,0.88);
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 0.2s, border-color 0.15s, color 0.15s;
+  -webkit-app-region: no-drag;
+}
+body:hover .close-btn { opacity: 1; }
+.close-btn:hover { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.12); }
+
 /* ── RESULT ──────────────────────────────────────────────── */
 .result-area {
-  padding: 14px 16px 10px;
+  padding: 22px 16px 10px;
   text-align: center;
   border-bottom: 1px solid var(--border);
-  background: var(--bg2);
+  background: rgba(15,18,25,0.88);
   flex-shrink: 0;
   min-height: 110px;
   display: flex;
@@ -123,6 +157,7 @@ body {
   flex-direction: column;
   gap: 8px;
   border-bottom: 1px solid var(--border);
+  background: rgba(10,12,16,0.88);
 }
 
 .dice-grid {
@@ -140,7 +175,7 @@ body {
   height: 52px;
   border-radius: var(--radius);
   border: 1px solid var(--border2);
-  background: var(--bg3);
+  background: rgba(22,26,36,0.88);
   cursor: pointer;
   transition: all 0.15s;
   position: relative;
@@ -190,7 +225,7 @@ body {
 }
 
 .mod-input {
-  background: var(--bg3);
+  background: rgba(22,26,36,0.88);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
@@ -278,11 +313,12 @@ body {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  background: rgba(10,12,16,0.88);
 }
 
 .formula-input {
   flex: 1;
-  background: var(--bg3);
+  background: rgba(22,26,36,0.88);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
@@ -316,6 +352,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  background: rgba(10,12,16,0.88);
 }
 .history-area::-webkit-scrollbar { width: 4px; }
 .history-area::-webkit-scrollbar-track { background: transparent; }
@@ -354,7 +391,7 @@ body {
   padding: 4px 7px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: var(--bg3);
+  background: rgba(22,26,36,0.88);
   cursor: pointer;
   transition: border-color 0.15s;
 }
@@ -384,6 +421,9 @@ body {
   </style>
 </head>
 <body>
+
+<div class="drag-strip"></div>
+<button class="close-btn" onclick="typeof pywebview !== 'undefined' ? pywebview.api.close_self() : window.close()" title="Close">✕</button>
 
 <!-- Result display -->
 <div class="result-area" id="resultArea">
