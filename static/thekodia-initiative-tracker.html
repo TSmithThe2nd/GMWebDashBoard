@@ -1996,7 +1996,8 @@ const SYNC_FIELD_LABELS = {
   maxhp: 'Max HP', ac: 'AC', str: 'STR', dex: 'DEX', con: 'CON',
   int: 'INT', wis: 'WIS', cha: 'CHA', speed: 'Speed',
   legMax: 'Leg. Actions', lairActions: 'Lair Actions',
-  attacks: 'Attacks', thumb: 'Image'
+  attacks: 'Attacks', thumb: 'Image',
+  spellSlots: 'Spell Slots', notes: 'Notes'
 };
 
 function syncFromLibrary() {
@@ -2037,6 +2038,18 @@ function syncFromLibrary() {
 
     if ((src.thumb || null) !== (c.thumb || null))
       changes.push({ field: 'thumb', from: null, to: null });
+
+    // Spell slots: library stores max-per-level as plain numbers; combatant stores {max, used} objects
+    const libSlotMaxes = (src.spellSlots || []).map(v => typeof v === 'number' ? v : 0);
+    if (libSlotMaxes.some(v => v > 0)) {
+      const combSlotMaxes = (c.spellSlots || []).map(s => (s && typeof s === 'object') ? s.max : 0);
+      if (libSlotMaxes.some((v, i) => v !== (combSlotMaxes[i] || 0)))
+        changes.push({ field: 'spellSlots', from: null, to: null });
+    }
+
+    const libNotes = [src.spellList ? `Spells: ${src.spellList}` : '', src.notes || ''].filter(Boolean).join(' | ');
+    if (libNotes !== (c.notes || ''))
+      changes.push({ field: 'notes', from: null, to: null });
 
     if (changes.length) syncDiffs.push({ idx: i, name: c.name, libraryName: src.name, changes, src });
   });
@@ -2109,6 +2122,19 @@ function performSync() {
 
     if (d.changes.find(ch => ch.field === 'legMax'))
       c.legCurrent = Math.min(c.legCurrent ?? c.legMax, c.legMax);
+
+    if (d.changes.find(ch => ch.field === 'spellSlots')) {
+      const libSlots = (src.spellSlots || []).map(v => typeof v === 'number' ? v : 0);
+      c.spellSlots = libSlots.map((maxVal, lvl) => {
+        if (maxVal === 0) return null;
+        const existing = c.spellSlots && c.spellSlots[lvl];
+        const usedVal = existing && typeof existing === 'object' ? Math.min(existing.used || 0, maxVal) : 0;
+        return { max: maxVal, used: usedVal };
+      });
+    }
+
+    if (d.changes.find(ch => ch.field === 'notes'))
+      c.notes = [src.spellList ? `Spells: ${src.spellList}` : '', src.notes || ''].filter(Boolean).join(' | ');
   });
 
   closeModal('syncModal');
@@ -2137,7 +2163,20 @@ function loadGroups() {
   }
 }
 
-window.addEventListener('storage', e => { if (e.key === 'thekodia_groups') loadGroups(); });
+window.addEventListener('storage', e => {
+  if (e.key === 'thekodia_groups') { loadGroups(); return; }
+  // Pick up changes written by the initiative popout
+  if (e.key === LIVE_KEY) {
+    let data;
+    try { data = JSON.parse(e.newValue); } catch { return; }
+    if (!data || !Array.isArray(data.combatants) || !data.combatants.length) return;
+    combatants = data.combatants;
+    currentTurnIdx = typeof data.currentTurnIdx === 'number' ? data.currentTurnIdx : -1;
+    round = typeof data.round === 'number' ? data.round : 0;
+    document.getElementById('roundNum').textContent = round || '—';
+    renderList();
+  }
+});
 
 // ── Init ─────────────────────────────────────────────────
 function _doInit() {

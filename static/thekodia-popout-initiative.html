@@ -17,7 +17,10 @@
   --accent-dim: #5a4428;
   --red: #e05555;
   --green: #4caf7d;
+  --green-dim: #1a4030;
   --amber: #f0a500;
+  --blue: #5b8de8;
+  --purple: #9b72cf;
   --text: #e8e0d0;
   --text2: #8a8070;
   --text3: #3a3428;
@@ -36,33 +39,47 @@ body {
   user-select: none;
 }
 
+/* ── Header ─────────────────────────────────────────── */
 .header {
-  padding: 10px 14px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
   background: var(--bg2);
   flex-shrink: 0;
 }
-
 .header-title {
   font-family: 'Cinzel', serif;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--accent);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-
 .round-badge {
   font-family: 'Cinzel', serif;
   font-size: 12px;
   color: var(--text2);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-left: auto;
+  letter-spacing: 0.1em;
 }
+.turn-btns { display: flex; gap: 4px; margin-left: auto; }
+.turn-btn {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.turn-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+.turn-btn.next { border-color: var(--accent-dim); color: var(--accent2); background: rgba(200,169,110,0.08); }
+.turn-btn.next:hover { background: rgba(200,169,110,0.18); }
 
+/* ── Combatant list ──────────────────────────────────── */
 .empty-state {
   flex: 1;
   display: flex;
@@ -73,37 +90,38 @@ body {
   color: var(--text3);
   letter-spacing: 0.08em;
 }
-
 .combatant-list {
   flex: 1;
   overflow-y: auto;
-  padding: 6px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 0;
 }
 .combatant-list::-webkit-scrollbar { width: 4px; }
 .combatant-list::-webkit-scrollbar-track { background: transparent; }
 .combatant-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
+/* ── Combatant row ───────────────────────────────────── */
 .row {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 7px;
-  padding: 7px 10px;
+  padding: 6px 9px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  transition: border-color 0.2s;
+  gap: 8px;
+  transition: border-color 0.15s, background 0.15s;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
-
+.row:hover { border-color: var(--border2); }
 .row.active {
   border-color: var(--accent-dim);
   background: linear-gradient(90deg, rgba(200,169,110,0.08), transparent);
 }
-
 .row.active::before {
   content: '';
   position: absolute;
@@ -111,7 +129,7 @@ body {
   width: 3px;
   background: var(--accent);
 }
-
+.row.selected { border-color: var(--blue); background: rgba(91,141,232,0.07); }
 .row.dead { opacity: 0.38; filter: grayscale(0.5); }
 
 .init-badge {
@@ -119,26 +137,25 @@ body {
   font-size: 14px;
   font-weight: 700;
   color: var(--text2);
-  min-width: 26px;
+  min-width: 24px;
   text-align: center;
   flex-shrink: 0;
 }
 .row.active .init-badge { color: var(--accent2); }
 
 .thumb {
-  width: 32px; height: 32px;
+  width: 30px; height: 30px;
   border-radius: 5px;
   background: var(--bg2);
   border: 1px solid var(--border2);
   overflow: hidden;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
 }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
 .info { flex: 1; min-width: 0; }
-
 .name {
   font-family: 'Cinzel', serif;
   font-size: 12px;
@@ -149,20 +166,15 @@ body {
   line-height: 1.2;
 }
 .row.active .name { color: var(--accent2); }
-
 .hp-bar-track {
-  height: 4px;
+  height: 3px;
   background: var(--bg2);
   border-radius: 2px;
-  margin-top: 5px;
+  margin-top: 4px;
   overflow: hidden;
 }
 .hp-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
-
-.conditions {
-  display: flex; gap: 3px; flex-wrap: wrap; margin-top: 4px;
-}
-
+.conditions { display: flex; gap: 3px; flex-wrap: wrap; margin-top: 3px; }
 .cond-tag {
   font-size: 9px;
   font-weight: 600;
@@ -172,13 +184,261 @@ body {
   letter-spacing: 0.04em;
 }
 
-.type-chip {
-  font-size: 10px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+/* Card right column */
+.row-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
   flex-shrink: 0;
 }
+.hp-text { font-size: 11px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+.type-chip { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Card icon buttons */
+.card-icons { display: flex; gap: 3px; align-items: center; }
+.card-icon {
+  width: 20px; height: 18px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+  line-height: 1;
+  padding: 0;
+}
+.card-icon:hover { border-color: var(--border2); color: var(--text2); }
+.card-icon.attacks:hover { border-color: #7a3030; color: var(--red); }
+.card-icon.spells:hover  { border-color: #5a3a7a; color: var(--purple); }
+.card-icon.notes:hover   { border-color: #3a5a3a; color: var(--green); }
+.card-icon.active-icon   { border-color: var(--blue); color: var(--blue); background: rgba(91,141,232,0.12); }
+
+/* ── Action panel ────────────────────────────────────── */
+.action-panel {
+  background: var(--bg2);
+  border-top: 1px solid var(--border2);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 5px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.action-name {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  color: var(--accent2);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.action-hp-badge {
+  font-size: 11px;
+  color: var(--text2);
+  flex-shrink: 0;
+}
+.action-close {
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  transition: color 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.action-close:hover { color: var(--red); }
+
+/* Tab bar */
+.action-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.action-tab {
+  flex: 1;
+  padding: 5px 4px;
+  border: none;
+  border-right: 1px solid var(--border);
+  background: transparent;
+  color: var(--text3);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.action-tab:last-child { border-right: none; }
+.action-tab:hover { color: var(--text2); background: rgba(255,255,255,0.03); }
+.action-tab.active { color: var(--accent); background: rgba(200,169,110,0.07); border-bottom: 2px solid var(--accent); }
+
+/* Action body — scrollable content area */
+.action-body {
+  overflow-y: auto;
+  max-height: 210px;
+}
+.action-body::-webkit-scrollbar { width: 3px; }
+.action-body::-webkit-scrollbar-track { background: transparent; }
+.action-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* HP tab */
+.hp-controls {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.hp-delta {
+  width: 60px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  padding: 4px 5px;
+}
+.hp-delta:focus { outline: none; border-color: var(--accent-dim); }
+.hp-btn {
+  flex: 1;
+  padding: 5px 0;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: all 0.15s;
+}
+.hp-btn.dmg  { border-color: #6a2525; color: var(--red); }
+.hp-btn.dmg:hover  { background: rgba(224,85,85,0.15); border-color: var(--red); }
+.hp-btn.heal { border-color: var(--green-dim); color: var(--green); }
+.hp-btn.heal:hover { background: rgba(76,175,125,0.15); border-color: var(--green); }
+.hp-btn.kill { border-color: var(--border2); color: var(--text3); font-size: 14px; padding: 5px 8px; flex: none; }
+.hp-btn.kill:hover { border-color: var(--red); color: var(--red); }
+.hp-btn.kill.dead-state { border-color: var(--amber); color: var(--amber); }
+
+.cond-area { padding: 6px 10px 8px; }
+.cond-picker { display: flex; gap: 4px; flex-wrap: wrap; }
+.cond-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.cond-chip:hover { border-color: #3a5070; color: var(--text); }
+
+/* Attacks tab */
+.attack-list { padding: 6px 10px; }
+.attack-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+.attack-row:last-of-type { border-bottom: none; }
+.attack-info { flex: 1; min-width: 0; }
+.attack-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.attack-stats { font-size: 11px; color: var(--text2); }
+.atk-btns { display: flex; gap: 3px; flex-shrink: 0; }
+.atk-btn {
+  padding: 3px 7px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+  color: var(--text2);
+}
+.atk-btn.hit  { border-color: #3a5a7a; color: var(--blue); }
+.atk-btn.hit:hover  { background: rgba(91,141,232,0.15); }
+.atk-btn.dmg  { border-color: #7a3030; color: var(--red); }
+.atk-btn.dmg:hover  { background: rgba(224,85,85,0.15); }
+.atk-btn.both { border-color: var(--accent-dim); color: var(--accent); }
+.atk-btn.both:hover { background: rgba(200,169,110,0.12); }
+
+.roll-result {
+  margin: 4px 10px 6px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  display: none;
+  animation: fadeIn 0.15s ease-out;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-3px); } to { opacity:1; transform:none; } }
+.roll-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+.roll-value { font-family: 'Cinzel', serif; font-size: 20px; line-height: 1.1; }
+.no-attacks { padding: 12px 10px; font-size: 13px; color: var(--text2); text-align: center; }
+
+/* Spells tab */
+.spell-slots { padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.slot-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 8px;
+  min-width: 52px;
+  text-align: center;
+}
+.slot-level-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.slot-pips { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.slot-pip {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 1px solid #6a52a8;
+  background: var(--purple);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.slot-pip.used { background: transparent; border-color: var(--border2); box-shadow: inset 0 0 0 1px #2a3448; }
+.slot-pip:hover { transform: scale(1.2); }
+.no-spells { padding: 12px 10px; font-size: 13px; color: var(--text2); text-align: center; }
+
+/* Notes tab */
+.notes-view {
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.no-notes { padding: 12px 10px; font-size: 13px; color: var(--text2); text-align: center; }
   </style>
 </head>
 <body>
@@ -186,23 +446,66 @@ body {
 <div class="header">
   <div class="header-title">⚔ Initiative</div>
   <div class="round-badge" id="roundBadge">—</div>
+  <div class="turn-btns">
+    <button class="turn-btn" onclick="popoutPrevTurn()" title="Previous turn">◀ Prev</button>
+    <button class="turn-btn next" onclick="popoutNextTurn()" title="Next turn">Next ▶</button>
+  </div>
 </div>
 
 <div class="empty-state" id="emptyState">No Combat Active</div>
 <div class="combatant-list" id="combatantList" style="display:none"></div>
 
+<div class="action-panel" id="actionPanel" style="display:none">
+  <div class="action-head">
+    <div class="action-name" id="actionName">—</div>
+    <div class="action-hp-badge" id="actionHpBadge"></div>
+    <button class="action-close" onclick="closeAction()">✕</button>
+  </div>
+  <div class="action-tabs" id="actionTabs"></div>
+  <div class="action-body" id="actionBody"></div>
+</div>
+
 <script>
 const LIVE_KEY = 'thekodia_live_combat';
 
-const COND_COLORS = {
-  Blinded: '#888', Charmed: '#ff69b4', Deafened: '#8a8070',
-  Exhaustion: '#9b72cf', Frightened: '#cc5500', Grappled: '#a0522d',
-  Incapacitated: '#ff6b6b', Invisible: '#4ecdc4', Paralyzed: '#e05555',
-  Petrified: '#888', Poisoned: '#4caf7d', Prone: '#f0a500',
-  Restrained: '#c8a96e', Stunned: '#5b8de8', Unconscious: '#3a3428',
-};
+const CONDITIONS = [
+  {name:'Blinded',       color:'#aaaaaa'},
+  {name:'Charmed',       color:'#ff69b4'},
+  {name:'Deafened',      color:'#b0a898'},
+  {name:'Frightened',    color:'#cc5500'},
+  {name:'Grappled',      color:'#c8a030'},
+  {name:'Incapacitated', color:'#e07040'},
+  {name:'Invisible',     color:'#4ecdc4'},
+  {name:'Paralyzed',     color:'#e8c830'},
+  {name:'Petrified',     color:'#c8c8b8'},
+  {name:'Poisoned',      color:'#4caf7d'},
+  {name:'Prone',         color:'#f0a500'},
+  {name:'Restrained',    color:'#c8a96e'},
+  {name:'Stunned',       color:'#5b8de8'},
+  {name:'Unconscious',   color:'#9a9a9a'},
+  {name:'Exhaustion',    color:'#e06040'},
+  {name:'Concentration', color:'#9b72cf'},
+];
 
-let lastStr = '';
+const SLOT_ORDINALS = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th'];
+
+let selectedIdx = -1;
+let actionMode  = 'hp';
+let lastStr     = '';
+let rollDismiss = null;
+
+// ── State ─────────────────────────────────────────────
+
+function readState() {
+  try { return JSON.parse(localStorage.getItem(LIVE_KEY) || 'null'); } catch { return null; }
+}
+
+function writeState(data) {
+  try { localStorage.setItem(LIVE_KEY, JSON.stringify(data)); } catch {}
+  lastStr = localStorage.getItem(LIVE_KEY) || 'null';
+}
+
+// ── Render cards ──────────────────────────────────────
 
 function hpColor(pct) {
   return pct > 0.6 ? 'var(--green)' : pct > 0.3 ? 'var(--amber)' : 'var(--red)';
@@ -223,6 +526,7 @@ function render() {
     emptyEl.style.display = 'flex';
     listEl.style.display  = 'none';
     document.getElementById('roundBadge').textContent = '—';
+    if (selectedIdx >= 0) closeAction();
     return;
   }
 
@@ -231,34 +535,394 @@ function render() {
   document.getElementById('roundBadge').textContent = `Round ${data.round || 1}`;
 
   const { combatants, currentTurnIdx } = data;
+  if (selectedIdx >= combatants.length) selectedIdx = -1;
 
   listEl.innerHTML = combatants.map((c, i) => {
-    const isActive = i === currentTurnIdx;
+    const isActive   = i === currentTurnIdx;
+    const isSelected = i === selectedIdx;
     const effectiveMax = Math.max(1, (c.maxhp || 0) - (c.maxReduce || 0));
     const pct = Math.min(1, Math.max(0, (c.hp || 0) / effectiveMax));
+
     const thumbHtml = c.thumb
       ? `<img src="${c.thumb}">`
       : (c.type === 'player' ? '🧙' : c.type === 'npc' ? '🗣' : '💀');
 
     const condHtml = (c.conditions || []).map(cond => {
-      const color = COND_COLORS[cond] || '#888';
-      return `<span class="cond-tag" style="background:${color}22;border:1px solid ${color}66;color:${color}">${cond}</span>`;
+      const cf = CONDITIONS.find(x => x.name === cond) || { color: '#888' };
+      return `<span class="cond-tag" style="background:${cf.color}22;border:1px solid ${cf.color}66;color:${cf.color}">${cond}</span>`;
     }).join('');
 
-    return `<div class="row${isActive ? ' active' : ''}${c.dead ? ' dead' : ''}">
+    const hasAttacks = c.attacks && c.attacks.length > 0;
+    const hasSpells  = c.spellSlots && c.spellSlots.some(s => s && s.max > 0);
+    const hasNotes   = c.notes && c.notes.trim();
+
+    const iconHtml = (hasAttacks || hasSpells || hasNotes) ? `
+      <div class="card-icons" onclick="event.stopPropagation()">
+        ${hasAttacks ? `<button class="card-icon attacks${isSelected && actionMode==='attacks'?' active-icon':''}" onclick="openAction(${i},'attacks')" title="Attacks">⚔</button>` : ''}
+        ${hasSpells  ? `<button class="card-icon spells${isSelected && actionMode==='spells'?' active-icon':''}"  onclick="openAction(${i},'spells')"  title="Spell Slots">✦</button>` : ''}
+        ${hasNotes   ? `<button class="card-icon notes${isSelected && actionMode==='notes'?' active-icon':''}"   onclick="openAction(${i},'notes')"   title="Notes">≡</button>` : ''}
+      </div>` : '';
+
+    const classes = ['row', isActive ? 'active' : '', isSelected ? 'selected' : '', c.dead ? 'dead' : '']
+      .filter(Boolean).join(' ');
+
+    return `<div class="${classes}" onclick="selectCard(${i})">
       <div class="init-badge">${c.init ?? 0}</div>
       <div class="thumb">${thumbHtml}</div>
       <div class="info">
         <div class="name">${c.name}</div>
-        <div class="hp-bar-track"><div class="hp-bar-fill" style="width:${Math.round(pct * 100)}%;background:${hpColor(pct)}"></div></div>
         ${condHtml ? `<div class="conditions">${condHtml}</div>` : ''}
+        <div class="hp-bar-track"><div class="hp-bar-fill" style="width:${Math.round(pct*100)}%;background:${hpColor(pct)}"></div></div>
       </div>
-      <div class="type-chip">${c.type || ''}</div>
+      <div class="row-right">
+        <div class="hp-text">${c.hp}/${effectiveMax}</div>
+        ${iconHtml}
+        <div class="type-chip">${c.type || ''}</div>
+      </div>
     </div>`;
   }).join('');
+
+  if (selectedIdx >= 0) refreshActionHeader(combatants[selectedIdx]);
 }
 
-setInterval(render, 1000);
+// ── Card selection ────────────────────────────────────
+
+function selectCard(i) {
+  if (selectedIdx === i && document.getElementById('actionPanel').style.display !== 'none') {
+    closeAction();
+    return;
+  }
+  openAction(i, 'hp');
+}
+
+function openAction(i, mode) {
+  const data = readState();
+  if (!data || !data.combatants[i]) return;
+
+  selectedIdx = i;
+  actionMode  = mode;
+
+  document.getElementById('actionPanel').style.display = 'flex';
+  refreshActionPanel();
+
+  lastStr = '';
+  render();
+}
+
+function closeAction() {
+  selectedIdx = -1;
+  document.getElementById('actionPanel').style.display = 'none';
+  lastStr = '';
+  render();
+}
+
+// ── Action panel ──────────────────────────────────────
+
+function refreshActionPanel() {
+  const data = readState();
+  if (!data || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+
+  refreshActionHeader(c);
+
+  // Build available tabs
+  const tabs = [{id:'hp', label:'♥ HP'}];
+  if (c.attacks && c.attacks.length > 0)
+    tabs.push({id:'attacks', label:'⚔ Attacks'});
+  if (c.spellSlots && c.spellSlots.some(s => s && s.max > 0))
+    tabs.push({id:'spells', label:'✦ Spells'});
+  if (c.notes && c.notes.trim())
+    tabs.push({id:'notes', label:'≡ Notes'});
+
+  if (!tabs.find(t => t.id === actionMode)) actionMode = 'hp';
+
+  document.getElementById('actionTabs').innerHTML = tabs.map(t =>
+    `<button class="action-tab${actionMode === t.id ? ' active' : ''}" onclick="switchTab('${t.id}')">${t.label}</button>`
+  ).join('');
+
+  renderActionBody(c);
+}
+
+function refreshActionHeader(c) {
+  if (!c) return;
+  const effectiveMax = Math.max(1, (c.maxhp || 0) - (c.maxReduce || 0));
+  document.getElementById('actionName').textContent = c.name;
+  document.getElementById('actionHpBadge').textContent = `${c.hp} / ${effectiveMax} HP`;
+}
+
+function switchTab(mode) {
+  actionMode = mode;
+  const data = readState();
+  if (!data || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+  // Update tab active state
+  document.querySelectorAll('.action-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === document.querySelector(`.action-tab.active`)?.textContent.trim());
+  });
+  document.getElementById('actionTabs').querySelectorAll('.action-tab').forEach(btn => {
+    const tabId = btn.getAttribute('onclick').match(/'(\w+)'/)?.[1];
+    btn.classList.toggle('active', tabId === mode);
+  });
+  renderActionBody(c);
+  // Re-render cards to update icon highlights
+  lastStr = '';
+  render();
+}
+
+function renderActionBody(c) {
+  const body = document.getElementById('actionBody');
+  if (actionMode === 'hp')      body.innerHTML = buildHpBody(c);
+  else if (actionMode === 'attacks') body.innerHTML = buildAttacksBody(c);
+  else if (actionMode === 'spells')  body.innerHTML = buildSpellsBody(c);
+  else if (actionMode === 'notes')   body.innerHTML = buildNotesBody(c);
+}
+
+// ── HP body ───────────────────────────────────────────
+
+function buildHpBody(c) {
+  const isDead = c.dead;
+  const conditions = c.conditions || [];
+  const condChips = CONDITIONS.map(cond => {
+    const active = conditions.includes(cond.name);
+    const style = active ? `background:${cond.color}22;border-color:${cond.color}77;color:${cond.color}` : '';
+    return `<span class="cond-chip${active ? ' active' : ''}" style="${style}" onclick="toggleCond('${cond.name}')">${cond.name}</span>`;
+  }).join('');
+  return `
+    <div class="hp-controls">
+      <input class="hp-delta" type="number" id="hpDelta" placeholder="Amt" min="1">
+      <button class="hp-btn dmg" onclick="applyHp(-1)">Dmg</button>
+      <button class="hp-btn heal" onclick="applyHp(1)">Heal</button>
+      <button class="hp-btn kill${isDead ? ' dead-state' : ''}" onclick="toggleDead()" title="${isDead ? 'Revive' : 'Mark dead'}">☠</button>
+    </div>
+    <div class="cond-area"><div class="cond-picker">${condChips}</div></div>`;
+}
+
+function applyHp(sign) {
+  const delta = parseInt(document.getElementById('hpDelta')?.value) || 0;
+  if (delta <= 0) return;
+  const data = readState();
+  if (!data || selectedIdx < 0 || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+
+  if (sign < 0) {
+    if ((c.temphp || 0) > 0) {
+      const absorbed = Math.min(c.temphp, delta);
+      c.temphp -= absorbed;
+      c.hp = Math.max(0, c.hp - (delta - absorbed));
+    } else {
+      c.hp = Math.max(0, c.hp - delta);
+    }
+    if (c.hp <= 0) c.dead = true;
+  } else {
+    const effectiveMax = Math.max(1, (c.maxhp || 0) - (c.maxReduce || 0));
+    c.hp = Math.min(effectiveMax, c.hp + delta);
+    if (c.dead && c.hp > 0) c.dead = false;
+  }
+
+  writeState(data);
+  refreshActionPanel();
+  lastStr = '';
+  render();
+}
+
+function toggleDead() {
+  const data = readState();
+  if (!data || selectedIdx < 0 || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+  c.dead = !c.dead;
+  if (!c.dead) c.hp = Math.max(1, c.hp);
+  writeState(data);
+  refreshActionPanel();
+  lastStr = '';
+  render();
+}
+
+function toggleCond(name) {
+  const data = readState();
+  if (!data || selectedIdx < 0 || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+  if (!c.conditions) c.conditions = [];
+  const idx = c.conditions.indexOf(name);
+  if (idx > -1) c.conditions.splice(idx, 1);
+  else c.conditions.push(name);
+  writeState(data);
+  refreshActionPanel();
+  lastStr = '';
+  render();
+}
+
+// ── Attacks body ──────────────────────────────────────
+
+function buildAttacksBody(c) {
+  const attacks = c.attacks || [];
+  if (!attacks.length) return '<div class="no-attacks">No attacks defined</div>';
+  const rows = attacks.map((a, ai) => `
+    <div class="attack-row">
+      <div class="attack-info">
+        <div class="attack-name">${a.name}</div>
+        <div class="attack-stats">${a.hit || '+0'} to hit &middot; ${a.damage || '—'}</div>
+      </div>
+      <div class="atk-btns">
+        <button class="atk-btn hit"  onclick="rollHit(${ai})">Hit</button>
+        <button class="atk-btn dmg"  onclick="rollDmg(${ai})">Dmg</button>
+        <button class="atk-btn both" onclick="rollBoth(${ai})">Both</button>
+      </div>
+    </div>`).join('');
+  return `<div class="attack-list">${rows}</div><div class="roll-result" id="rollResult"></div>`;
+}
+
+function rollD20() { return Math.floor(Math.random() * 20) + 1; }
+
+function parseDice(str, crit) {
+  let total = 0;
+  const matches = [...(str || '').matchAll(/(\d+)d(\d+)/gi)];
+  for (const m of matches) {
+    const count = parseInt(m[1]) * (crit ? 2 : 1);
+    const sides = parseInt(m[2]);
+    for (let k = 0; k < count; k++) total += Math.floor(Math.random() * sides) + 1;
+  }
+  const flat = str?.match(/[+-]\s*(\d+)(?!\s*d)/i);
+  if (flat) total += parseInt(flat[0].replace(/\s/g, ''));
+  return total || 0;
+}
+
+function getAttack(ai) {
+  const data = readState();
+  if (!data || selectedIdx < 0) return null;
+  return (data.combatants[selectedIdx]?.attacks || [])[ai] || null;
+}
+
+function showRoll(html) {
+  const el = document.getElementById('rollResult');
+  if (!el) return;
+  el.innerHTML = html;
+  el.style.display = 'block';
+  clearTimeout(rollDismiss);
+  rollDismiss = setTimeout(() => { if (el) el.style.display = 'none'; }, 4000);
+}
+
+function rollHit(ai) {
+  const a = getAttack(ai);
+  if (!a) return;
+  const d20 = rollD20();
+  const mod = parseInt((a.hit || '+0').replace('+', '')) || 0;
+  const total = d20 + mod;
+  const crit = d20 === 20, miss = d20 === 1;
+  const color = crit ? 'var(--green)' : miss ? 'var(--red)' : 'var(--amber)';
+  showRoll(`<div class="roll-label">${a.name} — To Hit</div>
+    <div class="roll-value" style="color:${color}">${total}${crit ? ' ★' : miss ? ' ✕' : ''}</div>`);
+}
+
+function rollDmg(ai) {
+  const a = getAttack(ai);
+  if (!a) return;
+  const dmg = parseDice(a.damage, false);
+  showRoll(`<div class="roll-label">${a.name} — Damage</div>
+    <div class="roll-value" style="color:var(--red)">${dmg}</div>`);
+}
+
+function rollBoth(ai) {
+  const a = getAttack(ai);
+  if (!a) return;
+  const d20 = rollD20();
+  const mod = parseInt((a.hit || '+0').replace('+', '')) || 0;
+  const hit = d20 + mod;
+  const crit = d20 === 20, miss = d20 === 1;
+  const dmg = parseDice(a.damage, crit);
+  const hitColor = crit ? 'var(--green)' : miss ? 'var(--red)' : 'var(--amber)';
+  showRoll(`<div class="roll-label">${a.name}</div>
+    <div style="display:flex;gap:16px;align-items:flex-end">
+      <div><div class="roll-label">To Hit</div><div class="roll-value" style="color:${hitColor}">${hit}${crit ? ' ★' : miss ? ' ✕' : ''}</div></div>
+      <div><div class="roll-label">Damage</div><div class="roll-value" style="color:var(--red)">${dmg}</div></div>
+    </div>`);
+}
+
+// ── Spells body ───────────────────────────────────────
+
+function buildSpellsBody(c) {
+  const slots = c.spellSlots || [];
+  const blocks = slots.map((s, lvl) => {
+    if (!s || s.max === 0) return '';
+    const pips = Array.from({length: s.max}, (_, pi) =>
+      `<div class="slot-pip${pi < (s.used || 0) ? ' used' : ''}" onclick="toggleSlot(${lvl},${pi})"></div>`
+    ).join('');
+    return `<div class="slot-block">
+      <div class="slot-level-label">${SLOT_ORDINALS[lvl] || (lvl+1)+'th'}</div>
+      <div class="slot-pips">${pips}</div>
+    </div>`;
+  }).join('');
+  return blocks ? `<div class="spell-slots">${blocks}</div>` : '<div class="no-spells">No spell slots</div>';
+}
+
+function toggleSlot(lvl, pip) {
+  const data = readState();
+  if (!data || selectedIdx < 0 || !data.combatants[selectedIdx]) return;
+  const c = data.combatants[selectedIdx];
+  if (!c.spellSlots || !c.spellSlots[lvl]) return;
+  const slot = c.spellSlots[lvl];
+  slot.used = pip < (slot.used || 0) ? pip : pip + 1;
+  writeState(data);
+  // Re-render spells body in place
+  renderActionBody(c);
+  lastStr = '';
+  render();
+}
+
+// ── Notes body ────────────────────────────────────────
+
+function buildNotesBody(c) {
+  const text = (c.notes || '').replace(/</g, '&lt;');
+  return text.trim()
+    ? `<div class="notes-view">${text}</div>`
+    : '<div class="no-notes">No notes</div>';
+}
+
+// ── Turn advancement ──────────────────────────────────
+
+function popoutNextTurn() {
+  const data = readState();
+  if (!data || !Array.isArray(data.combatants) || !data.combatants.length) return;
+  let { combatants, currentTurnIdx, round } = data;
+  if (!round || round < 1) round = 1;
+  if (!combatants.some(c => !c.dead)) return;
+  if (currentTurnIdx < 0) {
+    currentTurnIdx = 0;
+  } else {
+    let next = currentTurnIdx + 1;
+    while (next < combatants.length && combatants[next].dead) next++;
+    if (next >= combatants.length) {
+      next = 0;
+      round++;
+      combatants.forEach(c => { if (c.legMax) c.legCurrent = c.legMax; });
+    }
+    while (next < combatants.length && combatants[next].dead) next++;
+    currentTurnIdx = next;
+  }
+  writeState({ ...data, combatants, currentTurnIdx, round });
+  lastStr = '';
+  render();
+}
+
+function popoutPrevTurn() {
+  const data = readState();
+  if (!data || !Array.isArray(data.combatants) || !data.combatants.length) return;
+  let { combatants, currentTurnIdx, round } = data;
+  if (currentTurnIdx < 0) return;
+  let prev = currentTurnIdx - 1;
+  while (prev >= 0 && combatants[prev].dead) prev--;
+  if (prev < 0) {
+    prev = combatants.length - 1;
+    while (prev > 0 && combatants[prev].dead) prev--;
+    if (round > 1) round--;
+  }
+  currentTurnIdx = prev;
+  writeState({ ...data, combatants, currentTurnIdx, round });
+  lastStr = '';
+  render();
+}
+
+// ── Poll loop ─────────────────────────────────────────
+setInterval(render, 800);
 render();
 </script>
 </body>
