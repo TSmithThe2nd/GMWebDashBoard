@@ -22,6 +22,12 @@ URL = 'http://localhost:5000'
 
 
 class Api:
+    def close_self(self):
+        """Close whichever popup window called this — never closes the main DM window."""
+        w = webview.active_window()
+        if w and w.title != 'Thekodia DM':
+            w.destroy()
+
     def open_player_display(self):
         """Open the full player-facing display as a second always-on-top window."""
         for w in webview.windows:
@@ -50,6 +56,7 @@ class Api:
             on_top=True,
             transparent=True,
             frameless=True,
+            js_api=self,
         )
 
     def open_initiative(self):
@@ -66,6 +73,7 @@ class Api:
             on_top=True,
             transparent=True,
             frameless=True,
+            js_api=self,
         )
 
     def open_dice(self):
@@ -80,6 +88,7 @@ class Api:
             height=580,
             resizable=True,
             on_top=True,
+            js_api=self,
         )
 
 

@@ -28,10 +28,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { background: transparent; }
+html { background-color: rgba(0,0,0,0) !important; }
 
 body {
-  background: transparent;
+  background-color: rgba(0,0,0,0) !important;
   color: var(--text);
   font-family: 'Rajdhani', sans-serif;
   overflow: hidden;
@@ -70,12 +70,12 @@ body {
   -webkit-app-region: drag;
   z-index: 999;
   cursor: move;
+  background: transparent;
 }
 
-.rotate-btn {
+.hover-btn {
   position: fixed;
   top: 8px;
-  right: 8px;
   z-index: 1000;
   width: 26px;
   height: 26px;
@@ -92,9 +92,15 @@ body {
   padding: 0;
   opacity: 0;
   transition: opacity 0.2s, border-color 0.15s, color 0.15s;
+  -webkit-app-region: no-drag;
 }
-body:hover .rotate-btn { opacity: 1; }
+body:hover .hover-btn { opacity: 1; }
+
+.rotate-btn { right: 8px; }
 .rotate-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+.close-btn { right: 40px; }
+.close-btn:hover { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.12); }
 
 /* ── MIDDLE AREA ──────────────────────────────────────── */
 .middle-area {
@@ -284,7 +290,8 @@ body:hover .rotate-btn { opacity: 1; }
 <body>
 
 <div class="drag-strip"></div>
-<button class="rotate-btn" onclick="cycleRotation()" title="Rotate view">↻</button>
+<button class="hover-btn close-btn" onclick="typeof pywebview!=='undefined'?pywebview.api.close_self():window.close()" title="Close">✕</button>
+<button class="hover-btn rotate-btn" onclick="cycleRotation()" title="Rotate view">↻</button>
 
 <div id="outerWrap">
 <div id="contentWrap">

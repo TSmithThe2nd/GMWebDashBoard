@@ -28,10 +28,10 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { background: transparent; }
+html { background-color: rgba(0,0,0,0) !important; }
 
 body {
-  background: transparent;
+  background-color: rgba(0,0,0,0) !important;
   color: var(--text);
   font-family: 'Rajdhani', sans-serif;
   height: 100vh;
@@ -84,6 +84,8 @@ body {
 .turn-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
 .turn-btn.next { border-color: var(--accent-dim); color: var(--accent2); background: rgba(200,169,110,0.08); }
 .turn-btn.next:hover { background: rgba(200,169,110,0.18); }
+.turn-btn.close-btn { border-color: transparent; color: var(--text3); }
+.turn-btn.close-btn:hover { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.12); }
 
 /* ── Combatant list ──────────────────────────────────── */
 .empty-state {
@@ -455,6 +457,7 @@ body {
   <div class="turn-btns">
     <button class="turn-btn" onclick="popoutPrevTurn()" title="Previous turn">◀ Prev</button>
     <button class="turn-btn next" onclick="popoutNextTurn()" title="Next turn">Next ▶</button>
+    <button class="turn-btn close-btn" onclick="typeof pywebview!=='undefined'?pywebview.api.close_self():window.close()" title="Close">✕</button>
   </div>
 </div>
 
