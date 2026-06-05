@@ -1,5 +1,8 @@
-/CLAUDE.md
-data
-__pycache__/app.cpython-312.pyc
-routes/__pycache__/campaigns.cpython-312.pyc
+CLAUDE.md
+data/
+__pycache__/
+*.pyc
+*.pyo
 .gitignore
+dist/
+build/

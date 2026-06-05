@@ -19,7 +19,7 @@ if errorlevel 1 (
 
 REM Install dependencies if needed
 echo Checking dependencies...
-pip install flask pypdf pdfplumber --quiet
+pip install flask pypdf pdfplumber pywebview --quiet
 
 echo Starting server...
 python app.py
