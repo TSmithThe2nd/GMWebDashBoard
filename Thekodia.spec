@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_all
 
+webview_datas, webview_bins, webview_hidden = collect_all('webview')
 
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[],
-    datas=[('static', 'static'), ('parsers', 'parsers')],
-    hiddenimports=[],
+    binaries=webview_bins,
+    datas=[('static', 'static'), ('parsers', 'parsers')] + webview_datas,
+    hiddenimports=webview_hidden,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

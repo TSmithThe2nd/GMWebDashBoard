@@ -118,10 +118,68 @@ def create_app() -> Flask:
 
 
 if __name__ == '__main__':
-    app = create_app()
-    print('\n' + '=' * 50)
-    print('  Thekodia DM Dashboard')
-    print('  http://localhost:5000')
-    print('=' * 50 + '\n')
-    threading.Timer(1.0, lambda: webbrowser.open('http://localhost:5000')).start()
-    app.run(host='localhost', port=5000, debug=False)
+    import time
+    import urllib.request
+
+    flask_app = create_app()
+
+    flask_thread = threading.Thread(
+        target=lambda: flask_app.run(host='localhost', port=5000, debug=False, use_reloader=False),
+        daemon=True,
+    )
+    flask_thread.start()
+
+    # Wait for Flask to be ready before opening the window
+    deadline = time.time() + 10
+    while time.time() < deadline:
+        try:
+            urllib.request.urlopen('http://localhost:5000/health', timeout=1)
+            break
+        except Exception:
+            time.sleep(0.1)
+
+    try:
+        import webview
+
+        class ThekodiaApi:
+            def __init__(self):
+                self._windows = {}
+
+            def _open(self, key, title, url, w, h):
+                win = self._windows.get(key)
+                if win and win in webview.windows:
+                    win.bring_to_front()
+                    return
+                win = webview.create_window(title, url, width=w, height=h, on_top=True, js_api=self)
+                self._windows[key] = win
+
+            def open_player_display(self):
+                self._open('player_display', 'Player Display',
+                           'http://localhost:5000/thekodia-player-display.html', 1200, 700)
+
+            def open_dice(self):
+                self._open('dice', 'Dice',
+                           'http://localhost:5000/thekodia-popout-dice.html', 400, 580)
+
+            def open_initiative(self):
+                self._open('initiative', 'Initiative',
+                           'http://localhost:5000/thekodia-popout-initiative.html', 360, 620)
+
+            def open_player_panel(self):
+                self._open('player_panel', 'Player Panel',
+                           'http://localhost:5000/thekodia-popout-player-panel.html', 580, 220)
+
+        api = ThekodiaApi()
+        webview.create_window(
+            'Thekodia',
+            'http://localhost:5000',
+            width=1400,
+            height=900,
+            min_size=(800, 600),
+            js_api=api,
+        )
+        webview.start()
+
+    except ImportError:
+        webbrowser.open('http://localhost:5000')
+        flask_thread.join()
