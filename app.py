@@ -162,6 +162,11 @@ if __name__ == '__main__':
                 if w and w.title != 'Thekodia':
                     w.destroy()
 
+            def resize_self(self, w, h):
+                win = webview.active_window()
+                if win:
+                    win.resize(int(w), int(h))
+
             def open_player_display(self):
                 self._open('player_display', 'Player Display',
                            'http://localhost:5000/thekodia-player-display.html', 1200, 700)
