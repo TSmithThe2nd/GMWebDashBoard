@@ -145,22 +145,13 @@ if __name__ == '__main__':
             def __init__(self):
                 self._windows = {}
 
-            def _open(self, key, title, url, w, h, transparent=False):
+            def _open(self, key, title, url, w, h):
                 win = self._windows.get(key)
                 if win and win in webview.windows:
                     win.bring_to_front()
                     return
-                win = webview.create_window(
-                    title, url, width=w, height=h, on_top=True, js_api=self,
-                    transparent=transparent, frameless=transparent,
-                )
+                win = webview.create_window(title, url, width=w, height=h, on_top=True, js_api=self)
                 self._windows[key] = win
-
-            def close_self(self):
-                """Close whichever popup window called this — never closes the main DM window."""
-                w = webview.active_window()
-                if w and w.title != 'Thekodia':
-                    w.destroy()
 
             def open_player_display(self):
                 self._open('player_display', 'Player Display',
@@ -168,15 +159,15 @@ if __name__ == '__main__':
 
             def open_dice(self):
                 self._open('dice', 'Dice',
-                           'http://localhost:5000/thekodia-popout-dice.html', 400, 580, transparent=True)
+                           'http://localhost:5000/thekodia-popout-dice.html', 400, 580)
 
             def open_initiative(self):
                 self._open('initiative', 'Initiative',
-                           'http://localhost:5000/thekodia-popout-initiative.html', 360, 620, transparent=True)
+                           'http://localhost:5000/thekodia-popout-initiative.html', 360, 620)
 
             def open_player_panel(self):
                 self._open('player_panel', 'Player Panel',
-                           'http://localhost:5000/thekodia-popout-player-panel.html', 580, 220, transparent=True)
+                           'http://localhost:5000/thekodia-popout-player-panel.html', 580, 220)
 
         api = ThekodiaApi()
         webview.create_window(

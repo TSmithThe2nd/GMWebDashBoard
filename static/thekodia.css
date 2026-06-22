@@ -57,20 +57,11 @@ body {
   z-index: 100;
 }
 .app-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-family: 'Cinzel', serif;
   font-size: 16px;
   color: var(--accent);
   letter-spacing: 0.1em;
   white-space: nowrap;
-}
-.app-logo {
-  height: 26px;
-  width: 26px;
-  object-fit: contain;
-  flex-shrink: 0;
 }
 .nav-tabs { display: flex; gap: 4px; flex: 1; }
 .nav-tab {
