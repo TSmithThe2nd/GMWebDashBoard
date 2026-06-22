@@ -187,7 +187,7 @@ if __name__ == '__main__':
             min_size=(800, 600),
             js_api=api,
         )
-        webview.start()
+        webview.start(icon=str(BASE_DIR / 'static' / 'thekodia-logo.ico'))
 
     except ImportError:
         webbrowser.open('http://localhost:5000')
