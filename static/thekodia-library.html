@@ -38,265 +38,266 @@
 .filter-chip.npc.active { background: rgba(91,141,232,0.15); border-color: var(--blue-dim); color: var(--blue); }
 .filter-chip.player.active { background: rgba(76,175,125,0.15); border-color: var(--green-dim); color: var(--green); }
 
-.creature-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 3px; }
-.creature-entry {
-  padding: 7px 10px; border-radius: var(--radius); border: 1px solid transparent;
-  cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px;
-}
-.creature-entry:hover { background: var(--bg3); border-color: var(--border); }
-.creature-entry.selected { background: var(--bg3); border-color: var(--accent-dim); }
-.creature-thumb {
-  width: 32px; height: 32px; border-radius: 4px; overflow: hidden;
-  background: var(--bg3); border: 1px solid var(--border); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-}
-.creature-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.creature-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.creature-entry-type { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
-.type-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .creature-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 3px; }
+  .creature-entry {
+    padding: 7px 10px; border-radius: var(--radius); border: 1px solid transparent;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+  }
+  .creature-entry:hover { background: var(--bg3); border-color: var(--border); }
+  .creature-entry.selected { background: var(--bg3); border-color: var(--accent-dim); }
+  .creature-thumb {
+    width: 32px; height: 32px; border-radius: 4px; overflow: hidden;
+    background: var(--bg3); border: 1px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .creature-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .creature-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .creature-entry-type { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+  .creature-entry-tags { font-size: 10px; color: var(--text3); margin-top: 1px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .type-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-/* Center — stat block editor / viewer */
-.center-panel { padding: 12px; overflow-y: auto; }
+  /* Center — stat block editor / viewer */
+  .center-panel { padding: 12px; overflow-y: auto; }
 
-.stat-block {
-  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
-  overflow: hidden; max-width: 700px;
-}
-.stat-block-head {
-  padding: 12px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-}
-.stat-block-thumb {
-  width: 52px; height: 52px; border-radius: var(--radius); overflow: hidden;
-  background: var(--bg3); border: 1px solid var(--border2); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; font-size: 22px;
-  position: relative; cursor: pointer;
-}
-.stat-block-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.stat-block-thumb input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.stat-block-name-wrap { flex: 1; }
-.stat-block-name { font-family: 'Cinzel', serif; font-size: 20px; color: var(--accent2); }
-.stat-block-meta { font-size: 13px; color: var(--text3); margin-top: 2px; }
-.stat-block-actions { display: flex; gap: 6px; margin-left: auto; }
+  .stat-block {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius2);
+    overflow: hidden; max-width: 700px;
+  }
+  .stat-block-head {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .stat-block-thumb {
+    width: 52px; height: 52px; border-radius: var(--radius); overflow: hidden;
+    background: var(--bg3); border: 1px solid var(--border2); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+    position: relative; cursor: pointer;
+  }
+  .stat-block-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .stat-block-thumb input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .stat-block-name-wrap { flex: 1; }
+  .stat-block-name { font-family: 'Cinzel', serif; font-size: 20px; color: var(--accent2); }
+  .stat-block-meta { font-size: 13px; color: var(--text3); margin-top: 2px; }
+  .stat-block-actions { display: flex; gap: 6px; margin-left: auto; }
 
-.sb-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .sb-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
 
-.sb-row { display: flex; gap: 10px; flex-wrap: wrap; }
-.sb-field { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 80px; }
-.sb-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
-.sb-field input, .sb-field select, .sb-field textarea {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; padding: 5px 8px; width: 100%;
-}
-.sb-field input:focus, .sb-field select:focus, .sb-field textarea:focus { outline: none; border-color: var(--accent-dim); }
-.sb-field select option { background: var(--bg2); }
-.sb-field textarea { min-height: 70px; resize: vertical; }
+  .sb-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sb-field { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 80px; }
+  .sb-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sb-field input, .sb-field select, .sb-field textarea {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 14px; padding: 5px 8px; width: 100%;
+  }
+  .sb-field input:focus, .sb-field select:focus, .sb-field textarea:focus { outline: none; border-color: var(--accent-dim); }
+  .sb-field select option { background: var(--bg2); }
+  .sb-field textarea { min-height: 70px; resize: vertical; }
 
-.sb-divider { height: 1px; background: var(--border); }
+  .sb-divider { height: 1px; background: var(--border); }
 
-.sb-section-title {
-  font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent);
-  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px;
-}
+  .sb-section-title {
+    font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px;
+  }
 
-.ability-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-.ability-box {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 6px 4px; text-align: center;
-}
-.ability-box label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
-.ability-box input { background: transparent; border: none; color: var(--accent2); font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600; text-align: center; width: 100%; }
-.ability-box input:focus { outline: none; }
-.ability-mod { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .ability-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .ability-box {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 6px 4px; text-align: center;
+  }
+  .ability-box label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
+  .ability-box input { background: transparent; border: none; color: var(--accent2); font-family: 'Cinzel', serif; font-size: 16px; font-weight: 600; text-align: center; width: 100%; }
+  .ability-box input:focus { outline: none; }
+  .ability-mod { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-.attack-list { display: flex; flex-direction: column; gap: 6px; }
-.attack-entry {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 8px 10px; display: flex; gap: 8px; align-items: flex-start;
-}
-.attack-entry input { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; padding: 3px 6px; }
-.attack-entry input:focus { outline: none; border-color: var(--accent-dim); }
+  .attack-list { display: flex; flex-direction: column; gap: 6px; }
+  .attack-entry {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px 10px; display: flex; gap: 8px; align-items: flex-start;
+  }
+  .attack-entry input { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'Rajdhani', sans-serif; font-size: 13px; padding: 3px 6px; }
+  .attack-entry input:focus { outline: none; border-color: var(--accent-dim); }
 
-.spell-slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
-.spell-slot-box {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 5px; text-align: center;
-}
-.spell-slot-box label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 3px; }
-.spell-slot-box input { background: transparent; border: none; color: var(--purple); font-family: 'Cinzel', serif; font-size: 15px; text-align: center; width: 100%; }
-.spell-slot-box input:focus { outline: none; }
+  .spell-slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .spell-slot-box {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 5px; text-align: center;
+  }
+  .spell-slot-box label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 3px; }
+  .spell-slot-box input { background: transparent; border: none; color: var(--purple); font-family: 'Cinzel', serif; font-size: 15px; text-align: center; width: 100%; }
+  .spell-slot-box input:focus { outline: none; }
 
-.empty-state { text-align: center; padding: 60px 16px; color: var(--text3); }
-.empty-state .big { font-family: 'Cinzel', serif; font-size: 22px; color: var(--border2); margin-bottom: 8px; }
+  .empty-state { text-align: center; padding: 60px 16px; color: var(--text3); }
+  .empty-state .big { font-family: 'Cinzel', serif; font-size: 22px; color: var(--border2); margin-bottom: 8px; }
 
-/* Right sidebar — encounter builder */
-.enc-sidebar {
-  background: var(--panel); border-left: 1px solid var(--border);
-  display: flex; flex-direction: column; height: calc(100vh - 54px);
-  position: sticky; top: 54px;
-}
-.enc-head {
-  padding: 10px 12px; border-bottom: 1px solid var(--border);
-}
-.enc-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
-.enc-tabs { display: flex; gap: 4px; }
-.enc-tab {
-  flex: 1; padding: 4px; border-radius: var(--radius); border: 1px solid var(--border);
-  background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
-  font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.04em;
-  transition: all 0.15s; text-align: center;
-}
-.enc-tab:hover { border-color: var(--border2); color: var(--text); }
-.enc-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
+  /* Right sidebar — encounter builder */
+  .enc-sidebar {
+    background: var(--panel); border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; height: calc(100vh - 54px);
+    position: sticky; top: 54px;
+  }
+  .enc-head {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+  }
+  .enc-title { font-family: 'Cinzel', serif; font-size: 12px; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .enc-tabs { display: flex; gap: 4px; }
+  .enc-tab {
+    flex: 1; padding: 4px; border-radius: var(--radius); border: 1px solid var(--border);
+    background: transparent; color: var(--text2); font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; text-transform: uppercase; letter-spacing: 0.04em;
+    transition: all 0.15s; text-align: center;
+  }
+  .enc-tab:hover { border-color: var(--border2); color: var(--text); }
+  .enc-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent2); }
 
-.enc-body { flex: 1 1 0; min-height: 80px; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-.groups-body { overflow-y: auto; max-height: 190px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
-.group-entry { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
-.group-entry-name { font-size: 12px; color: var(--text); flex: 1; }
-.group-built-in { font-size: 10px; color: var(--text3); flex-shrink: 0; }
-.enc-foot { padding: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+  .enc-body { flex: 1 1 0; min-height: 80px; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .groups-body { overflow-y: auto; max-height: 190px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .group-entry { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 8px; display: flex; align-items: center; gap: 6px; }
+  .group-entry-name { font-size: 12px; color: var(--text); flex: 1; }
+  .group-built-in { font-size: 10px; color: var(--text3); flex-shrink: 0; }
+  .enc-foot { padding: 10px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
 
-.enc-entry {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 7px 9px; display: flex; align-items: center; gap: 7px;
-}
-.enc-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.enc-entry-count {
-  background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
-  color: var(--text2); font-size: 13px; font-weight: 600; width: 36px; text-align: center; padding: 1px 4px;
-  font-family: 'Rajdhani', sans-serif;
-}
-.enc-entry-count:focus { outline: none; border-color: var(--accent-dim); }
+  .enc-entry {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 7px 9px; display: flex; align-items: center; gap: 7px;
+  }
+  .enc-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .enc-entry-count {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text2); font-size: 13px; font-weight: 600; width: 36px; text-align: center; padding: 1px 4px;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  .enc-entry-count:focus { outline: none; border-color: var(--accent-dim); }
 
-.saved-enc-list { display: flex; flex-direction: column; gap: 5px; }
-.saved-enc-item {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 8px 10px; cursor: pointer; transition: border-color 0.15s;
-}
-.saved-enc-item:hover { border-color: var(--accent-dim); }
-.saved-enc-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); }
-.saved-enc-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.saved-enc-btns { display: flex; gap: 4px; margin-top: 6px; }
+  .saved-enc-list { display: flex; flex-direction: column; gap: 5px; }
+  .saved-enc-item {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px 10px; cursor: pointer; transition: border-color 0.15s;
+  }
+  .saved-enc-item:hover { border-color: var(--accent-dim); }
+  .saved-enc-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text); }
+  .saved-enc-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .saved-enc-btns { display: flex; gap: 4px; margin-top: 6px; }
 
-.modal { max-width: 520px; }
+  .modal { max-width: 520px; }
 </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div class="app-title"><img class="app-logo" src="thekodia-logo.png" alt=""><span id="appTitle">⚔ Thekodia DM</span></div>
-  <div class="nav-tabs">
-    <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
-    <button class="nav-tab active">Library</button>
-    <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
-    <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
-    <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
-    <button class="nav-tab" onclick="window.location='/thekodia-tables.html'">Tables</button>
-    <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
-    <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
-    <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
-    <button class="nav-tab" onclick="if(confirm('Quit Thekodia?'))fetch('/shutdown',{method:'POST'}).then(()=>document.write('Thekodia has shut down. You may close this tab.'))" style="margin-left:auto;color:var(--red);border-color:var(--red-dim);">✕ Quit</button>
-  </div>
-  <button class="btn primary" onclick="newCreature()">+ New Creature / NPC</button>
+<div class="app-title"><img class="app-logo" src="thekodia-logo.png" alt=""><span id="appTitle">⚔ Thekodia DM</span></div>
+<div class="nav-tabs">
+  <button class="nav-tab" onclick="window.location='/thekodia-initiative-tracker.html'">Initiative</button>
+  <button class="nav-tab active">Library</button>
+  <button class="nav-tab" onclick="window.location='/thekodia-players.html'">Players</button>
+  <button class="nav-tab" onclick="window.location='/thekodia-references.html'">References</button>
+  <button class="nav-tab" onclick="window.location='/thekodia-clock.html'">Clock</button>
+  <button class="nav-tab" onclick="window.location='/thekodia-tables.html'">Tables</button>
+  <button class="nav-tab" onclick="window.location='/thekodia-dice.html'">Dice</button>
+  <button class="nav-tab" onclick="ThekodiaStorage.exportBackup()" title="Export Backup">💾 Backup</button>
+  <button class="nav-tab" onclick="document.getElementById('backupFileInput').click()" title="Import Backup">📂 Restore</button>
+  <button class="nav-tab" onclick="if(confirm('Quit Thekodia?'))fetch('/shutdown',{method:'POST'}).then(()=>document.write('Thekodia has shut down. You may close this tab.'))" style="margin-left:auto;color:var(--red);border-color:var(--red-dim);">✕ Quit</button>
+</div>
+<button class="btn primary" onclick="newCreature()">+ New Creature / NPC</button>
 </div>
 
 <div class="main-layout">
 
-  <!-- Left: Creature List -->
-  <div class="sidebar">
-    <div class="sidebar-head">
-      <div class="sidebar-title">Creature Library</div>
-      <input class="search-input" type="text" placeholder="Search..." id="searchInput" oninput="renderCreatureList()">
-      <div class="filter-row">
-        <button class="filter-chip monster active" onclick="toggleFilter('monster',this)">Monster</button>
-        <button class="filter-chip npc active" onclick="toggleFilter('npc',this)">NPC</button>
-        <button class="filter-chip player active" onclick="toggleFilter('player',this)">Player</button>
-      </div>
-    </div>
-    <div class="creature-list" id="creatureList"></div>
-    <div style="padding:8px;border-top:1px solid var(--border)">
-      <button class="btn small" style="width:100%" onclick="openPasteModal()">Paste Stat Block</button>
+<!-- Left: Creature List -->
+<div class="sidebar">
+  <div class="sidebar-head">
+    <div class="sidebar-title">Creature Library</div>
+    <input class="search-input" type="text" placeholder="Search name, type, tags, source..." id="searchInput" oninput="renderCreatureList()">
+    <div class="filter-row">
+      <button class="filter-chip monster active" onclick="toggleFilter('monster',this)">Monster</button>
+      <button class="filter-chip npc active" onclick="toggleFilter('npc',this)">NPC</button>
+      <button class="filter-chip player active" onclick="toggleFilter('player',this)">Player</button>
     </div>
   </div>
+  <div class="creature-list" id="creatureList"></div>
+  <div style="padding:8px;border-top:1px solid var(--border)">
+    <button class="btn small" style="width:100%" onclick="openPasteModal()">Paste Stat Block</button>
+  </div>
+</div>
 
-  <!-- Center: Stat Block Editor -->
-  <div class="center-panel" id="centerPanel">
-    <div class="empty-state">
-      <div class="big">Library Empty</div>
-      Create a new creature or NPC, or paste a stat block to get started
+<!-- Center: Stat Block Editor -->
+<div class="center-panel" id="centerPanel">
+  <div class="empty-state">
+    <div class="big">Library Empty</div>
+    Create a new creature or NPC, or paste a stat block to get started
+  </div>
+</div>
+
+<!-- Right: Saved Encounters + Groups -->
+<div class="enc-sidebar">
+  <div class="enc-head">
+    <div class="enc-title">Saved Encounters</div>
+  </div>
+  <div class="enc-body" id="encBody"></div>
+
+  <div class="enc-head" style="border-top:2px solid var(--border2)">
+    <div class="enc-title">Initiative Groups</div>
+  </div>
+  <div class="groups-body" id="groupsBody"></div>
+  <div class="enc-foot">
+    <div style="display:flex;gap:6px">
+      <input type="text" id="newGroupInput" class="search-input"
+             placeholder="New group name..."
+             style="flex:1;font-size:12px;padding:4px 8px"
+             onkeydown="if(event.key==='Enter')addGroup()">
+      <button class="btn small" onclick="addGroup()">+ Add</button>
     </div>
   </div>
-
-  <!-- Right: Saved Encounters + Groups -->
-  <div class="enc-sidebar">
-    <div class="enc-head">
-      <div class="enc-title">Saved Encounters</div>
-    </div>
-    <div class="enc-body" id="encBody"></div>
-
-    <div class="enc-head" style="border-top:2px solid var(--border2)">
-      <div class="enc-title">Initiative Groups</div>
-    </div>
-    <div class="groups-body" id="groupsBody"></div>
-    <div class="enc-foot">
-      <div style="display:flex;gap:6px">
-        <input type="text" id="newGroupInput" class="search-input"
-               placeholder="New group name..."
-               style="flex:1;font-size:12px;padding:4px 8px"
-               onkeydown="if(event.key==='Enter')addGroup()">
-        <button class="btn small" onclick="addGroup()">+ Add</button>
-      </div>
-    </div>
-  </div>
+</div>
 </div>
 
 <!-- Encounter Picker Modal -->
 <div class="modal-overlay hidden" id="encPickerModal">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-head">
-      <span id="encPickerTitle">Add to Encounter</span>
-      <button class="btn icon" onclick="closeModal('encPickerModal')">✕</button>
+<div class="modal" style="max-width:420px">
+  <div class="modal-head">
+    <span id="encPickerTitle">Add to Encounter</span>
+    <button class="btn icon" onclick="closeModal('encPickerModal')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <label style="font-size:13px;color:var(--text2)">Count</label>
+      <input type="number" id="encPickerCount" value="1" min="1" max="20"
+             style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+               color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 6px;text-align:center">
     </div>
-    <div class="modal-body">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <label style="font-size:13px;color:var(--text2)">Count</label>
-        <input type="number" id="encPickerCount" value="1" min="1" max="20"
-          style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-                 color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 6px;text-align:center">
-      </div>
 
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Saved encounters</div>
-      <div id="encPickerList"></div>
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Saved encounters</div>
+    <div id="encPickerList"></div>
 
-      <div style="height:1px;background:var(--border);margin:12px 0"></div>
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">New encounter</div>
-      <div style="display:flex;gap:6px">
-        <input type="text" id="encPickerNewName" placeholder="Encounter name..."
-          style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-                 color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:5px 8px"
-          onkeydown="if(event.key==='Enter')addCreatureToNewEncounter()">
-        <button class="btn small primary" onclick="addCreatureToNewEncounter()">Create</button>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal('encPickerModal')">Cancel</button>
+    <div style="height:1px;background:var(--border);margin:12px 0"></div>
+    <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">New encounter</div>
+    <div style="display:flex;gap:6px">
+      <input type="text" id="encPickerNewName" placeholder="Encounter name..."
+             style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+               color:var(--text);font-family:'Rajdhani',sans-serif;font-size:14px;padding:5px 8px"
+             onkeydown="if(event.key==='Enter')addCreatureToNewEncounter()">
+      <button class="btn small primary" onclick="addCreatureToNewEncounter()">Create</button>
     </div>
   </div>
+  <div class="modal-foot">
+    <button class="btn" onclick="closeModal('encPickerModal')">Cancel</button>
+  </div>
+</div>
 </div>
 
 <!-- Paste Modal -->
 <div class="modal-overlay hidden" id="pasteModal">
-  <div class="modal">
-    <div class="modal-head">Paste Stat Block <button class="btn icon" onclick="closeModal('pasteModal')">✕</button></div>
-    <div class="modal-body">
-      <div style="font-size:13px;color:var(--text2)">Paste any D&D Beyond or text-format stat block. Name, HP, AC, CR, speed, and ability scores will be auto-detected.</div>
-      <textarea class="paste-area" id="pasteInput" placeholder="Paste stat block here..."></textarea>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal('pasteModal')">Cancel</button>
-      <button class="btn primary" onclick="parsePaste()">Parse & Create</button>
-    </div>
+<div class="modal">
+  <div class="modal-head">Paste Stat Block <button class="btn icon" onclick="closeModal('pasteModal')">✕</button></div>
+  <div class="modal-body">
+    <div style="font-size:13px;color:var(--text2)">Paste any D&D Beyond or text-format stat block. Name, HP, AC, CR, speed, and ability scores will be auto-detected.</div>
+    <textarea class="paste-area" id="pasteInput" placeholder="Paste stat block here..."></textarea>
   </div>
+  <div class="modal-foot">
+    <button class="btn" onclick="closeModal('pasteModal')">Cancel</button>
+    <button class="btn primary" onclick="parsePaste()">Parse & Create</button>
+  </div>
+</div>
 </div>
 
 <script>
@@ -332,7 +333,8 @@ function emptyCreature() {
     attacks: [], spellSlots: [0,0,0,0,0,0,0,0,0],
     spellList: '', traits: '', actions: '', bonusActions: '',
     reactions: '', legendaryActions: '', lairActions: '', notes: '',
-    legMax: 0, lairActs: false, thumb: null
+    legMax: 0, lairActs: false, thumb: null,
+    creatureType: '', tags: '', environment: '', source: ''
   };
 }
 
@@ -356,7 +358,7 @@ function renderCreatureList() {
   const list = document.getElementById('creatureList');
   const filtered = creatures.filter((c,i) => {
     if (!filters[c.type]) return false;
-    if (q && !c.name.toLowerCase().includes(q)) return false;
+    if (q && ![c.name, c.creatureType||'', c.tags||'', c.environment||'', c.source||''].some(f => f.toLowerCase().includes(q))) return false;
     return true;
   });
   if (!filtered.length) {
@@ -368,14 +370,16 @@ function renderCreatureList() {
     const dot = c.type==='monster'?'var(--red)':c.type==='npc'?'var(--blue)':'var(--green)';
     const icon = c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀';
     const thumbHtml = c.thumb ? `<img src="${c.thumb}">` : icon;
+    const tagsHtml = c.tags ? `<div class="creature-entry-tags">${c.tags}</div>` : '';
     return `<div class="creature-entry${selectedIdx===i?' selected':''}" onclick="selectCreature(${i})">
-      <div class="type-dot" style="background:${dot}"></div>
-      <div class="creature-thumb">${thumbHtml}</div>
-      <div style="min-width:0">
-        <div class="creature-entry-name">${c.name}</div>
-        <div class="creature-entry-type">${c.type} · CR ${c.cr||'—'}</div>
-      </div>
-    </div>`;
+    <div class="type-dot" style="background:${dot}"></div>
+    <div class="creature-thumb">${thumbHtml}</div>
+    <div style="min-width:0">
+      <div class="creature-entry-name">${c.name}</div>
+      <div class="creature-entry-type">${c.type}${c.creatureType ? ' · '+c.creatureType : ''} · CR ${c.cr||'—'}${c.source ? ' · '+c.source : ''}</div>
+      ${tagsHtml}
+    </div>
+  </div>`;
   }).join('');
 }
 
@@ -395,211 +399,230 @@ function renderStatBlock() {
   if (!c) return;
   const center = document.getElementById('centerPanel');
   const thumbHtml = c.thumb
-    ? `<img src="${c.thumb}">`
-    : (c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀');
+          ? `<img src="${c.thumb}">`
+          : (c.type==='player'?'🧙':c.type==='npc'?'🗣':'💀');
 
   center.innerHTML = `
-  <div class="stat-block">
-    <div class="stat-block-head">
-      <div class="stat-block-thumb" title="Click to upload image">
-        ${thumbHtml}
-        <input type="file" accept="image/*" onchange="uploadThumb(${selectedIdx},this)">
-      </div>
-      <div class="stat-block-name-wrap">
-        <input class="stat-block-name" style="background:transparent;border:none;font-family:'Cinzel',serif;font-size:20px;color:var(--accent2);width:100%" value="${c.name}" onchange="field(${selectedIdx},'name',this.value);renderCreatureList()" placeholder="Creature Name">
-        <div class="stat-block-meta">
-          <select onchange="field(${selectedIdx},'type',this.value);renderCreatureList()" style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:12px;padding:2px 4px">
-            <option value="monster"${c.type==='monster'?' selected':''}>Monster</option>
-            <option value="npc"${c.type==='npc'?' selected':''}>NPC</option>
-            <option value="player"${c.type==='player'?' selected':''}>Player</option>
-          </select>
-          &nbsp;·&nbsp;
-          <input value="${c.size||'Medium'}" onchange="field(${selectedIdx},'size',this.value)" style="background:transparent;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;width:80px" placeholder="Size">
-          &nbsp;·&nbsp;
-          <input value="${c.alignment||''}" onchange="field(${selectedIdx},'alignment',this.value)" style="background:transparent;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;width:100px" placeholder="Alignment">
-        </div>
-      </div>
-      <div class="stat-block-actions">
-        <button class="btn small primary" onclick="openEncounterPicker(${selectedIdx})">+ Encounter</button>
-        <div style="display:flex;align-items:center;gap:2px">
-          <button class="btn small" style="border-color:var(--green-dim);color:var(--green)" onclick="sendToInitiative(${selectedIdx})">→ Combat</button>
-          <input type="number" id="sendCount" value="1" min="1" max="20"
-            style="width:38px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
-                   color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 4px;text-align:center">
-        </div>
-        <button class="btn small" onclick="duplicateCreature(${selectedIdx})">Dupe</button>
-        <button class="btn small danger" onclick="deleteCreature(${selectedIdx})">Delete</button>
+<div class="stat-block">
+  <div class="stat-block-head">
+    <div class="stat-block-thumb" title="Click to upload image">
+      ${thumbHtml}
+      <input type="file" accept="image/*" onchange="uploadThumb(${selectedIdx},this)">
+    </div>
+    <div class="stat-block-name-wrap">
+      <input class="stat-block-name" style="background:transparent;border:none;font-family:'Cinzel',serif;font-size:20px;color:var(--accent2);width:100%" value="${c.name}" onchange="field(${selectedIdx},'name',this.value);renderCreatureList()" placeholder="Creature Name">
+      <div class="stat-block-meta">
+        <select onchange="field(${selectedIdx},'type',this.value);renderCreatureList()" style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:12px;padding:2px 4px">
+          <option value="monster"${c.type==='monster'?' selected':''}>Monster</option>
+          <option value="npc"${c.type==='npc'?' selected':''}>NPC</option>
+          <option value="player"${c.type==='player'?' selected':''}>Player</option>
+        </select>
+        &nbsp;·&nbsp;
+        <input value="${c.size||'Medium'}" onchange="field(${selectedIdx},'size',this.value)" style="background:transparent;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;width:80px" placeholder="Size">
+        &nbsp;·&nbsp;
+        <input value="${c.alignment||''}" onchange="field(${selectedIdx},'alignment',this.value)" style="background:transparent;border:none;color:var(--text3);font-family:'Rajdhani',sans-serif;font-size:13px;width:100px" placeholder="Alignment">
       </div>
     </div>
-    <div class="sb-body">
-
-      <div class="sb-row">
-        <div class="sb-field" style="max-width:80px">
-          <label>AC</label>
-          <input type="number" value="${c.ac}" onchange="field(${selectedIdx},'ac',+this.value)" placeholder="13">
-        </div>
-        <div class="sb-field" style="max-width:100px">
-          <label>AC Note</label>
-          <input value="${c.acNote||''}" onchange="field(${selectedIdx},'acNote',this.value)" placeholder="natural armor">
-        </div>
-        <div class="sb-field" style="max-width:80px">
-          <label>Max HP</label>
-          <input type="number" value="${c.maxhp}" onchange="field(${selectedIdx},'maxhp',+this.value);field(${selectedIdx},'hp',+this.value)">
-        </div>
-        <div class="sb-field" style="max-width:80px">
-          <label>CR</label>
-          <input value="${c.cr||'1'}" onchange="field(${selectedIdx},'cr',this.value)">
-        </div>
-        <div class="sb-field">
-          <label>Speed</label>
-          <input value="${c.speed||'30 ft'}" onchange="field(${selectedIdx},'speed',this.value)">
-        </div>
+    <div class="stat-block-actions">
+      <button class="btn small primary" onclick="openEncounterPicker(${selectedIdx})">+ Encounter</button>
+      <div style="display:flex;align-items:center;gap:2px">
+        <button class="btn small" style="border-color:var(--green-dim);color:var(--green)" onclick="sendToInitiative(${selectedIdx})">→ Combat</button>
+        <input type="number" id="sendCount" value="1" min="1" max="20"
+          style="width:38px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);
+                 color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:3px 4px;text-align:center">
       </div>
-
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Ability Scores</div>
-      <div class="ability-grid">
-        ${['str','dex','con','int','wis','cha'].map(a => `
-          <div class="ability-box">
-            <label>${a.toUpperCase()}</label>
-            <input type="number" value="${c[a]||10}" onchange="field(${selectedIdx},'${a}',+this.value);rerenderAbilityMod('mod_${a}_${selectedIdx}',+this.value)" id="abilInput_${a}_${selectedIdx}">
-            <div class="ability-mod" id="mod_${a}_${selectedIdx}">${mod(c[a]||10)}</div>
-          </div>`).join('')}
-      </div>
-
-      <div class="sb-row">
-        <div class="sb-field">
-          <label>Saving Throws</label>
-          <input value="${c.savingThrows||''}" onchange="field(${selectedIdx},'savingThrows',this.value)" placeholder="Str +4, Con +6">
-        </div>
-        <div class="sb-field">
-          <label>Skills</label>
-          <input value="${c.skills||''}" onchange="field(${selectedIdx},'skills',this.value)" placeholder="Perception +5, Stealth +4">
-        </div>
-      </div>
-      <div class="sb-row">
-        <div class="sb-field">
-          <label>Damage Resistances</label>
-          <input value="${c.damageResist||''}" onchange="field(${selectedIdx},'damageResist',this.value)" placeholder="Fire, Cold">
-        </div>
-        <div class="sb-field">
-          <label>Damage Immunities</label>
-          <input value="${c.damageImmune||''}" onchange="field(${selectedIdx},'damageImmune',this.value)" placeholder="Poison, Necrotic">
-        </div>
-      </div>
-      <div class="sb-row">
-        <div class="sb-field">
-          <label>Condition Immunities</label>
-          <input value="${c.conditionImmune||''}" onchange="field(${selectedIdx},'conditionImmune',this.value)" placeholder="Charmed, Frightened">
-        </div>
-        <div class="sb-field">
-          <label>Senses</label>
-          <input value="${c.senses||''}" onchange="field(${selectedIdx},'senses',this.value)" placeholder="Darkvision 60 ft, passive Perception 15">
-        </div>
-      </div>
-      <div class="sb-row">
-        <div class="sb-field">
-          <label>Languages</label>
-          <input value="${c.languages||''}" onchange="field(${selectedIdx},'languages',this.value)" placeholder="Common, Goblin">
-        </div>
-        <div class="sb-field" style="max-width:80px">
-          <label>Leg. Actions</label>
-          <input type="number" value="${c.legMax||0}" onchange="field(${selectedIdx},'legMax',+this.value)" min="0">
-        </div>
-        <div class="sb-field" style="max-width:100px">
-          <label>Lair Actions</label>
-          <select onchange="field(${selectedIdx},'lairActs',this.value==='1')">
-            <option value="0"${!c.lairActs?' selected':''}>None</option>
-            <option value="1"${c.lairActs?' selected':''}>Yes</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Traits & Special Abilities</div>
-      <div class="sb-field">
-        <textarea onchange="field(${selectedIdx},'traits',this.value)" placeholder="Amphibious. The creature can breathe air and water.&#10;&#10;Pack Tactics. The creature has advantage on attack rolls...">${c.traits||''}</textarea>
-      </div>
-
-      <div class="sb-divider"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div class="sb-section-title" style="margin:0">Attacks</div>
-        <button class="btn small" onclick="addAttack(${selectedIdx})">+ Attack</button>
-      </div>
-      <div class="attack-list" id="attackList_${selectedIdx}">
-        ${renderAttacks(c, selectedIdx)}
-      </div>
-
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Actions</div>
-      <div class="sb-field">
-        <textarea onchange="field(${selectedIdx},'actions',this.value)" placeholder="Multiattack. The creature makes two attacks.&#10;&#10;Bite. Melee Weapon Attack: +5 to hit...">${c.actions||''}</textarea>
-      </div>
-
-      <div class="sb-row">
-        <div class="sb-field">
-          <label>Bonus Actions</label>
-          <textarea onchange="field(${selectedIdx},'bonusActions',this.value)" placeholder="Cunning Action...">${c.bonusActions||''}</textarea>
-        </div>
-        <div class="sb-field">
-          <label>Reactions</label>
-          <textarea onchange="field(${selectedIdx},'reactions',this.value)" placeholder="Parry...">${c.reactions||''}</textarea>
-        </div>
-      </div>
-
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Spellcasting</div>
-      <div class="sb-field" style="margin-bottom:8px">
-        <label>Spell Save DC / Attack Bonus / Ability</label>
-        <input value="${c.spellInfo||''}" onchange="field(${selectedIdx},'spellInfo',this.value)" placeholder="DC 14, +6 to hit, Wisdom">
-      </div>
-      <div class="sb-section-title" style="font-size:11px;color:var(--text3)">Spell Slots</div>
-      <div class="spell-slot-grid">
-        ${[1,2,3,4,5,6,7,8,9].map(lvl => `
-          <div class="spell-slot-box">
-            <label>L${lvl}</label>
-            <input type="number" min="0" value="${c.spellSlots[lvl-1]||0}" onchange="fieldArr(${selectedIdx},'spellSlots',${lvl-1},+this.value)">
-          </div>`).join('')}
-      </div>
-      <div class="sb-field" style="margin-top:6px">
-        <label>Spell List</label>
-        <textarea onchange="field(${selectedIdx},'spellList',this.value)" placeholder="Cantrips: Fire Bolt, Mage Hand&#10;1st: Magic Missile, Shield (2 slots)&#10;2nd: Misty Step (1 slot)">${c.spellList||''}</textarea>
-      </div>
-
-      ${c.legMax > 0 ? `
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Legendary Actions</div>
-      <div class="sb-field">
-        <textarea onchange="field(${selectedIdx},'legendaryActions',this.value)" placeholder="Can take ${c.legMax} legendary actions per round...">${c.legendaryActions||''}</textarea>
-      </div>` : ''}
-
-      ${c.lairActs ? `
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">Lair Actions</div>
-      <div class="sb-field">
-        <textarea onchange="field(${selectedIdx},'lairActions',this.value)" placeholder="On initiative count 20...">${c.lairActions||''}</textarea>
-      </div>` : ''}
-
-      <div class="sb-divider"></div>
-      <div class="sb-section-title">DM Notes</div>
-      <div class="sb-field">
-        <textarea onchange="field(${selectedIdx},'notes',this.value)" placeholder="Tactics, personality, secrets, plot hooks...">${c.notes||''}</textarea>
-      </div>
-
+      <button class="btn small" onclick="duplicateCreature(${selectedIdx})">Dupe</button>
+      <button class="btn small danger" onclick="deleteCreature(${selectedIdx})">Delete</button>
     </div>
-  </div>`;
+  </div>
+  <div class="sb-body">
+
+    <div class="sb-row">
+      <div class="sb-field" style="max-width:80px">
+        <label>AC</label>
+        <input type="number" value="${c.ac}" onchange="field(${selectedIdx},'ac',+this.value)" placeholder="13">
+      </div>
+      <div class="sb-field" style="max-width:100px">
+        <label>AC Note</label>
+        <input value="${c.acNote||''}" onchange="field(${selectedIdx},'acNote',this.value)" placeholder="natural armor">
+      </div>
+      <div class="sb-field" style="max-width:80px">
+        <label>Max HP</label>
+        <input type="number" value="${c.maxhp}" onchange="field(${selectedIdx},'maxhp',+this.value);field(${selectedIdx},'hp',+this.value)">
+      </div>
+      <div class="sb-field" style="max-width:80px">
+        <label>CR</label>
+        <input value="${c.cr||'1'}" onchange="field(${selectedIdx},'cr',this.value)">
+      </div>
+      <div class="sb-field">
+        <label>Speed</label>
+        <input value="${c.speed||'30 ft'}" onchange="field(${selectedIdx},'speed',this.value)">
+      </div>
+    </div>
+
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Creature Type</label>
+        <input value="${c.creatureType||''}" onchange="field(${selectedIdx},'creatureType',this.value)" placeholder="Undead, Dragon, Humanoid...">
+      </div>
+      <div class="sb-field">
+        <label>Environment</label>
+        <input value="${c.environment||''}" onchange="field(${selectedIdx},'environment',this.value)" placeholder="Forest, Dungeon, Arctic...">
+      </div>
+      <div class="sb-field">
+        <label>Source</label>
+        <input value="${c.source||''}" onchange="field(${selectedIdx},'source',this.value)" placeholder="MM p.30, Homebrew...">
+      </div>
+      <div class="sb-field">
+        <label>Tags</label>
+        <input value="${c.tags||''}" onchange="field(${selectedIdx},'tags',this.value)" placeholder="boss, solo, elite...">
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Ability Scores</div>
+    <div class="ability-grid">
+      ${['str','dex','con','int','wis','cha'].map(a => `
+        <div class="ability-box">
+          <label>${a.toUpperCase()}</label>
+          <input type="number" value="${c[a]||10}" onchange="field(${selectedIdx},'${a}',+this.value);rerenderAbilityMod('mod_${a}_${selectedIdx}',+this.value)" id="abilInput_${a}_${selectedIdx}">
+          <div class="ability-mod" id="mod_${a}_${selectedIdx}">${mod(c[a]||10)}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Saving Throws</label>
+        <input value="${c.savingThrows||''}" onchange="field(${selectedIdx},'savingThrows',this.value)" placeholder="Str +4, Con +6">
+      </div>
+      <div class="sb-field">
+        <label>Skills</label>
+        <input value="${c.skills||''}" onchange="field(${selectedIdx},'skills',this.value)" placeholder="Perception +5, Stealth +4">
+      </div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Damage Resistances</label>
+        <input value="${c.damageResist||''}" onchange="field(${selectedIdx},'damageResist',this.value)" placeholder="Fire, Cold">
+      </div>
+      <div class="sb-field">
+        <label>Damage Immunities</label>
+        <input value="${c.damageImmune||''}" onchange="field(${selectedIdx},'damageImmune',this.value)" placeholder="Poison, Necrotic">
+      </div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Condition Immunities</label>
+        <input value="${c.conditionImmune||''}" onchange="field(${selectedIdx},'conditionImmune',this.value)" placeholder="Charmed, Frightened">
+      </div>
+      <div class="sb-field">
+        <label>Senses</label>
+        <input value="${c.senses||''}" onchange="field(${selectedIdx},'senses',this.value)" placeholder="Darkvision 60 ft, passive Perception 15">
+      </div>
+    </div>
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Languages</label>
+        <input value="${c.languages||''}" onchange="field(${selectedIdx},'languages',this.value)" placeholder="Common, Goblin">
+      </div>
+      <div class="sb-field" style="max-width:80px">
+        <label>Leg. Actions</label>
+        <input type="number" value="${c.legMax||0}" onchange="field(${selectedIdx},'legMax',+this.value)" min="0">
+      </div>
+      <div class="sb-field" style="max-width:100px">
+        <label>Lair Actions</label>
+        <select onchange="field(${selectedIdx},'lairActs',this.value==='1')">
+          <option value="0"${!c.lairActs?' selected':''}>None</option>
+          <option value="1"${c.lairActs?' selected':''}>Yes</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Traits & Special Abilities</div>
+    <div class="sb-field">
+      <textarea onchange="field(${selectedIdx},'traits',this.value)" placeholder="Amphibious. The creature can breathe air and water.&#10;&#10;Pack Tactics. The creature has advantage on attack rolls...">${c.traits||''}</textarea>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="sb-section-title" style="margin:0">Attacks</div>
+      <button class="btn small" onclick="addAttack(${selectedIdx})">+ Attack</button>
+    </div>
+    <div class="attack-list" id="attackList_${selectedIdx}">
+      ${renderAttacks(c, selectedIdx)}
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Actions</div>
+    <div class="sb-field">
+      <textarea onchange="field(${selectedIdx},'actions',this.value)" placeholder="Multiattack. The creature makes two attacks.&#10;&#10;Bite. Melee Weapon Attack: +5 to hit...">${c.actions||''}</textarea>
+    </div>
+
+    <div class="sb-row">
+      <div class="sb-field">
+        <label>Bonus Actions</label>
+        <textarea onchange="field(${selectedIdx},'bonusActions',this.value)" placeholder="Cunning Action...">${c.bonusActions||''}</textarea>
+      </div>
+      <div class="sb-field">
+        <label>Reactions</label>
+        <textarea onchange="field(${selectedIdx},'reactions',this.value)" placeholder="Parry...">${c.reactions||''}</textarea>
+      </div>
+    </div>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Spellcasting</div>
+    <div class="sb-field" style="margin-bottom:8px">
+      <label>Spell Save DC / Attack Bonus / Ability</label>
+      <input value="${c.spellInfo||''}" onchange="field(${selectedIdx},'spellInfo',this.value)" placeholder="DC 14, +6 to hit, Wisdom">
+    </div>
+    <div class="sb-section-title" style="font-size:11px;color:var(--text3)">Spell Slots</div>
+    <div class="spell-slot-grid">
+      ${[1,2,3,4,5,6,7,8,9].map(lvl => `
+        <div class="spell-slot-box">
+          <label>L${lvl}</label>
+          <input type="number" min="0" value="${c.spellSlots[lvl-1]||0}" onchange="fieldArr(${selectedIdx},'spellSlots',${lvl-1},+this.value)">
+        </div>`).join('')}
+    </div>
+    <div class="sb-field" style="margin-top:6px">
+      <label>Spell List</label>
+      <textarea onchange="field(${selectedIdx},'spellList',this.value)" placeholder="Cantrips: Fire Bolt, Mage Hand&#10;1st: Magic Missile, Shield (2 slots)&#10;2nd: Misty Step (1 slot)">${c.spellList||''}</textarea>
+    </div>
+
+    ${c.legMax > 0 ? `
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Legendary Actions</div>
+    <div class="sb-field">
+      <textarea onchange="field(${selectedIdx},'legendaryActions',this.value)" placeholder="Can take ${c.legMax} legendary actions per round...">${c.legendaryActions||''}</textarea>
+    </div>` : ''}
+
+    ${c.lairActs ? `
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">Lair Actions</div>
+    <div class="sb-field">
+      <textarea onchange="field(${selectedIdx},'lairActions',this.value)" placeholder="On initiative count 20...">${c.lairActions||''}</textarea>
+    </div>` : ''}
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-title">DM Notes</div>
+    <div class="sb-field">
+      <textarea onchange="field(${selectedIdx},'notes',this.value)" placeholder="Tactics, personality, secrets, plot hooks...">${c.notes||''}</textarea>
+    </div>
+
+  </div>
+</div>`;
 }
 
 function renderAttacks(c, i) {
   if (!c.attacks || !c.attacks.length) return '<div style="font-size:13px;color:var(--text3)">No attacks added</div>';
   return c.attacks.map((a,ai) => `
-    <div class="attack-entry">
-      <input value="${a.name||''}" placeholder="Longsword" style="width:110px" onchange="attackField(${i},${ai},'name',this.value)">
-      <input value="${a.hit||''}" placeholder="+5 to hit" style="width:90px" onchange="attackField(${i},${ai},'hit',this.value)">
-      <input value="${a.range||''}" placeholder="5 ft" style="width:70px" onchange="attackField(${i},${ai},'range',this.value)">
-      <input value="${a.damage||''}" placeholder="1d8+3 slash" style="flex:1" onchange="attackField(${i},${ai},'damage',this.value)">
-      <button class="btn icon danger" onclick="removeAttack(${i},${ai})">✕</button>
-    </div>`).join('');
+  <div class="attack-entry">
+    <input value="${a.name||''}" placeholder="Longsword" style="width:110px" onchange="attackField(${i},${ai},'name',this.value)">
+    <input value="${a.hit||''}" placeholder="+5 to hit" style="width:90px" onchange="attackField(${i},${ai},'hit',this.value)">
+    <input value="${a.range||''}" placeholder="5 ft" style="width:70px" onchange="attackField(${i},${ai},'range',this.value)">
+    <input value="${a.damage||''}" placeholder="1d8+3 slash" style="flex:1" onchange="attackField(${i},${ai},'damage',this.value)">
+    <button class="btn icon danger" onclick="removeAttack(${i},${ai})">✕</button>
+  </div>`).join('');
 }
 
 function addAttack(i) {
@@ -707,16 +730,16 @@ function openEncounterPicker(i) {
   document.getElementById('encPickerNewName').value = '';
 
   document.getElementById('encPickerList').innerHTML = encounters.length
-    ? encounters.map((e, ei) => `
-        <div onclick="addCreatureToExistingEnc(${ei})"
-          style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);
-                 cursor:pointer;margin-bottom:5px;transition:border-color 0.15s"
-          onmouseover="this.style.borderColor='var(--accent-dim)'"
-          onmouseout="this.style.borderColor='var(--border)'">
-          <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text)">${e.name}</div>
-          <div style="font-size:11px;color:var(--text3)">${e.combatants.length} combatants</div>
-        </div>`).join('')
-    : '<div style="font-size:13px;color:var(--text3);padding:4px 0">No saved encounters yet</div>';
+          ? encounters.map((e, ei) => `
+      <div onclick="addCreatureToExistingEnc(${ei})"
+        style="padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg3);
+               cursor:pointer;margin-bottom:5px;transition:border-color 0.15s"
+        onmouseover="this.style.borderColor='var(--accent-dim)'"
+        onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--text)">${e.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${e.combatants.length} combatants</div>
+      </div>`).join('')
+          : '<div style="font-size:13px;color:var(--text3);padding:4px 0">No saved encounters yet</div>';
 
   openModal('encPickerModal');
 }
@@ -780,14 +803,14 @@ function renderSavedEncs() {
     return;
   }
   body.innerHTML = encounters.map((e,i) => `
-    <div class="saved-enc-item">
-      <div class="saved-enc-name">${e.name}</div>
-      <div class="saved-enc-meta">${e.combatants.length} combatants</div>
-      <div class="saved-enc-btns">
-        <button class="btn small primary" onclick="loadToInitiative(${i})">Send to Initiative</button>
-        <button class="btn small danger" onclick="deleteEnc(${i})">Delete</button>
-      </div>
-    </div>`).join('');
+  <div class="saved-enc-item">
+    <div class="saved-enc-name">${e.name}</div>
+    <div class="saved-enc-meta">${e.combatants.length} combatants</div>
+    <div class="saved-enc-btns">
+      <button class="btn small primary" onclick="loadToInitiative(${i})">Send to Initiative</button>
+      <button class="btn small danger" onclick="deleteEnc(${i})">Delete</button>
+    </div>
+  </div>`).join('');
 }
 
 function loadToInitiative(i) {
@@ -844,6 +867,14 @@ function parsePaste() {
   if (chaMatch) c.cha = +chaMatch[1];
   if (langMatch) c.languages = langMatch[1].trim();
   if (sensesMatch) c.senses = sensesMatch[1].trim();
+
+  const typeLineMatch = text.match(/\b(tiny|small|medium|large|huge|gargantuan)\s+(aberration|beast|celestial|construct|dragon|elemental|fey|fiend|giant|humanoid|monstrosity|ooze|plant|swarm|undead)\b/i);
+  if (typeLineMatch) {
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    c.size = cap(typeLineMatch[1]);
+    c.creatureType = cap(typeLineMatch[2]);
+  }
+
   c.notes = text;
 
   creatures.push(c);
@@ -875,20 +906,20 @@ function saveGroups() {
 function renderGroups() {
   const body = document.getElementById('groupsBody');
   let html = HARDCODED_GROUPS.map(g =>
-    `<div class="group-entry">
-      <span class="group-entry-name">${g}</span>
-      <span class="group-built-in">built-in</span>
-    </div>`
+          `<div class="group-entry">
+    <span class="group-entry-name">${g}</span>
+    <span class="group-built-in">built-in</span>
+  </div>`
   ).join('');
 
   if (!customGroups.length) {
     html += '<div style="font-size:12px;color:var(--text3);padding:2px 0">No custom groups yet.</div>';
   } else {
     html += customGroups.map((g, i) =>
-      `<div class="group-entry">
-        <span class="group-entry-name">${g}</span>
-        <button class="btn icon" onclick="deleteGroup(${i})" style="font-size:11px;padding:2px 5px">✕</button>
-      </div>`
+            `<div class="group-entry">
+      <span class="group-entry-name">${g}</span>
+      <button class="btn icon" onclick="deleteGroup(${i})" style="font-size:11px;padding:2px 5px">✕</button>
+    </div>`
     ).join('');
   }
   body.innerHTML = html;
