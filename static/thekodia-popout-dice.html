@@ -419,12 +419,34 @@ body:hover .close-btn { opacity: 1; }
   font-family: 'Cinzel', serif;
   letter-spacing: 0.06em;
 }
+
+.resize-handle {
+  position: fixed;
+  bottom: 0; right: 0;
+  width: 18px; height: 18px;
+  cursor: se-resize;
+  -webkit-app-region: no-drag;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px; bottom: 3px;
+  width: 8px; height: 8px;
+  border-right: 2px solid var(--border2);
+  border-bottom: 2px solid var(--border2);
+}
+body:hover .resize-handle { opacity: 1; }
+body:hover .resize-handle:hover::after { border-color: var(--accent-dim); }
   </style>
 </head>
 <body>
 
 <div class="drag-strip"></div>
 <button class="close-btn" onclick="typeof pywebview !== 'undefined' ? pywebview.api.close_self() : window.close()" title="Close">✕</button>
+<div class="resize-handle" id="resizeHandle"></div>
 
 <!-- Result display -->
 <div class="result-area" id="resultArea">
@@ -735,6 +757,33 @@ document.addEventListener('keydown', e => {
 loadHistory();
 renderHistory();
 updateFormula();
+
+// ── RESIZE HANDLE ─────────────────────────────────────────
+(function() {
+  const handle = document.getElementById('resizeHandle');
+  if (!handle) return;
+  let startX, startY, startW, startH, lastCall = 0;
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    startX = e.screenX; startY = e.screenY;
+    startW = window.innerWidth; startH = window.innerHeight;
+    const onMove = e => {
+      const now = Date.now();
+      if (now - lastCall < 32) return;
+      lastCall = now;
+      const w = Math.max(280, startW + (e.screenX - startX));
+      const h = Math.max(200, startH + (e.screenY - startY));
+      if (typeof pywebview !== 'undefined') pywebview.api.resize_self(w, h);
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+})();
 </script>
 </body>
 </html>
