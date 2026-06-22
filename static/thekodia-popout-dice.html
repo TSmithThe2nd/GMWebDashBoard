@@ -10,11 +10,11 @@
 :root {
   --bg: #0a0c10;
   --bg2: #0f1219;
-  --bg3: #ffd992;
+  --bg3: #161a24;
   --border: #1e2535;
   --border2: #2a3448;
   --accent: #c8a96e;
-  --accent2: #5ed113;
+  --accent2: #e8c97e;
   --accent-dim: #5a4428;
   --red: #e05555;
   --red-dim: #5a2020;
@@ -23,9 +23,9 @@
   --purple: #9b72cf;
   --teal: #4ecdc4;
   --blue: #5b8de8;
-  --text: #31e620;
-  --text2: #ffffff;
-  --text3: #de5940;
+  --text: #e8e0d0;
+  --text2: #8a8070;
+  --text3: #3a3428;
   --radius: 6px;
 }
 
@@ -61,7 +61,7 @@ body {
   width: 26px; height: 26px;
   border-radius: 50%;
   border: 1px solid var(--border2);
-  background: rgb(17 88 223 / 0);
+  background: rgba(10,12,16,0.88);
   color: var(--text2);
   font-size: 14px;
   line-height: 1;
@@ -450,7 +450,7 @@ body:hover .resize-handle:hover::after { border-color: var(--accent-dim); }
 
 <!-- Result display -->
 <div class="result-area" id="resultArea">
-  <div class="result-empty" id="resultEmpty" style="color: #e8e0d0">Roll the Dice</div>
+  <div class="result-empty" id="resultEmpty">Roll the Dice</div>
   <div id="resultContent" style="display:none;width:100%;text-align:center">
     <div class="result-formula" id="resultFormula"></div>
     <div class="result-total normal" id="resultTotal">0</div>
