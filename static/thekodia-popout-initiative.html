@@ -535,6 +535,56 @@ function readState() {
 function writeState(data) {
   try { localStorage.setItem(LIVE_KEY, JSON.stringify(data)); } catch {}
   lastStr = localStorage.getItem(LIVE_KEY) || 'null';
+  pushDisplayState(data);
+}
+
+function pushDisplayState(data) {
+  try {
+    let existingMode = 'ambient';
+    try {
+      const ex = JSON.parse(localStorage.getItem('thekodia_display_state') || '{}');
+      if (ex.mode) existingMode = ex.mode;
+    } catch {}
+
+    if (!data || !Array.isArray(data.combatants) || !data.combatants.length || data.currentTurnIdx < 0) {
+      localStorage.setItem('thekodia_display_state', JSON.stringify({ active: false, mode: existingMode }));
+      return;
+    }
+
+    const pdSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings')||'{}').playerDisplay || {}; } catch { return {}; } })();
+    const showPlayerHp  = pdSettings.showPlayerHpBars  !== false;
+    const showMonsterHp = !!pdSettings.showMonsterHpBars;
+
+    const makeCombatant = (c) => {
+      if (!c) return null;
+      const isPlayer = c.type === 'player';
+      const effectiveMax = Math.max(1, (c.maxhp || 0) - (c.maxReduce || 0));
+      const showHp = isPlayer ? showPlayerHp : showMonsterHp;
+      return {
+        displayName: c.name,
+        type: c.type,
+        thumb: c.thumb,
+        conditions: (c.conditions || []).map(name => {
+          const cf = CONDITIONS.find(x => x.name === name) || { color: '#888' };
+          return { name, color: cf.color };
+        }),
+        hpPct: showHp ? (c.hp / effectiveMax) : undefined
+      };
+    };
+
+    const { combatants, currentTurnIdx, round } = data;
+    const current = combatants[currentTurnIdx];
+    let deck = combatants.slice(currentTurnIdx + 1).filter(x => !x.dead);
+    if (deck.length < 2) deck = [...deck, ...combatants.slice(0, currentTurnIdx).filter(x => !x.dead)];
+
+    localStorage.setItem('thekodia_display_state', JSON.stringify({
+      active: true,
+      mode: existingMode,
+      round,
+      current: makeCombatant(current),
+      deck: deck.slice(0, 2).map(makeCombatant)
+    }));
+  } catch(e) {}
 }
 
 // ── Render cards ──────────────────────────────────────
