@@ -154,6 +154,7 @@ if __name__ == '__main__':
                 win = webview.create_window(
                     title, url, width=w, height=h, on_top=True, js_api=self,
                     transparent=transparent, frameless=transparent,
+                    background_color='#0a0c10',
                 )
                 self._windows[key] = win
 
