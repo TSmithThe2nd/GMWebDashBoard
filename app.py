@@ -20,6 +20,7 @@ import routes.data as _data_mod
 import routes.pdf as _pdf_mod
 import routes.static_files as _static_mod
 import routes.campaigns as _campaigns_mod
+import webview
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 # When frozen by PyInstaller, bundled read-only files live in sys._MEIPASS.
@@ -139,7 +140,7 @@ if __name__ == '__main__':
             time.sleep(0.1)
 
     try:
-        import webview
+        # import webview
 
         class ThekodiaApi:
             def __init__(self):
