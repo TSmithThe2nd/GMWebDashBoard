@@ -239,6 +239,9 @@ body:hover .resize-handle { opacity: 1; }
 <div class="resize-handle" id="resizeHandle"></div>
 
 <script>
+const FLIPPED = new URLSearchParams(window.location.search).get('flip') === '1';
+if (FLIPPED) document.getElementById('bar').style.transform = 'rotate(180deg)';
+
 const _rawSettings = (() => { try { return JSON.parse(localStorage.getItem('thekodia_settings') || '{}'); } catch { return {}; } })();
 const _cal = _rawSettings.calendar || {};
 const _pd  = _rawSettings.playerDisplay || {};

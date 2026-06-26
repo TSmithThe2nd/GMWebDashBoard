@@ -183,7 +183,11 @@ if __name__ == '__main__':
 
             def open_player_panel(self):
                 self._open('player_panel', 'Player Panel',
-                           'http://localhost:5000/thekodia-popout-player-panel.html', 580, 220, transparent=True)
+                           'http://localhost:5000/thekodia-popout-player-panel.html', 1100, 54, transparent=True)
+
+            def open_player_panel_flipped(self):
+                self._open('player_panel_flip', 'Player Panel (Flip)',
+                           'http://localhost:5000/thekodia-popout-player-panel.html?flip=1', 1100, 54, transparent=True)
 
         api = ThekodiaApi()
         webview.create_window(
