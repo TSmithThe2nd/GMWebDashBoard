@@ -138,6 +138,30 @@ body {
 }
 .hp-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
 
+/* ── COMPASS ─────────────────────────────────────────── */
+.compass-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 1px;
+}
+.compass-arrow {
+  font-size: 14px;
+  color: var(--accent2);
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+.compass-dir {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
 /* ── AMBIENT BLOCKS ──────────────────────────────────── */
 .amb-time {
   font-family: 'Cinzel', serif;
@@ -265,6 +289,7 @@ const MOON_DATA = Array.isArray(_savedMoons) && _savedMoons.length > 0
 const MOON_PHASES = ['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
 
 // ── STATE ────────────────────────────────────────────────
+let compass = null; // 'N' | 'E' | 'S' | 'W' | null
 let displayMode = 'ambient';
 let weather = { icon: '☀', desc: 'Clear skies' };
 let eventData = null;
@@ -276,6 +301,7 @@ function loadState() {
   try { eventData = JSON.parse(localStorage.getItem('thekodia_event') || 'null'); } catch {}
   try { const r = localStorage.getItem('thekodia_display_state'); if (r) combatState = JSON.parse(r); } catch {}
   try { const r = localStorage.getItem('thekodia_clock'); if (r) clockState = JSON.parse(r); } catch {}
+  try { compass = localStorage.getItem('thekodia_compass') || null; } catch {}
 }
 
 // ── HELPERS ──────────────────────────────────────────────
@@ -373,7 +399,14 @@ function buildCombatBar() {
       </div>`;
   });
 
+  if (compass) html += compassHtml();
   return html;
+}
+
+function compassHtml() {
+  const opposites = { N:'S', S:'N', E:'W', W:'E' };
+  const dir = FLIPPED ? (opposites[compass] || compass) : compass;
+  return `<div class="sep"></div><div class="compass-block"><div class="compass-dir" style="font-size:14px">${dir}</div></div>`;
 }
 
 function buildAmbientBar() {
@@ -405,23 +438,26 @@ function buildAmbientBar() {
       </div>`;
   }
 
+  if (compass) html += compassHtml();
   return html;
 }
 
 // ── POLL ─────────────────────────────────────────────────
 let lastStateStr = '';
 setInterval(() => {
-  const raw      = localStorage.getItem('thekodia_display_state') || 'null';
-  const clockRaw = localStorage.getItem('thekodia_clock') || 'null';
-  const eventRaw = localStorage.getItem('thekodia_event') || 'null';
-  const wxRaw    = localStorage.getItem('thekodia_weather') || 'null';
-  const stateStr = raw + clockRaw + eventRaw + wxRaw;
+  const raw        = localStorage.getItem('thekodia_display_state') || 'null';
+  const clockRaw   = localStorage.getItem('thekodia_clock') || 'null';
+  const eventRaw   = localStorage.getItem('thekodia_event') || 'null';
+  const wxRaw      = localStorage.getItem('thekodia_weather') || 'null';
+  const compassRaw = localStorage.getItem('thekodia_compass') || '';
+  const stateStr   = raw + clockRaw + eventRaw + wxRaw + compassRaw;
   if (stateStr !== lastStateStr) {
     lastStateStr = stateStr;
     try { combatState = JSON.parse(raw); } catch {}
     try { clockState  = JSON.parse(clockRaw); } catch {}
     try { eventData   = JSON.parse(eventRaw); } catch {}
     try { weather     = JSON.parse(wxRaw); } catch {}
+    compass = compassRaw || null;
     render();
   }
 }, 1000);
