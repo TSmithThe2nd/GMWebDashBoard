@@ -46,6 +46,19 @@ const ThekodiaStorage = (() => {
     }
   };
 
+  const _nativeRemoveItem = localStorage.removeItem.bind(localStorage);
+  localStorage.removeItem = function(key) {
+    _nativeRemoveItem(key);
+    const store = KEY_MAP[key];
+    if (store) {
+      checkServer().then(avail => {
+        if (avail) {
+          fetch(`${BASE}/data/${store}`, { method: 'DELETE' }).catch(() => {});
+        }
+      });
+    }
+  };
+
   async function checkServer() {
     if (_serverAvailable !== null) return _serverAvailable;
     try {
