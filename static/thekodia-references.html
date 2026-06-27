@@ -890,12 +890,28 @@ function _restoreSection() {
   } catch {}
 }
 
+function _restoreScroll() {
+  try {
+    const y = parseInt(sessionStorage.getItem('thekodia_ref_scroll') || '0', 10);
+    if (y > 0) window.scrollTo(0, y);
+  } catch {}
+}
+
+let _scrollSaveTimer = null;
+window.addEventListener('scroll', () => {
+  clearTimeout(_scrollSaveTimer);
+  _scrollSaveTimer = setTimeout(() => {
+    try { sessionStorage.setItem('thekodia_ref_scroll', String(Math.round(window.scrollY))); } catch {}
+  }, 150);
+}, { passive: true });
+
 // Render static data immediately — no localStorage needed
 renderConditions();
 renderLanguages();
 renderTools();
 injectCardForms();
 _restoreSection();
+_restoreScroll();
 
 // Load user data (notes + cards); re-run after server sync to pick up persisted data
 function _loadUserData() {
