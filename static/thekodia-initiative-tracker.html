@@ -255,6 +255,41 @@ body { overflow-x: hidden; }
   flex-shrink: 0;
 }
 
+.hp-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0 2px;
+}
+.hp-quick-input {
+  width: 52px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 2px 4px;
+}
+.hp-quick-input:focus { outline: none; border-color: var(--accent-dim); }
+.hp-quick-btn {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.hp-quick-btn.dmg { border-color: #6a2525; color: var(--red); }
+.hp-quick-btn.dmg:hover { background: rgba(224,85,85,0.15); border-color: var(--red); }
+.hp-quick-btn.heal { border-color: var(--green-dim); color: var(--green); }
+.hp-quick-btn.heal:hover { background: rgba(76,175,125,0.15); border-color: var(--green); }
+
 /* Right Panel */
 .right-panel {
   display: flex;
@@ -626,7 +661,7 @@ body { overflow-x: hidden; }
     </div>
 
     <!-- Detail panel field toggles -->
-    <div class="detail-toggle-bar">t55
+    <div class="detail-toggle-bar">
       <span class="detail-toggle-bar-label">Show:</span>
       <button class="field-toggle on" id="tog_attacks" onclick="toggleField('attacks')">Attacks</button>
       <button class="field-toggle on" id="tog_stats" onclick="toggleField('stats')">Stats</button>
@@ -1185,6 +1220,11 @@ function renderCard(c, i) {
           ${extras.join('')}
         </div>
         <div class="hp-bar-wrap"><div class="hp-bar" style="width:${Math.round(pct*100)}%;background:${hpColor(pct)}"></div></div>
+        <div class="hp-quick-row" onclick="event.stopPropagation()">
+          <input class="hp-quick-input" type="number" id="hpInput_${i}" placeholder="Amt" min="1">
+          <button class="hp-quick-btn dmg" onclick="quickDmg(${i})">− Dmg</button>
+          <button class="hp-quick-btn heal" onclick="quickHeal(${i})">+ Heal</button>
+        </div>
       </div>
       <div class="card-actions">
         <button class="btn icon" title="Select for quick edit" onclick="selectCombatant(${i})">✏</button>
@@ -1380,6 +1420,31 @@ function resetLegActions(i) {
 function toggleDead(i) {
   combatants[i].dead = !combatants[i].dead;
   if (!combatants[i].dead) combatants[i].hp = Math.max(1, combatants[i].hp);
+  renderList();
+}
+
+function quickDmg(i) {
+  const delta = parseInt(document.getElementById('hpInput_' + i)?.value) || 0;
+  if (delta <= 0) return;
+  const c = combatants[i];
+  if ((c.temphp || 0) > 0) {
+    const absorbed = Math.min(c.temphp, delta);
+    c.temphp -= absorbed;
+    c.hp = Math.max(0, c.hp - (delta - absorbed));
+  } else {
+    c.hp = Math.max(0, c.hp - delta);
+  }
+  if (c.hp <= 0) c.dead = true;
+  renderList();
+}
+
+function quickHeal(i) {
+  const delta = parseInt(document.getElementById('hpInput_' + i)?.value) || 0;
+  if (delta <= 0) return;
+  const c = combatants[i];
+  const effectiveMax = Math.max(1, c.maxhp - (c.maxReduce || 0));
+  c.hp = Math.min(effectiveMax, c.hp + delta);
+  if (c.dead && c.hp > 0) c.dead = false;
   renderList();
 }
 

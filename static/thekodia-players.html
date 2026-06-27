@@ -770,7 +770,8 @@ function buildCombatantFromPlayer(p) {
       p.saveProficiencies ? `Saves: ${p.saveProficiencies}` : ''
     ].filter(Boolean).join(' | '),
     thumb: p.thumb || null,
-    group: ''
+    group: '',
+    spellSlots: (p.spellSlots || []).map(s => s ? { max: s.max || 0, used: s.used || 0 } : { max: 0, used: 0 })
   };
 }
 
