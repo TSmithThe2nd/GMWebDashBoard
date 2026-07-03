@@ -810,7 +810,12 @@ function buildCombatantFromPlayer(p) {
     spells: (p.spells || []).map(s => ({ name: s.name, desc: s.desc || '' })),
     thumb: p.thumb || null,
     group: '',
-    spellSlots: (p.spellSlots || []).map(s => s ? { max: s.max || 0, used: s.used || 0 } : { max: 0, used: 0 })
+    spellSlots: (p.spellSlots || []).map(s => s ? { max: s.max || 0, used: s.used || 0 } : { max: 0, used: 0 }),
+    str: p.str || 10, dex: p.dex || 10, con: p.con || 10,
+    int: p.int || 10, wis: p.wis || 10, cha: p.cha || 10,
+    speed: p.speed || 0,
+    proficiencyBonus: p.proficiencyBonus || 0,
+    classes: p.classes || ''
   };
 }
 
