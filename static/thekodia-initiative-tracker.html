@@ -431,14 +431,14 @@ body { overflow-x: hidden; }
 .card-expand-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
 .card-expand-btn.open { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
 
-/* Detail popup */
-.detail-popup {
-  position: fixed; z-index: 400;
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius2); padding: 14px;
-  width: 320px; max-height: 80vh; overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+/* Inline detail panel */
+.card-detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 14px;
+  background: var(--bg2);
 }
+.card-detail.open { display: block; }
 .detail-popup-name {
   font-family: 'Cinzel', serif; font-size: 14px; color: var(--accent);
   margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
@@ -463,7 +463,7 @@ body { overflow-x: hidden; }
   background: var(--bg3); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 4px 2px; text-align: center;
 }
-.ability-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
+.ability-label { font-size: 13px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.04em; }
 .ability-score { font-size: 15px; color: var(--text); font-weight: 600; }
 .ability-mod { font-size: 11px; color: var(--accent); }
 
@@ -515,6 +515,25 @@ body { overflow-x: hidden; }
   cursor: pointer; transition: all 0.15s;
 }
 .slot-pip.used { background: var(--bg3); border-color: var(--border); }
+
+/* Condition picker in detail panel */
+.detail-cond-picker { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.detail-cond-chip {
+  font-size: 11px; padding: 3px 8px; border-radius: 20px; cursor: pointer;
+  border: 1px solid var(--border2); color: var(--text3); background: transparent;
+  transition: all 0.15s; user-select: none;
+}
+.detail-cond-chip:hover { border-color: var(--accent-dim); color: var(--text); }
+.detail-cond-chip.active { color: #fff; }
+
+/* Named spell list in detail panel */
+.detail-spell-list { display: flex; flex-direction: column; gap: 6px; }
+.detail-spell-entry {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px 8px;
+}
+.detail-spell-name { font-size: 13px; color: var(--accent); font-weight: 600; }
+.detail-spell-desc { font-size: 12px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
 
 /* Notes textarea in popup */
 .detail-notes {
@@ -666,6 +685,7 @@ body { overflow-x: hidden; }
       <button class="field-toggle on" id="tog_attacks" onclick="toggleField('attacks')">Attacks</button>
       <button class="field-toggle on" id="tog_stats" onclick="toggleField('stats')">Stats</button>
       <button class="field-toggle on" id="tog_slots" onclick="toggleField('slots')">Spell Slots</button>
+      <button class="field-toggle on" id="tog_spells" onclick="toggleField('spells')">Spells</button>
       <button class="field-toggle on" id="tog_notes" onclick="toggleField('notes')">Notes</button>
       <button class="field-toggle on" id="tog_speed" onclick="toggleField('speed')">Speed</button>
       <div class="round-display">
@@ -985,8 +1005,7 @@ let editingIdx = -1;
 let advMode = 'none';
 let thumbData = {};
 let openDetailIdx = -1;
-let detailPopupEl = null;
-let detailFields = { attacks: true, stats: true, slots: true, notes: true, speed: true };
+let detailFields = { attacks: true, stats: true, slots: true, spells: true, notes: true, speed: true };
 const DETAIL_FIELDS_KEY = 'thekodia_detail_fields';
 
 function getStorage() {
@@ -1167,12 +1186,7 @@ function renderList() {
   list.innerHTML = combatants.map((c,i) => renderCard(c,i)).join('');
   updateBanner();
   renderEncounterList();
-  // Keep the detail popup in sync after cards re-render
-  if (openDetailIdx >= 0 && detailPopupEl) {
-    const _btn = document.getElementById('expandBtn_' + openDetailIdx);
-    if (_btn) positionDetailPopup(_btn);
-    renderDetailContent(openDetailIdx);
-  }
+  if (openDetailIdx >= 0) renderDetailContent(openDetailIdx);
   // Push HP, conditions, and any other mid-turn changes to the player display
   if (currentTurnIdx >= 0) pushDisplayState();
 }
@@ -1211,7 +1225,7 @@ function renderCard(c, i) {
         <input type="file" accept="image/*" id="thumbInput_${i}" onchange="uploadThumb(${i},this)" style="position:absolute;inset:0;opacity:0;cursor:pointer">
       </div>
       <div class="combatant-info">
-        <div class="combatant-name">${c.name}</div>
+        <div class="combatant-name" style="cursor:pointer" onclick="toggleDetail(${i}, document.getElementById('expandBtn_${i}'))">${c.name}</div>
         <div class="combatant-type">${c.type}${c.lairActions?' · Lair':''}${c.group?' · <span style="color:var(--amber)">'+c.group+'</span>':''}</div>
         <div class="stat-row">
           <span class="stat-chip ac"><span class="label">AC</span><span class="val">${c.ac}</span></span>
@@ -1237,6 +1251,7 @@ function renderCard(c, i) {
     </div>
     ${condBadges ? `<div class="conditions-row">${condBadges}</div>` : ''}
     ${c.notes ? `<div style="padding:0 10px 6px;font-size:12px;color:var(--text3)">${c.notes}</div>` : ''}
+    <div class="card-detail${openDetailIdx===i?' open':''}" id="detail_${i}"></div>
   </div>`;
 }
 
@@ -1315,6 +1330,11 @@ function toggleCond(i, name, el) {
   el.classList.toggle('selected', c.conditions.includes(name));
   renderList();
   renderQuickCondPicker(i);
+}
+
+function toggleDetailFlag(i, key) {
+  combatants[i][key] = !combatants[i][key];
+  renderList();
 }
 
 function quickRemoveCond(i, name) {
@@ -1761,7 +1781,7 @@ renderList();
 function saveCombatants() {
   // Combatants live in memory during a session.
   // Re-render the detail content in place without rebuilding the whole list.
-  if (openDetailIdx >= 0 && detailPopupEl) renderDetailContent(openDetailIdx);
+  if (openDetailIdx >= 0) renderDetailContent(openDetailIdx);
   pushDisplayState();
 }
 
@@ -1784,8 +1804,7 @@ function toggleField(field) {
   const btn = document.getElementById('tog_' + field);
   if (btn) btn.classList.toggle('on', detailFields[field]);
   try { localStorage.setItem(DETAIL_FIELDS_KEY, JSON.stringify(detailFields)); } catch {}
-  // Refresh open popup if any
-  if (openDetailIdx >= 0 && detailPopupEl) renderDetailContent(openDetailIdx);
+  if (openDetailIdx >= 0) renderDetailContent(openDetailIdx);
 }
 
 function toggleDetail(idx, btnEl) {
@@ -1793,56 +1812,67 @@ function toggleDetail(idx, btnEl) {
     closeDetail();
     return;
   }
+  // Close previously open panel
+  if (openDetailIdx >= 0) {
+    const prev = document.getElementById('detail_' + openDetailIdx);
+    if (prev) prev.classList.remove('open');
+    const prevBtn = document.getElementById('expandBtn_' + openDetailIdx);
+    if (prevBtn) prevBtn.classList.remove('open');
+  }
   openDetailIdx = idx;
-  // Close any existing popup
-  if (detailPopupEl) detailPopupEl.remove();
-
-  // Create popup
-  detailPopupEl = document.createElement('div');
-  detailPopupEl.className = 'detail-popup';
-  detailPopupEl.id = 'detailPopup';
-  document.body.appendChild(detailPopupEl);
-
-  positionDetailPopup(btnEl);
-  renderDetailContent(idx);
-
-  // Update all expand buttons
-  renderList();
+  const panel = document.getElementById('detail_' + idx);
+  if (panel) {
+    panel.classList.add('open');
+    renderDetailContent(idx);
+  }
+  if (btnEl) btnEl.classList.add('open');
 }
 
-function positionDetailPopup(btnEl) {
-  if (!detailPopupEl || !btnEl) return;
-  const rect = btnEl.getBoundingClientRect();
-  const popupW = 320;
-  const margin = 8;
-  let left = rect.right + margin;
-  let top = rect.top;
-  // Clamp to viewport
-  if (left + popupW > window.innerWidth - margin) left = rect.left - popupW - margin;
-  if (top + 400 > window.innerHeight - margin) top = window.innerHeight - 400 - margin;
-  if (top < margin) top = margin;
-  detailPopupEl.style.left = left + 'px';
-  detailPopupEl.style.top = top + 'px';
-}
 
 function closeDetail() {
+  if (openDetailIdx >= 0) {
+    const panel = document.getElementById('detail_' + openDetailIdx);
+    if (panel) panel.classList.remove('open');
+    const btn = document.getElementById('expandBtn_' + openDetailIdx);
+    if (btn) btn.classList.remove('open');
+  }
   openDetailIdx = -1;
-  if (detailPopupEl) { detailPopupEl.remove(); detailPopupEl = null; }
-  renderList();
 }
 
 function renderDetailContent(idx) {
   const c = combatants[idx];
-  if (!c || !detailPopupEl) return;
+  const panel = document.getElementById('detail_' + idx);
+  if (!c || !panel) return;
 
   const mod = s => Math.floor((s - 10) / 2);
   const modStr = s => { const m = mod(s); return (m >= 0 ? '+' : '') + m; };
 
-  let html = `
-    <div class="detail-popup-name">
-      <span>${c.name}</span>
-      <button class="detail-close" onclick="closeDetail()">✕</button>
-    </div>`;
+  const active = new Set(c.conditions || []);
+  const flagChips = [
+    { key: 'conc',    label: '◉ Concentration', color: '#9b72cf' },
+    { key: 'readied', label: '⚡ Readied',        color: '#4fc3f7' },
+    { key: 'delayed', label: '⏸ Delayed',         color: '#ffb74d' },
+  ].map(f => {
+    const on = !!c[f.key];
+    const style = on ? `background:${f.color}22;border-color:${f.color}66;color:${f.color}` : '';
+    return `<span class="detail-cond-chip${on?' active':''}" style="${style}"
+      onclick="toggleDetailFlag(${idx},'${f.key}')">${f.label}</span>`;
+  }).join('');
+
+  const condChips = CONDITIONS_5E.map(cond => {
+    const isActive = active.has(cond.name);
+    const style = isActive
+      ? `background:${cond.color}33;border-color:${cond.color}88;color:${cond.color}`
+      : '';
+    return `<span class="detail-cond-chip${isActive?' active':''}" style="${style}"
+      onclick="toggleCond(${idx},'${cond.name}',this)">${cond.name}</span>`;
+  }).join('');
+
+  let html = `<div class="detail-section">
+    <div class="detail-section-title">Status</div>
+    <div class="detail-cond-picker" style="margin-bottom:6px">${flagChips}</div>
+    <div class="detail-cond-picker">${condChips}</div>
+  </div>`;
 
   // Speed
   if (detailFields.speed && c.speed) {
@@ -1924,6 +1954,23 @@ function renderDetailContent(idx) {
     </div>`;
   }
 
+  // Named spells
+  if (detailFields.spells) {
+    const spells = (c.spells || []).filter(s => s && s.name);
+    if (spells.length) {
+      html += `<div class="detail-section">
+        <div class="detail-section-title">Spells</div>
+        <div class="detail-spell-list">
+          ${spells.map(s => `
+            <div class="detail-spell-entry">
+              <div class="detail-spell-name">${s.name}</div>
+              ${s.desc ? `<div class="detail-spell-desc">${s.desc}</div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+  }
+
   // Notes
   if (detailFields.notes) {
     html += `<div class="detail-section">
@@ -1935,7 +1982,7 @@ function renderDetailContent(idx) {
     </div>`;
   }
 
-  detailPopupEl.innerHTML = html;
+  panel.innerHTML = html;
 }
 
 // ── Detail panel actions ──────────────────────────────────
@@ -2043,14 +2090,8 @@ function showRollPopup(atkName, hit, dmg, crit, miss) {
 
   // Position in center of detail popup if open, else center of screen
   document.body.appendChild(popup);
-  if (detailPopupEl) {
-    const r = detailPopupEl.getBoundingClientRect();
-    popup.style.left = (r.left + r.width/2 - 90) + 'px';
-    popup.style.top  = (r.top + 40) + 'px';
-  } else {
-    popup.style.left = (window.innerWidth/2 - 90) + 'px';
-    popup.style.top  = (window.innerHeight/2 - 60) + 'px';
-  }
+  popup.style.left = (window.innerWidth/2 - 90) + 'px';
+  popup.style.top  = (window.innerHeight/2 - 60) + 'px';
 
   // Auto-dismiss after 3s
   setTimeout(() => { if (popup.parentNode) popup.remove(); }, 3000);
@@ -2067,7 +2108,7 @@ const SYNC_FIELD_LABELS = {
   int: 'INT', wis: 'WIS', cha: 'CHA', speed: 'Speed',
   legMax: 'Leg. Actions', lairActions: 'Lair Actions',
   attacks: 'Attacks', thumb: 'Image',
-  spellSlots: 'Spell Slots', notes: 'Notes'
+  spellSlots: 'Spell Slots', spells: 'Spells', notes: 'Notes'
 };
 
 function syncFromLibrary() {
@@ -2117,8 +2158,12 @@ function syncFromLibrary() {
         changes.push({ field: 'spellSlots', from: null, to: null });
     }
 
-    const libNotes = [src.spellList ? `Spells: ${src.spellList}` : '', src.notes || ''].filter(Boolean).join(' | ');
-    if (libNotes !== (c.notes || ''))
+    const libSpells = JSON.stringify((src.spells || []).map(s => ({ name: s.name, desc: s.desc || '' })));
+    const combSpells = JSON.stringify((c.spells || []).map(s => ({ name: s.name, desc: s.desc || '' })));
+    if (libSpells !== combSpells)
+      changes.push({ field: 'spells', from: null, to: null });
+
+    if ((src.notes || '') !== (c.notes || ''))
       changes.push({ field: 'notes', from: null, to: null });
 
     if (changes.length) syncDiffs.push({ idx: i, name: c.name, libraryName: src.name, changes, src });
@@ -2203,8 +2248,11 @@ function performSync() {
       });
     }
 
+    if (d.changes.find(ch => ch.field === 'spells'))
+      c.spells = Array.isArray(src.spells) ? src.spells.map(s => ({...s})) : [];
+
     if (d.changes.find(ch => ch.field === 'notes'))
-      c.notes = [src.spellList ? `Spells: ${src.spellList}` : '', src.notes || ''].filter(Boolean).join(' | ');
+      c.notes = src.notes || '';
   });
 
   closeModal('syncModal');
@@ -2212,13 +2260,6 @@ function performSync() {
   saveLiveState();
 }
 
-// Close detail popup when clicking outside
-document.addEventListener('click', e => {
-  if (!detailPopupEl) return;
-  if (detailPopupEl.contains(e.target)) return;
-  if (e.target.classList.contains('card-expand-btn')) return;
-  closeDetail();
-});
 
 // ── Groups ───────────────────────────────────────────────
 let customGroups = [];
