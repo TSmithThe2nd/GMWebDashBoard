@@ -437,6 +437,10 @@ body {
 .slot-pip.used { background: transparent; border-color: var(--border2); box-shadow: inset 0 0 0 1px #2a3448; }
 .slot-pip:hover { transform: scale(1.2); }
 .no-spells { padding: 12px 10px; font-size: 13px; color: var(--text2); text-align: center; }
+.spell-entry-list { display: flex; flex-direction: column; gap: 4px; padding: 6px 10px; }
+.spell-entry { background: var(--bg3); border: 1px solid var(--border); border-radius: 5px; padding: 6px 10px; }
+.spell-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); }
+.spell-entry-desc { font-size: 11px; color: var(--text2); line-height: 1.5; margin-top: 3px; }
 
 /* Notes tab */
 .notes-view {
@@ -711,7 +715,7 @@ function refreshActionPanel() {
   const tabs = [{id:'hp', label:'♥ HP'}];
   if (c.attacks && c.attacks.length > 0)
     tabs.push({id:'attacks', label:'⚔ Attacks'});
-  if (c.spellSlots && c.spellSlots.some(s => s && s.max > 0))
+  if ((c.spellSlots && c.spellSlots.some(s => s && s.max > 0)) || (c.spells && c.spells.length > 0))
     tabs.push({id:'spells', label:'✦ Spells'});
   if (c.notes && c.notes.trim())
     tabs.push({id:'notes', label:'≡ Notes'});
@@ -923,7 +927,7 @@ function rollBoth(ai) {
 
 function buildSpellsBody(c) {
   const slots = c.spellSlots || [];
-  const blocks = slots.map((s, lvl) => {
+  const slotBlocks = slots.map((s, lvl) => {
     if (!s || s.max === 0) return '';
     const pips = Array.from({length: s.max}, (_, pi) =>
       `<div class="slot-pip${pi < (s.used || 0) ? ' used' : ''}" onclick="toggleSlot(${lvl},${pi})"></div>`
@@ -933,7 +937,20 @@ function buildSpellsBody(c) {
       <div class="slot-pips">${pips}</div>
     </div>`;
   }).join('');
-  return blocks ? `<div class="spell-slots">${blocks}</div>` : '<div class="no-spells">No spell slots</div>';
+
+  const spells = (c.spells || []).filter(s => s && s.name);
+  const spellEntries = spells.map(s => {
+    const name = (s.name || '').replace(/</g,'&lt;');
+    const desc = (s.desc || '').replace(/</g,'&lt;');
+    return `<div class="spell-entry">
+      <div class="spell-entry-name">${name}</div>
+      ${desc ? `<div class="spell-entry-desc">${desc}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const slotsHtml  = slotBlocks  ? `<div class="spell-slots">${slotBlocks}</div>` : '';
+  const listHtml   = spellEntries ? `<div class="spell-entry-list">${spellEntries}</div>` : '';
+  return (slotsHtml || listHtml) ? slotsHtml + listHtml : '<div class="no-spells">No spells</div>';
 }
 
 function toggleSlot(lvl, pip) {

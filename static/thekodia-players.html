@@ -316,7 +316,7 @@ function emptyPlayer() {
     // Spell slots: array of {max, used} per level 1-9
     spellSlots: Array(9).fill(null).map(() => ({ max: 0, used: 0 })),
     spellcastingAbility: '', spellSaveDC: 0, spellAttackBonus: 0,
-    spellList: '',
+    spells: [],
     // Features
     features: [],
     // Notes
@@ -536,8 +536,15 @@ function renderCard() {
 
       <div class="divider"></div>
       <div class="section-label">Spell List</div>
-      <div class="stat-field">
-        <textarea style="min-height:120px" onchange="field('spellList',this.value)" placeholder="Cantrips: Fire Bolt, Prestidigitation&#10;1st: Magic Missile, Shield, Absorb Elements&#10;2nd: Misty Step, Mirror Image&#10;3rd: Fireball, Counterspell">${esc(p.spellList)}</textarea>
+      <div class="feature-list" id="spellList">
+        ${renderSpellList(p)}
+      </div>
+      <div class="add-feature-row" style="margin-top:10px">
+        <div class="add-feature-inputs">
+          <input id="spellNameInput" placeholder="Spell name (e.g. Fireball)" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:13px;padding:5px 8px">
+        </div>
+        <textarea id="spellDescInput" placeholder="Level, school, casting time, range, duration, effect..." style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:13px;padding:6px 8px;resize:vertical;min-height:50px"></textarea>
+        <button class="btn small primary" onclick="addSpell()">Add Spell</button>
       </div>
     </div>
 
@@ -656,6 +663,38 @@ function deleteFeature(i) {
   document.getElementById('featureList').innerHTML = renderFeatureList(players[selectedIdx]);
 }
 
+function renderSpellList(p) {
+  if (!p.spells || !p.spells.length) return '<div style="font-size:13px;color:var(--text3)">No spells added yet</div>';
+  return p.spells.map((s, i) => `
+    <div class="feature-entry">
+      <div class="feature-entry-content">
+        <div class="feature-name">${esc(s.name)}</div>
+        ${s.desc ? `<div class="feature-desc">${esc(s.desc)}</div>` : ''}
+      </div>
+      <div class="feature-del" onclick="deleteSpell(${i})">✕</div>
+    </div>`).join('');
+}
+
+function addSpell() {
+  if (selectedIdx < 0) return;
+  const name = document.getElementById('spellNameInput').value.trim();
+  if (!name) return;
+  const desc = document.getElementById('spellDescInput').value.trim();
+  if (!players[selectedIdx].spells) players[selectedIdx].spells = [];
+  players[selectedIdx].spells.push({ name, desc });
+  save();
+  document.getElementById('spellNameInput').value = '';
+  document.getElementById('spellDescInput').value = '';
+  document.getElementById('spellList').innerHTML = renderSpellList(players[selectedIdx]);
+}
+
+function deleteSpell(i) {
+  if (selectedIdx < 0) return;
+  players[selectedIdx].spells.splice(i, 1);
+  save();
+  document.getElementById('spellList').innerHTML = renderSpellList(players[selectedIdx]);
+}
+
 function deletePlayer() {
   if (selectedIdx < 0) return;
   if (!confirm(`Delete ${players[selectedIdx].charName}?`)) return;
@@ -766,9 +805,9 @@ function buildCombatantFromPlayer(p) {
     dead: false,
     notes: [
       p.skillProficiencies ? `Skills: ${p.skillProficiencies}` : '',
-      p.spellList ? `Spells: ${p.spellList}` : '',
       p.saveProficiencies ? `Saves: ${p.saveProficiencies}` : ''
     ].filter(Boolean).join(' | '),
+    spells: (p.spells || []).map(s => ({ name: s.name, desc: s.desc || '' })),
     thumb: p.thumb || null,
     group: '',
     spellSlots: (p.spellSlots || []).map(s => s ? { max: s.max || 0, used: s.used || 0 } : { max: 0, used: 0 })
@@ -880,7 +919,7 @@ async function importFromPDF() {
       'proficiencyBonus','str','dex','con','int','wis','cha',
       'spellSaveDC','spellAttackBonus','spellcastingAbility',
       'initiative','senses','damageResist','languages',
-      'saveProficiencies','skillProficiencies','spellList','proficienciesTraining'];
+      'saveProficiencies','skillProficiencies','proficienciesTraining'];
     scalarFields.forEach(k => { if (result[k] !== undefined && result[k] !== null) p[k] = result[k]; });
 
     if (result.spellSlots) {
@@ -892,6 +931,24 @@ async function importFromPDF() {
       result.features.forEach(f => {
         if (f.name && !p.features.find(x => x.name === f.name)) {
           p.features.push(f);
+        }
+      });
+    }
+
+    if (result.spells && Array.isArray(result.spells)) {
+      if (!p.spells) p.spells = [];
+      result.spells.forEach(s => {
+        if (s.name && !p.spells.find(x => x.name === s.name)) {
+          p.spells.push({ name: s.name, desc: s.desc || '' });
+        }
+      });
+    } else if (result.spellList && typeof result.spellList === 'string') {
+      // Migrate legacy flat string: each line becomes a spell with no description
+      if (!p.spells) p.spells = [];
+      result.spellList.split('\n').forEach(line => {
+        line = line.trim();
+        if (line && !p.spells.find(x => x.name === line)) {
+          p.spells.push({ name: line, desc: '' });
         }
       });
     }
