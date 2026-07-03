@@ -442,6 +442,22 @@ body {
 .spell-entry-name { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text); }
 .spell-entry-desc { font-size: 11px; color: var(--text2); line-height: 1.5; margin-top: 3px; }
 
+/* Stats tab */
+.pop-ability-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; padding: 8px 6px;
+}
+.pop-ability-cell {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px 4px; text-align: center;
+}
+.pop-ability-label { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.pop-ability-score { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.2; }
+.pop-ability-mod { font-size: 11px; color: var(--accent); }
+.pop-stat-line {
+  display: flex; gap: 12px; padding: 6px 8px 2px;
+  font-size: 12px; color: var(--text2); flex-wrap: wrap;
+}
+
 /* Notes tab */
 .notes-view {
   padding: 8px 10px;
@@ -717,6 +733,8 @@ function refreshActionPanel() {
     tabs.push({id:'attacks', label:'⚔ Attacks'});
   if ((c.spellSlots && c.spellSlots.some(s => s && s.max > 0)) || (c.spells && c.spells.length > 0))
     tabs.push({id:'spells', label:'✦ Spells'});
+  if (c.str || c.dex || c.con || c.int || c.wis || c.cha)
+    tabs.push({id:'stats', label:'◈ Stats'});
   if (c.notes && c.notes.trim())
     tabs.push({id:'notes', label:'≡ Notes'});
 
@@ -757,9 +775,10 @@ function switchTab(mode) {
 
 function renderActionBody(c) {
   const body = document.getElementById('actionBody');
-  if (actionMode === 'hp')      body.innerHTML = buildHpBody(c);
+  if (actionMode === 'hp')          body.innerHTML = buildHpBody(c);
   else if (actionMode === 'attacks') body.innerHTML = buildAttacksBody(c);
   else if (actionMode === 'spells')  body.innerHTML = buildSpellsBody(c);
+  else if (actionMode === 'stats')   body.innerHTML = buildStatsBody(c);
   else if (actionMode === 'notes')   body.innerHTML = buildNotesBody(c);
 }
 
@@ -965,6 +984,38 @@ function toggleSlot(lvl, pip) {
   renderActionBody(c);
   lastStr = '';
   render();
+}
+
+// ── Stats body ────────────────────────────────────────
+
+function buildStatsBody(c) {
+  const mod = v => { const m = Math.floor((v - 10) / 2); return (m >= 0 ? '+' : '') + m; };
+  const stats = [
+    { label: 'STR', val: c.str || 10 },
+    { label: 'DEX', val: c.dex || 10 },
+    { label: 'CON', val: c.con || 10 },
+    { label: 'INT', val: c.int || 10 },
+    { label: 'WIS', val: c.wis || 10 },
+    { label: 'CHA', val: c.cha || 10 },
+  ];
+  const grid = stats.map(s => `
+    <div class="pop-ability-cell">
+      <div class="pop-ability-label">${s.label}</div>
+      <div class="pop-ability-score">${s.val}</div>
+      <div class="pop-ability-mod">${mod(s.val)}</div>
+    </div>`).join('');
+
+  let html = `<div class="pop-ability-grid">${grid}</div>`;
+
+  if (c.speed || c.proficiencyBonus || c.classes) {
+    html += `<div class="pop-stat-line">
+      ${c.speed ? `<span>🏃 <strong>${c.speed} ft</strong></span>` : ''}
+      ${c.proficiencyBonus ? `<span>Prof <strong>+${c.proficiencyBonus}</strong></span>` : ''}
+      ${c.classes ? `<span style="color:var(--text3)">${c.classes}</span>` : ''}
+    </div>`;
+  }
+
+  return html;
 }
 
 // ── Notes body ────────────────────────────────────────
